@@ -1,0 +1,86 @@
+---
+/* A dispatch page for /news/[slug]. */
+import { Image } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+import { render, type CollectionEntry } from "astro:content";
+import { fmtDate } from "../lib/format";
+
+interface Props {
+  entry: CollectionEntry<"news">;
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+
+const sectionLabel = d.category ?? "News";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: d.title,
+  datePublished: d.date.toISOString(),
+  inLanguage: "en",
+  ...(d.author ? { author: { "@type": "Person", name: d.author } } : {}),
+  publisher: { "@type": "Organization", name: "Durbin, CASSA" },
+};
+---
+
+<BaseLayout
+  path={`/news/${entry.id}`}
+  title={`${d.title} | Durbin`}
+  description={d.summary}
+  current="/updates"
+  ogImage={d.hero?.src}
+  ogImageAlt={d.heroAlt}
+  ogType="article"
+  publishedTime={d.date}
+  author={d.author}
+  jsonLd={jsonLd}
+>
+  {d.hero ? (
+    <header class="hero hero--short">
+      <div class="hero__media">
+        <Image src={d.hero} alt={d.heroAlt ?? ""} widths={[768, 1280, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" />
+      </div>
+      <div class="hero__scrim"></div>
+      <div class="wrap hero__inner">
+        <p class="section-label">{sectionLabel} <em class="mono"><time datetime={d.date.toISOString()}>{fmtDate(d.date)}</time></em></p>
+        <h1 class="hero__title art-title">{d.title}</h1>
+      </div>
+    </header>
+  ) : (
+    <header class="section arthead">
+      <div class="wrap wrap--narrow">
+        <p class="section-label">{sectionLabel} <em class="mono"><time datetime={d.date.toISOString()}>{fmtDate(d.date)}</time></em></p>
+        <h1 class="h-display">{d.title}</h1>
+      </div>
+    </header>
+  )}
+
+  <article class="section section--tight">
+    <div class="wrap wrap--narrow">
+      {d.heroCaption && <Reveal><p class="artcap mono">{d.heroCaption}</p></Reveal>}
+      <Reveal>
+        <div class="prose">
+          <Content />
+        </div>
+      </Reveal>
+      {d.author && (
+        <Reveal>
+          <p class="artby mono">Written by: {d.authorHref ? <a href={d.authorHref}>{d.author}</a> : d.author}</p>
+        </Reveal>
+      )}
+      <p class="artback"><a class="btn" href="/updates">← All updates</a></p>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .arthead { padding-top: clamp(7rem, 14vw, 10rem); padding-bottom: 0; }
+  .art-title { font-size: clamp(2rem, 4.5vw, 2.8rem); max-width: 26ch; }
+  .artcap { font-size: 0.76rem; color: var(--ink-faint); margin-bottom: 1.6rem; line-height: 1.6; }
+  .artby { margin-top: 2.4rem; font-size: 0.78rem; color: var(--ink-faint); }
+  .artby a { color: var(--brass); }
+  .artback { margin-top: 3rem; }
+</style>

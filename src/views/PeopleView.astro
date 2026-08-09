@@ -1,0 +1,136 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+import { SITE } from "../data/site";
+import { current, past } from "../data/durbin-volunteers";
+
+const supervisors = [
+  { name: "Dr. Lamiya Mowla", role: "Founder and Scientific Supervisor" },
+  { name: "Dr. Khan Muhammad Bin Asad", role: "Scientific Supervisor" },
+];
+
+const manager = {
+  name: "Farzana Akter Lima",
+  role: "Durbin Project Manager",
+  summary: "Leads activity and partnership planning, volunteer communications, expenditure tracking, and programme reporting.",
+};
+
+const lede =
+  "The supervisors, manager, volunteers, and alumni who carry Durbin's astronomy outreach across Bangladesh.";
+---
+
+<BaseLayout path="/people" title="People | Durbin" description={lede} current="/people">
+  <section class="section people-head">
+    <div class="wrap">
+      <Reveal><p class="section-label">People</p></Reveal>
+      <Reveal delay={60}><h1 class="h-display">The people behind Durbin</h1></Reveal>
+      <Reveal delay={100}><p class="lede">{lede}</p></Reveal>
+    </div>
+  </section>
+
+  <section class="section section--tight" id="supervisors">
+    <div class="wrap">
+      <Reveal><p class="section-label">Scientific direction</p></Reveal>
+      <Reveal delay={60}><h2 class="people-h2">Supervisors</h2></Reveal>
+      <div class="people-grid people-grid--supervisors">
+        {supervisors.map((person, index) => (
+          <article class="person-card" data-reveal style={`--reveal-delay:${index * 50}ms`}>
+            <p class="person-card__name">{person.name}</p>
+            <p class="person-card__role">{person.role}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--line" id="durbin-manager">
+    <div class="wrap">
+      <Reveal><p class="section-label">Programme leadership</p></Reveal>
+      <Reveal delay={60}><h2 class="people-h2">Durbin Manager</h2></Reveal>
+      <Reveal delay={100}>
+        <article class="manager-card">
+          <div>
+            <p class="person-card__name">{manager.name}</p>
+            <p class="person-card__role">{manager.role}</p>
+          </div>
+          <p class="manager-card__summary">{manager.summary}</p>
+          <a class="manager-card__contact" href={`mailto:${SITE.email}`}>{SITE.email}</a>
+        </article>
+      </Reveal>
+    </div>
+  </section>
+
+  <section class="section section--line" id="volunteers">
+    <div class="wrap">
+      <Reveal><p class="section-label">2026 cohort <em class="mono">{current.length}</em></p></Reveal>
+      <Reveal delay={60}><h2 class="people-h2">Current volunteers</h2></Reveal>
+      <ul class="volgrid">
+        {current.map((volunteer, index) => (
+          <li class="volcard" data-reveal style={`--reveal-delay:${Math.min(index, 10) * 30}ms`}>
+            <span class="volcard__name">{volunteer.name}</span>
+            <span class="volcard__meta mono">
+              <span>{volunteer.region}</span>
+              {volunteer.institution && <span class="volcard__inst">{volunteer.institution}</span>}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--line" id="alumni">
+    <div class="wrap">
+      <Reveal><p class="section-label">Alumni <em class="mono">{past.length}</em></p></Reveal>
+      <Reveal delay={60}><h2 class="people-h2">Volunteer alumni</h2></Reveal>
+      <Reveal delay={100}>
+        <div class="alumni-wrap">
+          <table class="alumni-table">
+            <thead><tr><th>Name</th><th>Region</th><th>Duration and special roles</th></tr></thead>
+            <tbody>
+              {past.map((volunteer) => (
+                <tr><td>{volunteer.name}</td><td>{volunteer.region}</td><td>{volunteer.duration ?? ""}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .people-head { padding-top: clamp(7rem, 14vw, 10rem); padding-bottom: 0; }
+  :global(#supervisors), :global(#durbin-manager), :global(#volunteers), :global(#alumni) { scroll-margin-top: 5rem; }
+  .people-h2 { margin-top: 0.6rem; font-size: clamp(2rem, 4.5vw, 2.8rem); line-height: 1.05; letter-spacing: -0.03em; }
+  .people-grid { display: grid; gap: 0.8rem; margin-top: 2rem; }
+  .people-grid--supervisors { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .person-card, .manager-card, .volcard {
+    border: 1px solid var(--line-soft); border-left: 2px solid var(--brass-dim);
+    background: var(--panel); border-radius: var(--radius-md);
+  }
+  .person-card { padding: 1.25rem 1.3rem; }
+  .person-card__name { color: var(--ink); font-size: 1.03rem; font-weight: 600; line-height: 1.35; }
+  .person-card__role { margin-top: 0.38rem; color: var(--brass); font-family: var(--font-body); font-size: 0.72rem; font-weight: 600; letter-spacing: 0; text-transform: uppercase; }
+  .manager-card { display: grid; grid-template-columns: 1fr minmax(16rem, 1.5fr) auto; align-items: center; gap: 1.5rem; margin-top: 2rem; padding: 1.4rem 1.5rem; }
+  .manager-card__summary { color: var(--ink-soft); font-size: 0.92rem; line-height: 1.65; }
+  .manager-card__contact { color: var(--brass); font-family: var(--font-mono); font-size: 0.78rem; }
+  .manager-card__contact:hover { color: var(--brass-bright); }
+  .volgrid { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.8rem; margin-top: 2rem; }
+  .volcard { display: flex; flex-direction: column; gap: 0.4rem; padding: 1rem 1.1rem; }
+  .volcard__name { color: var(--ink); font-weight: 600; line-height: 1.35; }
+  .volcard__meta { display: flex; flex-wrap: wrap; gap: 0.3rem 0.8rem; color: var(--ink-faint); font-family: var(--font-body); font-size: 0.7rem; font-weight: 600; letter-spacing: 0; }
+  .volcard__inst { color: var(--brass); }
+  .alumni-wrap { margin-top: 2rem; overflow-x: auto; border: 1px solid var(--line-soft); border-radius: var(--radius-md); }
+  .alumni-table { width: 100%; min-width: 32rem; border-collapse: collapse; font-size: 0.92rem; }
+  .alumni-table th, .alumni-table td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--line-soft); }
+  .alumni-table th { color: var(--ink-faint); background: var(--panel); font-family: var(--font-body); font-size: 0.72rem; font-weight: 600; letter-spacing: 0; text-transform: uppercase; }
+  .alumni-table tr:last-child td { border-bottom: 0; }
+  .alumni-table td:first-child { color: var(--ink); font-weight: 600; }
+  .alumni-table td:not(:first-child) { color: var(--ink-soft); }
+  @media (max-width: 980px) { .volgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 780px) {
+    .people-grid--supervisors, .manager-card { grid-template-columns: 1fr; }
+    .volgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 460px) { .volgrid { grid-template-columns: 1fr; } }
+</style>

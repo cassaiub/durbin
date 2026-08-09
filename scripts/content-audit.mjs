@@ -1,0 +1,171 @@
+import fs from "node:fs";
+import path from "node:path";
+import process from "node:process";
+import { fileURLToPath } from "node:url";
+import { parse } from "yaml";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const contentRoot = path.join(root, "src/content");
+const reportPath = path.join(root, "reports/editorial-review.md");
+const objectTypes = [
+  "Galaxies",
+  "Nebulae",
+  "Globular clusters",
+  "Stars and systems",
+  "Galaxy groups and clusters",
+  "Solar System",
+  "Comets",
+  "Intergalactic medium",
+];
+
+const readEntries = (collection) =>
+  fs
+    .readdirSync(path.join(contentRoot, collection))
+    .filter((name) => name.endsWith(".md"))
+    .sort()
+    .map((name) => {
+      const file = path.join(contentRoot, collection, name);
+      const source = fs.readFileSync(file, "utf8");
+      const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+      if (!match) throw new Error(`${path.relative(root, file)} has no valid frontmatter block`);
+      return {
+        collection,
+        id: name.replace(/\.md$/, ""),
+        file: path.relative(root, file),
+        data: parse(match[1]),
+        body: source.slice(match[0].length).trim(),
+      };
+    });
+
+const inferBroadType = (value = "") => {
+  const text = String(value).toLowerCase().replace(/\s+/g, " ");
+  if (/planetary nebula|nebula|supernova remnant|h ii region/.test(text)) return "Nebulae";
+  if (/globular/.test(text)) return "Globular clusters";
+  if (/galaxy group|galaxy cluster/.test(text)) return "Galaxy groups and clusters";
+  if (/galax|starburst|spiral|elliptical|eliptical|lenticular/.test(text)) return "Galaxies";
+  if (/comet/.test(text)) return "Comets";
+  if (/planet|natural satellite|lunar eclipse|solar system/.test(text)) return "Solar System";
+  if (/open (star )?cluster|star cluster|double star|star cloud|stellar|\bstar\b/.test(text)) return "Stars and systems";
+  return null;
+};
+
+const ngcNumber = (value = "") => {
+  const match = String(value).match(/\bNGC[\s-]*0*(\d+)\b/i);
+  return match ? String(Number(match[1])) : null;
+};
+
+const escapeCell = (value) => String(value ?? "Not provided").replaceAll("|", "\\|").replaceAll("\n", " ");
+const placeholderPattern = /\bcoming soon\b|\btab content goes here\b|\blorem ipsum\b|\bessay goes here\b/i;
+
+const astro = readEntries("astrophotography");
+const news = readEntries("news");
+const events = readEntries("events");
+const all = [...astro, ...news, ...events];
+const errors = [];
+
+for (const entry of astro) {
+  const d = entry.data;
+  if (!objectTypes.includes(d.objectType)) errors.push(`${entry.file}: invalid or missing objectType`);
+  if (!Array.isArray(d.categories) || d.categories.length !== 1 || d.categories[0] !== d.objectType) {
+    errors.push(`${entry.file}: legacy categories must contain only the authoritative objectType during migration`);
+  }
+  if (d.categories?.some((value) => value === "Featured" || value === "Durbin")) {
+    errors.push(`${entry.file}: curation values must not appear in categories`);
+  }
+}
+
+for (const entry of [...news, ...events]) {
+  if (entry.data.hero && !String(entry.data.heroAlt ?? "").trim()) {
+    errors.push(`${entry.file}: hero is missing heroAlt`);
+  }
+}
+
+for (const entry of all) {
+  if (/!\[\s*\]\(/.test(entry.body)) errors.push(`${entry.file}: markdown image has an empty alternative`);
+}
+
+const mismatches = astro.flatMap((entry) => {
+  const d = entry.data;
+  const reasons = [];
+  const detailed = d.astrophysics?.objectType ?? "";
+  const fromDetailed = inferBroadType(detailed);
+  const fromTitle = inferBroadType(d.title);
+  if (fromDetailed && fromDetailed !== d.objectType) {
+    reasons.push(`category says ${d.objectType}; astrophysics.objectType suggests ${fromDetailed}`);
+  }
+  if (fromTitle && fromDetailed && fromTitle !== fromDetailed) {
+    reasons.push(`title wording suggests ${fromTitle}; astrophysics.objectType suggests ${fromDetailed}`);
+  }
+
+  const idNgc = ngcNumber(entry.id);
+  const catalogNgc = ngcNumber(d.catalog);
+  const titleNgc = ngcNumber(d.title);
+  if (idNgc && !catalogNgc) reasons.push(`NGC-like slug has no catalogue value (slug number ${idNgc})`);
+  if (idNgc && catalogNgc && idNgc !== catalogNgc) reasons.push(`slug NGC ${idNgc} differs from catalogue NGC ${catalogNgc}`);
+  if (titleNgc && catalogNgc && titleNgc !== catalogNgc) reasons.push(`title NGC ${titleNgc} differs from catalogue NGC ${catalogNgc}`);
+
+  return reasons.length ? [{ ...entry, reasons }] : [];
+});
+
+const placeholders = astro.filter((entry) => placeholderPattern.test(entry.body));
+const titles = new Map();
+for (const entry of all) {
+  const key = String(entry.data.title ?? "").trim().toLocaleLowerCase("en");
+  if (!titles.has(key)) titles.set(key, []);
+  titles.get(key).push(entry);
+}
+const duplicates = [...titles.values()].filter((entries) => entries.length > 1);
+
+const lines = [
+  "# Durbin editorial review",
+  "",
+  "> Generated by `npm run report:editorial`. These are review flags, not scientific corrections.",
+  "",
+  "## Scientific and catalogue mismatches",
+  "",
+  `The mechanical review found **${mismatches.length}** entries where the existing broad category, catalogue/slug, title wording, or detailed \`astrophysics.objectType\` do not align. No astronomy fields were rewritten.`,
+  "",
+  "| Entry | Category | Catalogue | Title | astrophysics.objectType | Review reason |",
+  "| --- | --- | --- | --- | --- | --- |",
+  ...mismatches.map(({ id, data, reasons }) =>
+    `| ${escapeCell(id)} | ${escapeCell(data.objectType)} | ${escapeCell(data.catalog)} | ${escapeCell(data.title)} | ${escapeCell(data.astrophysics?.objectType)} | ${escapeCell(reasons.join("; "))} |`,
+  ),
+  "",
+  "## Placeholder essays",
+  "",
+  `There are **${placeholders.length}** exhibition entries whose essay body is still placeholder copy. This report tracks them without inventing scientific prose.`,
+  "",
+  ...placeholders.map((entry) => `- \`${entry.id}\`: ${entry.data.title}`),
+  "",
+  "## Duplicate editorial titles",
+  "",
+  ...(duplicates.length
+    ? duplicates.map((entries) => `- **${entries[0].data.title}**: ${entries.map((entry) => `\`${entry.collection}/${entry.id}\``).join(", ")}`)
+    : ["No duplicate content titles found."]),
+  "",
+  "## Image alternatives",
+  "",
+  "All current news and event hero images have explicit alternatives. The eight alternatives added during Phase 0 were based on direct image inspection.",
+  "",
+];
+const report = lines.join("\n");
+
+if (process.argv.includes("--write-report")) {
+  fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+  fs.writeFileSync(reportPath, report);
+  console.log(`Wrote ${path.relative(root, reportPath)}.`);
+}
+
+if (process.argv.includes("--check")) {
+  if (!fs.existsSync(reportPath) || fs.readFileSync(reportPath, "utf8") !== report) {
+    errors.push("reports/editorial-review.md is stale; run npm run report:editorial");
+  }
+  console.log(`Content audit: ${astro.length} exhibits, ${mismatches.length} editorial mismatch flags, ${placeholders.length} placeholder essays.`);
+  if (duplicates.length) console.warn(`Warning: ${duplicates.length} duplicate content-title group(s); see reports/editorial-review.md.`);
+  if (placeholders.length) console.warn(`Warning: ${placeholders.length} placeholder essays remain under editorial review.`);
+}
+
+if (errors.length) {
+  console.error(errors.map((error) => `ERROR: ${error}`).join("\n"));
+  process.exitCode = 1;
+}

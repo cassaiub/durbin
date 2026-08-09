@@ -1,0 +1,149 @@
+---
+/* One object in the exhibition: the full-bleed capture (a crossfade carousel
+   when several volunteers imaged the same object), the essay, the two
+   placards, and a continuous prev/next walk through the exhibition. */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ExhibitHero from "../components/ExhibitHero.astro";
+import Placard from "../components/Placard.astro";
+import { render } from "astro:content";
+import { objectTypeOf } from "../data/site";
+import { physicsRows, slidesOf, unavailableImageIds, type Exhibit } from "../lib/exhibits";
+
+interface Props {
+  entry: Exhibit;
+  prev: Exhibit | null;
+  next: Exhibit | null;
+}
+const { entry, prev, next } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+
+const objType = objectTypeOf(entry);
+const slides = slidesOf(entry);
+const multi = slides.length > 1;
+const phys = physicsRows(entry);
+const imageAvailable = !unavailableImageIds.has(entry.id);
+const imagePosition = entry.id === "lunar-eclipse-2025" ? "center 27%" : "center";
+
+const description =
+  d.caption ?? `${d.title}${objType ? `, ${objType}` : ""}, imaged by Durbin volunteers.`;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ImageObject",
+  name: d.title,
+  contentUrl: imageAvailable ? new URL(d.image.src, Astro.site).href : undefined,
+  creditText: d.credit ?? d.astrophoto?.photographer,
+  license: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  acquireLicensePage: "https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en",
+};
+---
+
+<BaseLayout
+  path={`/exhibition/${entry.id}`}
+  title={`${d.title} | The Durbin Exhibition`}
+  description={description}
+  current="/exhibition"
+  ogImage={imageAvailable ? d.image.src : undefined}
+  ogImageAlt={d.imageAlt ?? d.title}
+  ogType="article"
+  jsonLd={jsonLd}
+>
+  <ExhibitHero
+    slides={slides}
+    label={`${objType}${d.catalog ? ` · ${d.catalog}` : ""}`}
+    title={d.title}
+    imageAvailable={imageAvailable}
+    imagePosition={imagePosition}
+    previous={prev ? { href: `/exhibition/${prev.id}`, label: prev.data.title } : undefined}
+    next={next ? { href: `/exhibition/${next.id}`, label: next.data.title } : undefined}
+  />
+
+  <!-- essay -->
+  <section class="section">
+    <div class="wrap xd">
+      <div class="xd-essay" data-reveal>
+        <p class="section-label">The object{d.catalog ? ` · ${d.catalog}` : ""}</p>
+        <div class="prose"><Content /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- placards -->
+  <section class="section section--tight">
+    <div class="wrap">
+      <div class="xd-info">
+        {/* One capture placard per slide; only the active slide's shows. The
+            carousel's `durbin-slide` event toggles them (script below). */}
+        {slides.map((s, i) =>
+          s.capture.length > 0 && (
+            <Placard
+              caption={`Astrophotographic information${multi && s.name ? ` · ${s.name}` : ""}`}
+              rows={s.capture}
+              data-capture-placard={i}
+              hidden={i !== 0}
+              data-reveal={i === 0 ? true : undefined}
+            />
+          ),
+        )}
+        {phys.length > 0 && (
+          <Placard caption="Astrophysical information" rows={phys} data-reveal style="--reveal-delay:90ms" />
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- exhibition walk -->
+  <nav class="wrap xd-walk" aria-label="Exhibition navigation">
+    {prev ? (
+      <a class="xd-step" href={`/exhibition/${prev.id}`} rel="prev">
+        <span class="xd-step__dir mono">← Previous object</span>
+        <span class="xd-step__name">{prev.data.title}</span>
+      </a>
+    ) : <span></span>}
+    <a class="xd-all mono" href="/exhibition">All objects</a>
+    {next ? (
+      <a class="xd-step xd-step--next" href={`/exhibition/${next.id}`} rel="next">
+        <span class="xd-step__dir mono">Next object →</span>
+        <span class="xd-step__name">{next.data.title}</span>
+      </a>
+    ) : <span></span>}
+  </nav>
+
+  {multi && (
+    <script>
+      // Swap the capture placard to match the active carousel image.
+      const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-capture-placard]"));
+      document.addEventListener("durbin-slide", (e) => {
+        const i = (e as CustomEvent<{ index: number }>).detail.index;
+        cards.forEach((c) => { c.hidden = Number(c.dataset.capturePlacard) !== i; });
+      });
+    </script>
+  )}
+</BaseLayout>
+
+<style>
+  .xd-essay { max-width: 70ch; }
+  .xd-essay .prose { margin-top: 1.4rem; }
+
+  .xd-info { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.3rem; align-items: start; }
+  @media (max-width: 760px) { .xd-info { grid-template-columns: 1fr; } }
+
+  .xd-walk {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 1.5rem; align-items: center;
+    padding-block: 2.6rem 4rem;
+    border-top: 1px solid var(--line-soft);
+    margin-top: 2rem;
+  }
+  .xd-step { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+  .xd-step--next { text-align: right; }
+  .xd-step__dir { font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0; text-transform: uppercase; color: var(--ink-faint); transition: color 0.2s; }
+  .xd-step__name { font-weight: 600; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.2s; }
+  .xd-step:hover .xd-step__dir, .xd-step:hover .xd-step__name { color: var(--brass-bright); }
+  .xd-all { font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0; color: var(--brass); transition: color 0.2s; }
+  .xd-all:hover { color: var(--brass-bright); }
+  @media (max-width: 640px) {
+    .xd-walk { grid-template-columns: 1fr 1fr; }
+    .xd-all { grid-column: 1 / -1; text-align: center; order: 3; }
+  }
+</style>

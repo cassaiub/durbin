@@ -1,0 +1,6 @@
+---
+import { exhibitPaths } from "../../lib/routes";
+
+export const getStaticPaths = exhibitPaths;
+return Astro.redirect(`/exhibition?object=${encodeURIComponent(Astro.params.slug ?? "")}`, 301);
+---

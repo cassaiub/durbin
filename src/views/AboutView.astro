@@ -1,0 +1,424 @@
+---
+import { Image } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+import { SITE } from "../data/site";
+import { current, past } from "../data/durbin-volunteers";
+import { getExhibits } from "../lib/exhibits";
+import earthHorizon from "../assets/about/earth-horizon-nasa.jpg";
+import workshopGroup from "../assets/news/dw2/dw2-group.webp";
+import telescopeSession from "../assets/news/pabna-school-outreach/pabna-telescope-session.webp";
+import skyStories from "../assets/news/asman-jominer-golpo-1/clouds-above-stories-below.webp";
+import zineSession from "../assets/news/astrophotography-meets-zine-making/zine-making-session.webp";
+import horseheadNebula from "../content/astrophotography/ngc2023.webp";
+
+const exhibits = await getExhibits();
+
+const milestones = [
+  {
+    year: "2022",
+    title: "A plan takes shape",
+    text: "A Dunlap Institute seed grant and a partnership between Dr. Lamiya Mowla and astronomers at IUB turn an outreach idea into a programme.",
+  },
+  {
+    year: "2023",
+    title: "First light",
+    text: "Two Unistellar eQuinox telescopes arrive in Bangladesh. Durbin launches on 9 March before an audience of about one thousand at IUB.",
+  },
+  {
+    year: "2025",
+    title: "A permanent home",
+    text: "IUB establishes CASSA and ratifies Durbin as its public astronomy-outreach programme, joining observation, research, and communication.",
+  },
+  {
+    year: "2026",
+    title: "A wider sky",
+    text: "A new cycle combines expert-led training, lasting public resources, and dedicated support for women astrophotographers and science communicators.",
+  },
+];
+
+const pathway = [
+  { number: "01", title: "Learn", text: "Volunteers build a working knowledge of the sky, telescopes, imaging, and science communication." },
+  { number: "02", title: "Observe", text: "Teams plan targets and operate local or remote telescopes to gather light from distant objects." },
+  { number: "03", title: "Interpret", text: "Raw frames become astrophotographs, stories, workshops, zines, and accessible learning material." },
+  { number: "04", title: "Share", text: "The work returns to the public through exhibitions, school visits, astronomy nights, and open resources." },
+];
+
+const facts = [
+  { value: String(exhibits.length), label: "objects in the exhibition" },
+  { value: String(current.length), label: "current volunteers" },
+  { value: String(past.length), label: "volunteer alumni" },
+  { value: "8", label: "universities at the 2026 workshop" },
+];
+
+const lede =
+  "Durbin is CASSA's volunteer astronomy-outreach programme: a telescope, a classroom, an image laboratory, and a public invitation to look up.";
+---
+
+<BaseLayout path="/about" title="About Us | Durbin" description={lede} current="/about" ogImage={earthHorizon.src}>
+  <header class="about-hero">
+    <div class="about-hero__media" aria-hidden="true">
+      <Image
+        src={earthHorizon}
+        alt=""
+        widths={[900, 1400, 2000]}
+        sizes="100vw"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
+    <div class="about-hero__scrim" aria-hidden="true"></div>
+    <div class="wrap about-hero__inner">
+      <div class="about-hero__copy">
+        <p class="about-chip">About us</p>
+        <h1>The sky belongs<br />to everyone.</h1>
+        <p>{lede}</p>
+        <div class="about-hero__actions">
+          <a class="btn btn--solid" href="/exhibition" data-astro-reload>Explore the exhibition</a>
+          <a class="btn" href="/people">Meet the people</a>
+        </div>
+      </div>
+
+      <div class="about-orbit" aria-hidden="true">
+        <span class="about-orbit__ring about-orbit__ring--outer"></span>
+        <span class="about-orbit__ring about-orbit__ring--inner"></span>
+        <span class="about-orbit__core">দূরবীন</span>
+        <span class="about-orbit__point about-orbit__point--one"></span>
+        <span class="about-orbit__point about-orbit__point--two"></span>
+      </div>
+    </div>
+    <p class="about-hero__credit">Earth and the Milky Way, photographed from orbit · NASA</p>
+  </header>
+
+  <section class="section about-statement">
+    <div class="wrap about-statement__grid">
+      <Reveal>
+        <p class="section-label">Why Durbin exists</p>
+        <h2 class="about-display">Distance should inspire wonder, not exclusion.</h2>
+      </Reveal>
+      <Reveal delay={90}>
+        <div class="about-statement__copy prose">
+          <p>
+            <em>Durbin</em> is Bangla for telescope: an instrument that makes the distant visible.
+            The programme applies that same idea socially, bringing astronomy closer to students,
+            schools, families, and communities across Bangladesh.
+          </p>
+          <p>
+            Our volunteers do more than point telescopes upward. They learn to capture and process
+            light, translate science into stories, create public experiences, and help people find
+            their own place in a shared universe.
+          </p>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+
+  <section class="section section--line about-facts" aria-label="Durbin facts">
+    <div class="wrap">
+      <ul class="about-facts__grid">
+        {facts.map((fact, index) => (
+          <li data-reveal style={`--reveal-delay:${index * 45}ms`}>
+            <strong>{fact.value}</strong>
+            <span>{fact.label}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--line about-story">
+    <div class="wrap">
+      <Reveal><p class="section-label">How we got here</p></Reveal>
+      <Reveal delay={60}><h2 class="about-display about-story__title">A young programme with deep roots.</h2></Reveal>
+      <ol class="about-timeline">
+        {milestones.map((milestone, index) => (
+          <li data-reveal style={`--reveal-delay:${index * 55}ms`}>
+            <p class="about-timeline__year">{milestone.year}</p>
+            <div>
+              <h3>{milestone.title}</h3>
+              <p>{milestone.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--line about-field">
+    <div class="wrap">
+      <div class="about-field__head">
+        <Reveal>
+          <p class="section-label">What it looks like</p>
+          <h2 class="about-display">Two telescopes. Many ways into the universe.</h2>
+        </Reveal>
+        <Reveal delay={90}>
+          <p class="lede">
+            Durbin moves between rooftops, classrooms, image-processing sessions, public lawns,
+            and a growing online exhibition. Each setting makes a different kind of curiosity possible.
+          </p>
+        </Reveal>
+      </div>
+
+      <div class="about-mosaic">
+        <figure class="about-mosaic__item about-mosaic__item--wide" data-reveal>
+          <Image src={skyStories} alt="People seated in a circle around a telescope during a Durbin public evening" widths={[700, 1100, 1500]} sizes="(max-width:800px) 100vw, 66vw" loading="lazy" />
+          <figcaption><span>Public astronomy</span>Stories can keep a cloudy sky alive.</figcaption>
+        </figure>
+        <figure class="about-mosaic__item" data-reveal style="--reveal-delay:70ms">
+          <Image src={horseheadNebula} alt="The Horsehead Nebula imaged by Durbin volunteers" widths={[480, 720, 960]} sizes="(max-width:800px) 100vw, 34vw" loading="lazy" />
+          <figcaption><span>Astrophotography</span>Light becomes evidence, image, and art.</figcaption>
+        </figure>
+        <figure class="about-mosaic__item" data-reveal>
+          <Image src={telescopeSession} alt="Students learning to use a telescope during Durbin school outreach in Pabna" widths={[480, 720, 960]} sizes="(max-width:800px) 100vw, 34vw" loading="lazy" />
+          <figcaption><span>School outreach</span>The instrument becomes an invitation.</figcaption>
+        </figure>
+        <figure class="about-mosaic__item about-mosaic__item--wide" data-reveal style="--reveal-delay:70ms">
+          <Image src={workshopGroup} alt="Durbin volunteers and instructors together after a workshop at CASSA" widths={[700, 1100, 1500]} sizes="(max-width:800px) 100vw, 66vw" loading="lazy" />
+          <figcaption><span>Volunteer learning</span>Expert guidance becomes shared capacity.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--line about-path">
+    <div class="wrap">
+      <Reveal><p class="section-label">The volunteer cycle</p></Reveal>
+      <Reveal delay={60}><h2 class="about-display">Knowledge travels outward.</h2></Reveal>
+      <ol class="about-path__grid">
+        {pathway.map((step, index) => (
+          <li data-reveal style={`--reveal-delay:${index * 55}ms`}>
+            <span class="about-path__number">{step.number}</span>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--line about-inclusion">
+    <div class="wrap about-inclusion__grid">
+      <Reveal class="about-inclusion__image">
+        <Image src={zineSession} alt="Participants making astronomy zines together at a Durbin workshop" widths={[650, 900, 1200]} sizes="(max-width:800px) 100vw, 50vw" loading="lazy" />
+      </Reveal>
+      <Reveal class="about-inclusion__copy" delay={90}>
+        <p class="section-label">A deliberately wider sky</p>
+        <h2 class="about-display">More women making, imaging, and leading.</h2>
+        <div class="prose">
+          <p>
+            Durbin’s 2026 programme is supported through the British Council’s Women of the World
+            Bangladesh initiative. The cycle is designed to train women not only as participants,
+            but as astrophotographers, science communicators, and future leaders.
+          </p>
+          <p>
+            At the launch workshop, 65% of participants were women. The larger aim is structural:
+            build confidence, technical practice, mentorship, and public visibility that continue
+            long after a single event.
+          </p>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+
+  <section class="section section--line about-governance">
+    <div class="wrap about-governance__grid">
+      <Reveal>
+        <p class="section-label">Built to last</p>
+        <h2 class="about-display">Volunteer-led. Expert-supervised. Public by design.</h2>
+      </Reveal>
+      <Reveal delay={90}>
+        <div class="about-governance__panel">
+          <p>
+            Durbin is an outreach programme of CASSA at Independent University, Bangladesh. It is
+            supervised by astronomers, managed through formal programme cycles, and governed by
+            CASSA’s safeguarding standards.
+          </p>
+          <p>
+            Initial support came from the University of Toronto’s Dunlap Institute for Astronomy
+            &amp; Astrophysics. From 2026, the British Council’s WOW Bangladesh programme supports
+            Durbin’s expanded work with women and girls.
+          </p>
+          <a class="btn" href="/manual">Read the programme manual →</a>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+
+  <section class="section about-close">
+    <div class="wrap">
+      <Reveal>
+        <div class="about-close__surface">
+          <p class="section-label">Citizens of a distant universe</p>
+          <h2>Come closer to the sky.</h2>
+          <p>Enter the image collection, meet the volunteers, or start a conversation with Durbin.</p>
+          <div class="about-close__actions">
+            <a class="btn btn--solid" href="/exhibition" data-astro-reload>Enter the exhibition</a>
+            <a class="btn" href={`mailto:${SITE.email}`}>Email Durbin</a>
+          </div>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about-hero {
+    position: relative; isolation: isolate; min-height: 88svh; overflow: hidden;
+    display: grid; align-items: end; padding-block: clamp(9rem, 18vh, 13rem) clamp(4rem, 9vh, 7rem);
+    color: var(--photo-ink); background: #030708;
+  }
+  .about-hero__media, .about-hero__scrim { position: absolute; inset: 0; z-index: -2; }
+  .about-hero__media :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+  .about-hero__scrim {
+    z-index: -1;
+    background:
+      radial-gradient(circle at 76% 48%, rgba(56, 218, 183, 0.08), transparent 26%),
+      linear-gradient(90deg, rgba(3, 7, 8, 0.93) 0%, rgba(3, 7, 8, 0.63) 52%, rgba(3, 7, 8, 0.22) 100%),
+      linear-gradient(0deg, #0a0a0a 0%, transparent 34%);
+  }
+  .about-hero__inner { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr); align-items: end; gap: clamp(2rem, 8vw, 7rem); }
+  .about-hero__copy { max-width: 47rem; }
+  .about-chip {
+    width: fit-content; padding: 0.48rem 0.9rem; border: 0; border-radius: var(--radius-pill);
+    color: #fff; background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.08));
+    box-shadow: 0 12px 34px rgba(0,0,0,0.16); backdrop-filter: blur(28px) saturate(180%);
+    font-size: 0.76rem; font-weight: 600;
+  }
+  .about-hero h1 { margin-top: 1rem; max-width: 10ch; font-size: clamp(4.1rem, 9vw, 8rem); line-height: 0.86; letter-spacing: -0.075em; }
+  .about-hero__copy > p:not(.about-chip) { margin-top: 1.5rem; max-width: 61ch; color: rgba(255,255,255,0.82); font-size: clamp(1rem, 1.5vw, 1.16rem); line-height: 1.65; }
+  .about-hero__actions, .about-close__actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.75rem; }
+  .about-hero .btn, .about-close .btn { min-width: 13.5rem; min-height: 52px; justify-content: center; border: 0; }
+  .about-hero .btn { color: #fff; background: rgba(255,255,255,0.13); backdrop-filter: blur(18px) saturate(140%); }
+  .about-hero .btn--solid { color: #0a0a0a; background: #fff; }
+  .about-orbit {
+    position: relative; justify-self: end; width: min(31vw, 23rem); aspect-ratio: 1; opacity: 0.92;
+    perspective: 900px; transform-style: preserve-3d; filter: drop-shadow(0 1.8rem 2.8rem rgba(0,0,0,0.42));
+  }
+  .about-orbit::before {
+    content: ""; position: absolute; inset: 13%; border-radius: 50%; transform: translateZ(-2.4rem);
+    background: radial-gradient(circle at 40% 34%, rgba(216,255,246,0.18), rgba(39,135,127,0.07) 45%, transparent 72%);
+    box-shadow: 0 0 5rem rgba(72,221,193,0.12);
+  }
+  .about-orbit__ring {
+    position: absolute; border: 1px solid rgba(221,255,248,0.28); border-radius: 50%;
+    transform-style: preserve-3d; box-shadow: inset 0 0 1.8rem rgba(73,220,193,0.05), 0 0 1.4rem rgba(134,236,218,0.07);
+  }
+  .about-orbit__ring--outer { inset: 2%; transform: rotateX(67deg) rotateZ(-18deg); animation: about-spin 22s linear infinite; }
+  .about-orbit__ring--outer::before, .about-orbit__ring--outer::after {
+    content: ""; position: absolute; width: 0.55rem; height: 0.55rem; border-radius: 50%; background: #fff;
+    box-shadow: 0 0 0.35rem #fff, 0 0 1.6rem rgba(255,255,255,0.9); transform: rotateX(-67deg) translateZ(0.5rem);
+  }
+  .about-orbit__ring--outer::before { top: 10%; left: 19%; }
+  .about-orbit__ring--outer::after { right: 3%; bottom: 33%; background: var(--brand-green-mid); }
+  .about-orbit__ring--inner { inset: 19%; border-color: rgba(255,255,255,0.36); transform: rotateY(64deg) rotateX(18deg) rotateZ(12deg); }
+  .about-orbit__core {
+    position: absolute; inset: 32%; display: grid; place-items: center; border-radius: 50%; color: rgba(228,255,249,0.94);
+    background:
+      radial-gradient(circle at 31% 24%, rgba(255,255,255,0.78) 0 2%, transparent 14%),
+      radial-gradient(circle at 34% 29%, #8ed8ca 0%, #367b74 31%, #102f31 66%, #061416 100%);
+    box-shadow: inset -1.3rem -1.5rem 2.2rem rgba(0,0,0,0.54), inset 0.45rem 0.4rem 1rem rgba(255,255,255,0.25), 0 0 2.8rem rgba(74,219,191,0.28);
+    transform: translateZ(2.8rem) rotate(-4deg); text-shadow: 0 1px 0 rgba(0,0,0,0.35); font-size: clamp(1rem, 2vw, 1.45rem); font-weight: 700;
+  }
+  .about-orbit__core::after {
+    content: ""; position: absolute; inset: 8% 13% 54% 12%; border-radius: 50%; transform: rotate(-18deg);
+    background: linear-gradient(145deg, rgba(255,255,255,0.2), transparent 65%); filter: blur(1px);
+  }
+  .about-orbit__point { position: absolute; z-index: 2; width: 0.42rem; height: 0.42rem; border-radius: 50%; background: #fff; box-shadow: 0 0 1.2rem rgba(255,255,255,0.94); }
+  .about-orbit__point--one { left: 10%; top: 62%; transform: translateZ(1.4rem); }
+  .about-orbit__point--two { right: 18%; top: 12%; background: var(--brand-green-mid); transform: translateZ(-1rem); }
+  .about-hero__credit { position: absolute; right: 1.2rem; bottom: 1rem; color: rgba(255,255,255,0.48); font-family: var(--font-mono); font-size: 0.62rem; }
+  @keyframes about-spin { to { transform: rotateX(67deg) rotateZ(342deg); } }
+
+  .about-display { margin-top: 0.65rem; max-width: 17ch; color: var(--ink); font-size: clamp(2.7rem, 6vw, 5.2rem); line-height: 0.96; letter-spacing: -0.055em; text-wrap: balance; }
+  .about-statement__grid, .about-field__head, .about-inclusion__grid, .about-governance__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-section-gap); align-items: start; }
+  .about-statement__copy { padding-top: 2rem; }
+  .about-statement__copy p:first-child { color: var(--ink); font-size: 1.16rem; }
+
+  .about-facts { padding-block: 0; }
+  .about-facts__grid { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .about-facts__grid li { min-height: 10rem; padding: 2rem 1.5rem; border-right: 1px solid rgba(255,255,255,0.075); }
+  .about-facts__grid li:first-child { padding-left: 0; }
+  .about-facts__grid li:last-child { border-right: 0; }
+  .about-facts__grid strong { display: block; color: var(--ink); font-size: clamp(2.7rem, 6vw, 4.8rem); line-height: 0.9; letter-spacing: -0.06em; }
+  .about-facts__grid span { display: block; margin-top: 0.8rem; max-width: 14ch; color: var(--ink-faint); font-size: 0.8rem; line-height: 1.4; }
+
+  .about-story__title { max-width: 12ch; }
+  .about-timeline { list-style: none; display: grid; margin-top: 3.5rem; border-top: 1px solid rgba(255,255,255,0.1); }
+  .about-timeline li { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 2rem; padding-block: 1.8rem; border-bottom: 1px solid rgba(255,255,255,0.075); }
+  .about-timeline__year { color: var(--brand-green-mid); font-family: var(--font-mono); font-size: clamp(1.4rem, 3vw, 2.3rem); }
+  .about-timeline h3 { color: var(--ink); font-size: 1.2rem; }
+  .about-timeline li div p { margin-top: 0.55rem; max-width: 68ch; color: var(--ink-soft); line-height: 1.65; }
+
+  .about-field__head .lede { align-self: end; padding-bottom: 0.25rem; }
+  .about-mosaic { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 23rem; gap: 1rem; margin-top: 3.5rem; }
+  .about-mosaic__item { position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.075); border-radius: var(--radius-card-compact); background: #000; }
+  .about-mosaic__item--wide { grid-column: span 2; }
+  .about-mosaic__item :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s cubic-bezier(0.22,1,0.36,1); }
+  .about-mosaic__item:hover :global(img) { transform: scale(1.035); }
+  .about-mosaic__item::after { content: ""; position: absolute; inset: 35% 0 0; background: linear-gradient(transparent, rgba(0,0,0,0.86)); }
+  .about-mosaic figcaption { position: absolute; z-index: 1; left: 1.2rem; right: 1.2rem; bottom: 1.1rem; color: #fff; font-weight: 600; }
+  .about-mosaic figcaption span { display: block; margin-bottom: 0.35rem; color: var(--brand-green-mid); font-family: var(--font-body); font-size: 0.7rem; text-transform: uppercase; }
+
+  .about-path__grid { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-top: 3rem; }
+  .about-path__grid li { position: relative; min-height: 18rem; padding: 1.4rem; border: 1px solid rgba(255,255,255,0.075); border-radius: var(--radius-card-compact); background: linear-gradient(150deg, rgba(255,255,255,0.055), rgba(255,255,255,0.018)); }
+  .about-path__grid li:not(:last-child)::after { content: ""; position: absolute; top: 2.25rem; right: -1.05rem; z-index: 2; width: 1.1rem; height: 1px; background: var(--brand-green-mid); }
+  .about-path__number { color: var(--brand-green-mid); font-family: var(--font-mono); font-size: 0.72rem; }
+  .about-path h3 { margin-top: 5.5rem; color: var(--ink); font-size: 1.45rem; }
+  .about-path li p { margin-top: 0.7rem; color: var(--ink-soft); font-size: 0.86rem; line-height: 1.6; }
+
+  .about-inclusion__grid { align-items: center; }
+  :global(.about-inclusion__image) { position: relative; min-height: 34rem; overflow: hidden; border-radius: var(--radius-card); }
+  :global(.about-inclusion__image img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  :global(.about-inclusion__copy) .about-display { max-width: 13ch; }
+  :global(.about-inclusion__copy) .prose { margin-top: 1.6rem; }
+
+  .about-governance__grid { align-items: center; }
+  .about-governance__panel { padding: clamp(1.5rem, 4vw, 2.6rem); border: 0; border-radius: var(--radius-card); background: rgba(255,255,255,0.07); box-shadow: inset 0 1px 0 rgba(255,255,255,0.09); backdrop-filter: blur(22px) saturate(130%); }
+  .about-governance__panel p { color: var(--ink-soft); line-height: 1.7; }
+  .about-governance__panel p + p { margin-top: 1rem; }
+  .about-governance__panel .btn { margin-top: 1.5rem; }
+
+  .about-close { padding-top: 0; }
+  .about-close__surface { overflow: hidden; padding: clamp(2rem, 7vw, 5.5rem); border-radius: var(--radius-card); background: radial-gradient(circle at 85% 20%, rgba(61,223,187,0.2), transparent 28%), linear-gradient(135deg, #1a1d1d, #0d0f0f); }
+  .about-close h2 { margin-top: 0.7rem; max-width: 12ch; color: var(--ink); font-size: clamp(3rem, 8vw, 6.5rem); line-height: 0.9; letter-spacing: -0.065em; }
+  .about-close__surface > p:not(.section-label) { margin-top: 1.2rem; max-width: 52ch; color: var(--ink-soft); line-height: 1.65; }
+  .about-close .btn { color: var(--ink); background: rgba(255,255,255,0.1); }
+  .about-close .btn--solid { color: #0a0a0a; background: #fff; }
+
+  @media (max-width: 900px) {
+    .about-hero__inner { grid-template-columns: 1fr; }
+    .about-orbit { justify-self: center; width: min(58vw, 20rem); margin-top: 1.25rem; opacity: 0.82; }
+    .about-statement__grid, .about-field__head, .about-inclusion__grid, .about-governance__grid { grid-template-columns: 1fr; }
+    .about-inclusion__grid { gap: 2.5rem; }
+    :global(.about-inclusion__copy) { max-width: 46rem; }
+    :global(.about-inclusion__copy) .about-display { max-width: 15ch; font-size: clamp(2.65rem, 8vw, 4.2rem); }
+    .about-facts__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .about-facts__grid li:nth-child(2) { border-right: 0; }
+    .about-facts__grid li:nth-child(n+3) { border-top: 1px solid rgba(255,255,255,0.075); }
+    .about-facts__grid li:nth-child(3) { padding-left: 0; }
+    .about-mosaic { grid-template-columns: 1fr 1fr; }
+    .about-mosaic__item--wide { grid-column: span 1; }
+    .about-path__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .about-path__grid li:nth-child(2)::after { display: none; }
+  }
+  @media (max-width: 620px) {
+    .about-hero { min-height: 92svh; padding-bottom: 4rem; }
+    .about-hero h1 { font-size: clamp(3.5rem, 18vw, 5.4rem); }
+    .about-hero__actions .btn, .about-close__actions .btn { width: 100%; }
+    .about-orbit { width: min(72vw, 17rem); margin-top: 0.5rem; }
+    .about-hero__credit { display: none; }
+    .about-facts__grid { grid-template-columns: 1fr 1fr; }
+    .about-facts__grid li { min-height: 8.5rem; padding: 1.5rem 1rem; }
+    .about-timeline li { grid-template-columns: 5.5rem minmax(0,1fr); gap: 1rem; }
+    .about-mosaic { grid-template-columns: 1fr; grid-auto-rows: 21rem; }
+    .about-path__grid { grid-template-columns: 1fr; }
+    .about-path__grid li { min-height: 14rem; }
+    .about-path__grid li::after { display: none; }
+    .about-path h3 { margin-top: 3.5rem; }
+    :global(.about-inclusion__image) { min-height: 27rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .about-orbit__ring--outer { animation: none; }
+    .about-mosaic__item :global(img) { transition: none; }
+  }
+</style>

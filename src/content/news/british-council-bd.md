@@ -1,0 +1,19 @@
+---
+title: "CASSA’s Durbin Program Receives British Council Grant"
+date: "2026-01-11T20:37:10+06:00"
+category: "Outreach"
+durbin: true
+summary: "The Center for Astronomy, Space Science and Astrophysics (CASSA) at Independent University, Bangladesh (IUB) has been awarded a prestigious grant from the British…"
+hero: "../../assets/news/british-council-bd/wow.webp"
+heroAlt: "Infographic of the Cosmic HerStory project, empowering young women in observational astronomy in Bangladesh."
+---
+
+The Center for Astronomy, Space Science and Astrophysics (CASSA) at Independent University, Bangladesh (IUB) has been awarded a prestigious grant from the [British Council Bangladesh](http://britishcouncil.org.bd/). Funded under the WOW ([Women of the World](https://thewowfoundation.com/)) Bangladesh Chapter, this grant will support a new initiative titled **Cosmic HerStory **within CASSA’s [Durbin](https://cassa.bd/durbin/) program. The official grant agreement was signed on 22 December 2025 by Prof. M. Tamim, the Vice Chancellor of IUB, and Maarya Rehman, Deputy Director at the British Council.
+
+The Cosmic HerStory project is an eight-month initiative running from January to August 2026, designed to bridge the gender gap in science by training young women in observational astronomy, technical astrophotography, and science storytelling. This effort specifically addresses gender-specific barriers in Bangladesh, such as safety concerns and social norms that often restrict women's access to remote, dark-sky locations required for night-time observation. By establishing safe, women-led learning spaces and camps, CASSA aims to foster scientific confidence and disrupt the cultural assumption that astronomy is a male-dominated field.
+
+The project will culminate in a major [WOW Bangladesh](https://thewowfoundation.com/what-is-wow/wow-around-the-world/wow-bangladesh/) Chapter public event in August 2026. Expected to host over a thousand participants at the IUB campus, the event will feature a diverse array of interactive sessions. Highlights include an astrophotography exhibition enhanced with Augmented Reality (AR) technology, and a Virtual Reality (VR) booth providing immersive journeys through cosmic landscapes, in collaboration with [DarkKak](https://www.darkkak.com/). Other activities include hands-on telescope-building workshops, ‘Mentorship Circles’ where girls can engage with senior researchers, and a dedicated BDOAA (Bangladesh Olympiad on Astronomy and Astrophysics) Women Olympiad for female students.
+
+The Durbin program was established by Dr. [Lamiya Mowla](https://www.lamiyamowla.com/), an Assistant Professor at Wellesley College, USA, using a 2022 seed grant from the [Dunlap Institute](https://www.dunlap.utoronto.ca/) for Astronomy & Astrophysics at the University of Toronto. This foundational partnership led to the acquisition of two [Unistellar](https://www.unistellar.com/) Equinox-1 telescopes in early 2023, marking the official launch of Durbin’s mission to develop astronomy in Bangladesh. While the program operated on the initial Dunlap funds through 2025, Durbin activities in 2026 will be primarily supported by the WOW grant, supplemented by in-kind contributions from the remaining Dunlap resources.
+
+The successful proposal was spearheaded by a team of Durbin volunteers led by Project Manager Farzana Akter Lima, alongside key contributor Yead Muhammad Ivan. The project operates under the expert supervision of astronomers Dr. Lamiya Mowla, Dr. [Syeda Lammim Ahad](https://www.lammimahad.com/) (University of Waterloo, Canada), and Dr. Khan Muhammad Bin Asad (Director of CASSA). This collaboration between CASSA and the British Council reinforces a shared commitment to gender equality and inclusive science education, ensuring that women and girls in Bangladesh can confidently claim the night sky as their own.

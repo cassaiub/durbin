@@ -1,0 +1,15 @@
+# build output
+dist/
+playwright-report/
+test-results/
+# generated types
+.astro/
+# dependencies
+node_modules/
+# logs
+npm-debug.log*
+# environment variables
+.env
+.env.production
+# macOS-specific files
+.DS_Store

@@ -1,0 +1,16 @@
+---
+/* Wraps content that fades/rises in on scroll (see [data-reveal] in
+   global.css + the IntersectionObserver in BaseLayout). Reduced motion shows
+   it immediately. `delay` staggers siblings. */
+interface Props {
+  as?: keyof HTMLElementTagNameMap;
+  delay?: number;
+  class?: string;
+}
+const { as = "div", delay = 0, class: cls = "" }: Props = Astro.props;
+const Tag = as;
+---
+
+<Tag data-reveal style={delay ? `--reveal-delay:${delay}ms` : undefined} class={cls}>
+  <slot />
+</Tag>

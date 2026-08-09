@@ -1,0 +1,106 @@
+---
+/* The people who power Durbin: the current cohort and the alumni. */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+import { current, past } from "../data/durbin-volunteers";
+
+const lede =
+  "Students from across Bangladesh power everything Durbin does, behind the telescopes, at the writing desk, on school grounds.";
+---
+
+<BaseLayout path="/volunteers" title="Volunteers | Durbin" description={lede} current="/volunteers">
+  <section class="section volhead">
+    <div class="wrap">
+      <Reveal><p class="section-label">The people</p></Reveal>
+      <Reveal delay={60}><h1 class="h-display">Durbin's volunteers</h1></Reveal>
+      <Reveal delay={100}><p class="lede">{lede}</p></Reveal>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="wrap">
+      <Reveal><p class="section-label">2026 cohort <em class="mono">{current.length}</em></p></Reveal>
+      <Reveal delay={60}><h2 class="volh2">Current volunteers</h2></Reveal>
+      <Reveal delay={90}>
+        <p class="volnote">
+          How volunteer teams are formed and recognised is set out in the manual.
+          <a href="/manual">Manual →</a>
+        </p>
+      </Reveal>
+      <ul class="volgrid">
+        {current.map((v, i) => (
+          <li class="volcard" data-reveal style={`--reveal-delay:${Math.min(i, 10) * 30}ms`}>
+            <span class="volcard__name">{v.name}</span>
+            <span class="volcard__meta mono">
+              <span>{v.region}</span>
+              {v.institution && <span class="volcard__inst">{v.institution}</span>}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--line">
+    <div class="wrap">
+      <Reveal><p class="section-label">Alumni <em class="mono">{past.length}</em></p></Reveal>
+      <Reveal delay={60}><h2 class="volh2">Past volunteers</h2></Reveal>
+      <Reveal delay={90}><p class="volnote">With gratitude to those who volunteered in earlier Durbin cycles.</p></Reveal>
+      <Reveal delay={130}>
+        <div class="voltwrap">
+          <table class="voltable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Region</th>
+                <th>Duration (and special roles)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {past.map((v) => (
+                <tr>
+                  <td>{v.name}</td>
+                  <td>{v.region}</td>
+                  <td>{v.duration ?? ""}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .volhead { padding-top: clamp(7rem, 14vw, 10rem); padding-bottom: 0; }
+  .volh2 { font-size: clamp(2rem, 4.5vw, 2.8rem); font-weight: 700; letter-spacing: -0.04em; line-height: 1.05; margin-top: 0.6rem; }
+  .volnote { color: var(--ink-soft); margin-top: 0.9rem; max-width: 60ch; line-height: 1.7; }
+  .volnote a { color: var(--brass); }
+  .volnote a:hover { color: var(--brass-bright); }
+
+  .volgrid { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; margin-top: 2rem; }
+  @media (max-width: 1020px) { .volgrid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 760px) { .volgrid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 460px) { .volgrid { grid-template-columns: 1fr; } }
+  .volcard {
+    display: flex; flex-direction: column; gap: 0.4rem;
+    border: 1px solid var(--line-soft); border-left: 2px solid var(--brass-dim);
+    background: var(--panel); padding: 1rem 1.1rem; border-radius: var(--radius-md);
+  }
+  .volcard__name { font-weight: 600; color: var(--ink); line-height: 1.35; }
+  .volcard__meta { display: flex; flex-wrap: wrap; gap: 0.3rem 0.8rem; font-family: var(--font-body); font-size: 0.7rem; font-weight: 600; letter-spacing: 0; color: var(--ink-faint); }
+  .volcard__inst { color: var(--brass); }
+
+  .voltwrap { margin-top: 2rem; overflow-x: auto; border: 1px solid var(--line-soft); border-radius: var(--radius-md); }
+  .voltable { width: 100%; border-collapse: collapse; font-size: 0.94rem; min-width: 460px; }
+  .voltable th, .voltable td { text-align: left; padding: 0.75rem 1.1rem; border-bottom: 1px solid var(--line-soft); }
+  .voltable thead th {
+    font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0; text-transform: uppercase;
+    color: var(--ink-faint); background: var(--panel);
+  }
+  .voltable tbody tr:last-child td { border-bottom: 0; }
+  .voltable tbody tr:hover { background: color-mix(in srgb, var(--brass) 5%, transparent); }
+  .voltable td:first-child { font-weight: 600; color: var(--ink); }
+  .voltable td:nth-child(2), .voltable td:nth-child(3) { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+</style>

@@ -1,0 +1,240 @@
+---
+import "../styles/global.css";
+import SiteNav from "../components/SiteNav.astro";
+import Footer from "../components/Footer.astro";
+import { ClientRouter } from "astro:transitions";
+import { SITE } from "../data/site";
+import durbinLogo from "../assets/brand/durbin-logo.jpg";
+
+const SITE_DESCRIPTION =
+  "Durbin is CASSA's volunteer astronomy-outreach programme, an online exhibition of deep-sky images captured by student volunteers across Bangladesh, alongside its science communication.";
+
+interface Props {
+  /** Path of this page, e.g. "/exhibition". */
+  path: string;
+  title: string;
+  description?: string;
+  /** Highlighted nav item. */
+  current?: string;
+  ogImage?: string;
+  ogImageAlt?: string;
+  ogType?: "website" | "article";
+  publishedTime?: Date;
+  author?: string;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+const {
+  path,
+  title,
+  description = SITE_DESCRIPTION,
+  current = "",
+  ogImage,
+  ogImageAlt,
+  ogType = "website",
+  publishedTime,
+  author,
+  noindex = false,
+  jsonLd,
+} = Astro.props;
+
+const url = new URL(path, SITE.url).href;
+const ogImageAbs = ogImage ? new URL(ogImage, SITE.url).href : undefined;
+
+const orgSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Durbin",
+  url: SITE.url,
+  email: SITE.email,
+  foundingDate: SITE.founded,
+  sameAs: [SITE.facebook, SITE.parent.durbinPage],
+  parentOrganization: { "@type": "Organization", name: SITE.parent.name, url: SITE.parent.url },
+};
+const pageSchemas = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const schemas = [orgSchema, ...pageSchemas];
+---
+
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ClientRouter />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={url} />
+
+    <meta property="og:site_name" content="Durbin" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={url} />
+    <meta property="og:locale" content="en_GB" />
+    {ogImageAbs && <meta property="og:image" content={ogImageAbs} />}
+    {ogImageAbs && ogImageAlt && <meta property="og:image:alt" content={ogImageAlt} />}
+    {publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
+    {author && <meta name="author" content={author} />}
+    <meta name="twitter:card" content={ogImageAbs ? "summary_large_image" : "summary"} />
+
+    {/* Reveal-on-scroll hides elements until JS observes them; without JS,
+        show everything. */}
+    <noscript>
+      <style>{`[data-reveal]{opacity:1 !important;translate:none !important}`}</style>
+    </noscript>
+
+    <link rel="icon" href={durbinLogo.src} type="image/jpeg" />
+    <link rel="apple-touch-icon" href={durbinLogo.src} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {schemas.map((s) => (
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(s)} />
+    ))}
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap"
+    />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <SiteNav current={current} />
+    <main id="main" tabindex="-1"><slot /></main>
+    <Footer />
+
+    {/* Native modal dialog supplies focus containment and background inertness. */}
+    <dialog id="lightbox" class="lightbox" aria-labelledby="lightbox-title">
+      <h2 id="lightbox-title" class="visually-hidden">Image viewer</h2>
+      <button class="lightbox__close" type="button" aria-label="Close image viewer" data-lightbox-close>&times;</button>
+      <figure class="lightbox__fig">
+        <img class="lightbox__img" alt="" />
+        <figcaption class="lightbox__cap"></figcaption>
+      </figure>
+    </dialog>
+
+    <script>
+      const setupImageFallbacks = () => {
+        // Replace a failed gallery image with an explicit, readable state.
+        document.querySelectorAll<HTMLImageElement>("[data-fallback-image]").forEach((image) => {
+          const media = image.closest<HTMLElement>(".plate__media");
+          const showFallback = () => media?.setAttribute("data-image-error", "");
+          if (image.complete && image.naturalWidth === 0) showFallback();
+          else image.addEventListener("error", showFallback, { once: true });
+        });
+      };
+      setupImageFallbacks();
+      document.addEventListener("astro:page-load", setupImageFallbacks);
+    </script>
+
+    <script>
+      let revealObserver: IntersectionObserver | undefined;
+      const setupReveals = () => {
+        revealObserver?.disconnect();
+        // Reveal-on-scroll. Reduced motion → show everything immediately.
+        const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const els = document.querySelectorAll<HTMLElement>("[data-reveal]");
+        if (reduce || !("IntersectionObserver" in window)) {
+          els.forEach((el) => el.classList.add("is-in"));
+          return;
+        }
+        revealObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => {
+              if (e.isIntersecting) {
+                e.target.classList.add("is-in");
+                revealObserver?.unobserve(e.target);
+              }
+            });
+          },
+          // threshold 0: a fixed ratio is unreachable for very tall elements,
+          // which would stay stuck at opacity 0.
+          { rootMargin: "0px 0px -10% 0px", threshold: 0 },
+        );
+        els.forEach((el) => revealObserver?.observe(el));
+      };
+      setupReveals();
+      document.addEventListener("astro:page-load", setupReveals);
+    </script>
+
+    <script>
+      let figureObserver: IntersectionObserver | undefined;
+      const setupArticleFigures = () => {
+        figureObserver?.disconnect();
+        document.documentElement.classList.remove("fig-armed");
+        // Scroll-emerge for in-article figures. Armed only when JS is live AND
+        // motion is allowed; otherwise figures stay fully visible.
+        const figReduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const figs = document.querySelectorAll<HTMLElement>(".prose .article-figure");
+        if (!figs.length) return;
+        if (figReduce || !("IntersectionObserver" in window)) {
+          figs.forEach((f) => f.classList.add("is-emerged"));
+        } else {
+          document.documentElement.classList.add("fig-armed");
+          figureObserver = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((e) => {
+                if (e.isIntersecting) {
+                  e.target.classList.add("is-emerged");
+                  figureObserver?.unobserve(e.target);
+                }
+              });
+            },
+            { rootMargin: "0px 0px -12% 0px", threshold: 0 },
+          );
+          figs.forEach((f) => figureObserver?.observe(f));
+        }
+      };
+      setupArticleFigures();
+      document.addEventListener("astro:page-load", setupArticleFigures);
+    </script>
+
+    <script>
+      let lightboxController: AbortController | undefined;
+      const setupLightbox = () => {
+        lightboxController?.abort();
+        lightboxController = new AbortController();
+        const { signal } = lightboxController;
+        // Keyboard- and pointer-operable lightbox for in-article figures.
+        const lb = document.getElementById("lightbox") as HTMLDialogElement | null;
+        if (!lb) return;
+        const lbImg = lb.querySelector<HTMLImageElement>(".lightbox__img")!;
+        const lbCap = lb.querySelector<HTMLElement>(".lightbox__cap")!;
+        const closeBtn = lb.querySelector<HTMLButtonElement>("[data-lightbox-close]")!;
+        let invoker: HTMLButtonElement | null = null;
+        const open = (trigger: HTMLButtonElement) => {
+          const img = trigger.querySelector<HTMLImageElement>("img");
+          if (!img) return;
+          invoker = trigger;
+          lbImg.src = img.currentSrc || img.src;
+          lbImg.alt = img.alt;
+          const cap = trigger.closest("figure")?.querySelector("figcaption")?.textContent?.trim() || "";
+          lbCap.textContent = cap;
+          lbCap.hidden = !cap;
+          lb.showModal();
+          closeBtn.focus();
+        };
+        const close = () => {
+          if (lb.open) lb.close();
+        };
+        document.querySelectorAll<HTMLButtonElement>("[data-lightbox-trigger]").forEach((trigger) =>
+          trigger.addEventListener("click", () => open(trigger), { signal }),
+        );
+        closeBtn.addEventListener("click", close, { signal });
+        lb.addEventListener("click", (e) => {
+          if (e.target === lb) close();
+        }, { signal });
+        lb.addEventListener("close", () => {
+          lbImg.removeAttribute("src");
+          lbImg.alt = "";
+          invoker?.focus();
+          invoker = null;
+        }, { signal });
+      };
+      setupLightbox();
+      document.addEventListener("astro:page-load", setupLightbox);
+    </script>
+  </body>
+</html>
