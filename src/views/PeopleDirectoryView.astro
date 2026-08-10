@@ -1,0 +1,263 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+import { Image } from "astro:assets";
+import { SITE } from "../data/site";
+import { current, past } from "../data/durbin-volunteers";
+import lamiyaPortrait from "../assets/people/lamiya-ashraf-mowla.webp";
+import asadPortrait from "../assets/people/khan-muhammad-bin-asad.webp";
+import farzanaPortrait from "../assets/people/farzana-akter-lima.webp";
+
+interface Props { mode: "management" | "volunteers" | "alumni" }
+const { mode } = Astro.props;
+
+const management = [
+  {
+    name: "Dr. Lamiya Ashraf Mowla",
+    role: "Founder & Scientific Supervisor",
+    affiliation: "Assistant Professor · Wellesley College",
+    bio: "An observational astronomer studying how galaxies and their first star clusters formed since cosmic dawn using JWST and HST imaging.",
+    image: lamiyaPortrait,
+    links: [
+      { label: "Personal website", href: "https://www.lamiyamowla.com/" },
+      { label: "Publications", href: "https://ui.adsabs.harvard.edu/search/q=author%3A%22Mowla%2C%20Lamiya%22" },
+    ],
+    details: [
+      { label: "Current appointment", value: "Assistant Professor, Department of Physics and Astronomy, Wellesley College, USA" },
+      { label: "Education", value: "PhD, Yale University, USA" },
+      { label: "Postdoctoral training", value: "Dunlap Institute for Astronomy and Astrophysics, University of Toronto, Canada" },
+      { label: "Research", value: "The structural evolution of early-universe galaxies and their first star clusters using JWST and HST imaging" },
+      { label: "Programmes", value: "JWST extragalactic teams, 3D-DASH, Bangladesh Science Outreach and Durbin" },
+    ],
+  },
+  {
+    name: "Dr. Khan Muhammad Bin Asad",
+    role: "Scientific Supervisor",
+    affiliation: "Assistant Professor · Independent University, Bangladesh",
+    bio: "An astrophysicist probing cosmic dawn and reionization through the redshifted 21-cm signal, with research using LOFAR and MeerKAT.",
+    image: asadPortrait,
+    links: [
+      { label: "Google Scholar", href: "https://scholar.google.com/scholar?q=Khan+Muhammad+Bin+Asad" },
+      { label: "NASA ADS", href: "https://ui.adsabs.harvard.edu/search/q=author%3A%22Asad%2C%20Khan%20M.%20B.%22" },
+    ],
+    details: [
+      { label: "Current appointment", value: "Assistant Professor, Department of Physical Sciences, Independent University, Bangladesh" },
+      { label: "Education", value: "PhD, University of Groningen, Netherlands" },
+      { label: "Postdoctoral training", value: "South African Radio Astronomy Observatory, South Africa" },
+      { label: "Research", value: "Cosmic dawn and reionization through the redshifted 21-cm signal, plus diffuse radio halos in galaxy clusters" },
+      { label: "Facilities", value: "LOFAR, MeerKAT, radio telescopes, scientific instruments and high-performance computing" },
+    ],
+  },
+  {
+    name: "Farzana Akter Lima",
+    role: "Durbin Project Manager",
+    affiliation: "Durbin · CASSA",
+    bio: "Manages Durbin's programme delivery, partnerships and outreach operations as CASSA's dedicated Durbin project manager.",
+    image: farzanaPortrait,
+    links: [],
+    details: [
+      { label: "Current role", value: "Project Manager, Durbin" },
+      { label: "Programme focus", value: "Project management and the Durbin astronomy-outreach programme" },
+      { label: "Responsibilities", value: "Programme delivery, partnerships, volunteer coordination and public-outreach operations" },
+      { label: "Contact", value: SITE.email },
+    ],
+  },
+];
+
+const profiles = mode === "management" ? management : mode === "volunteers"
+  ? current.map((person) => ({
+      name: person.name,
+      role: "Durbin Volunteer · 2026",
+      affiliation: person.institution ?? "Durbin",
+      bio: "A member of Durbin's current astronomy-outreach and astrophotography cohort.",
+      image: undefined,
+      links: [],
+      details: [
+        { label: "Programme", value: "2026 Durbin volunteer cohort" },
+        { label: "Institution", value: person.institution ?? "Durbin" },
+        { label: "Region", value: person.region },
+      ],
+    }))
+  : past.map((person) => ({
+      name: person.name,
+      role: "Durbin Alumni",
+      affiliation: person.duration ?? "Past cohort",
+      bio: "A former Durbin volunteer who contributed to the programme's outreach and observing work.",
+      image: undefined,
+      links: [],
+      details: [
+        { label: "Service", value: person.duration ?? "Past cohort" },
+        { label: "Programme", value: "Durbin volunteer alumni network" },
+        { label: "Region", value: person.region },
+      ],
+    }));
+
+const labels = {
+  management: { eyebrow: "People / Management", title: "Programme leadership", lede: "The supervisors and project manager responsible for Durbin's scientific direction and day-to-day programme delivery." },
+  volunteers: { eyebrow: "People / Volunteers", title: "Current volunteers", lede: "The 2026 cohort carrying telescopes, images and astronomy stories into communities across Bangladesh." },
+  alumni: { eyebrow: "People / Alumni", title: "Volunteer alumni", lede: "Past volunteers whose work helped build Durbin's observing, imaging and public-outreach practice." },
+} as const;
+const copy = labels[mode];
+const initials = (name:string) => name.replace(/^(Dr\.|Md\.|MST\.)\s*/i, "").split(/\s+/).slice(0,2).map((part)=>part[0]).join("").toUpperCase();
+const status = mode === "volunteers" ? "Current cohort" : mode === "alumni" ? "Alumni network" : "Leadership";
+---
+
+<BaseLayout path={`/people/${mode}`} title={`${copy.title} | Durbin`} current="/people" description={copy.lede}>
+  <header class="people-directory-head">
+    <div class="wrap people-directory-head__grid">
+      <Reveal><p class="section-label">{copy.eyebrow}</p><h1>{copy.title}</h1></Reveal>
+      <Reveal delay={70}><p>{copy.lede}</p><nav aria-label="People sections"><a class:list={[{active:mode==="management"}]} href="/people/management">Management</a><a class:list={[{active:mode==="volunteers"}]} href="/people/volunteers">Volunteers</a><a class:list={[{active:mode==="alumni"}]} href="/people/alumni">Alumni</a></nav></Reveal>
+    </div>
+  </header>
+
+  <section class="section section--line people-directory" aria-label={copy.title}>
+    <div class="wrap">
+      <div class="profile-grid">
+        {profiles.map((profile) => {
+          const profileData = {
+            name: profile.name,
+            role: profile.role,
+            affiliation: profile.affiliation,
+            bio: profile.bio,
+            status,
+            initials: initials(profile.name),
+            image: profile.image?.src,
+            links: profile.links,
+            details: profile.details,
+          };
+          return <article class="profile-card">
+            <div class:list={["profile-card__avatar", { "profile-card__avatar--photo": profile.image }]}>
+              {profile.image
+                ? <Image src={profile.image} alt={`Portrait of ${profile.name}`} widths={[180, 300]} sizes="104px" loading="lazy" />
+                : <span role="img" aria-label={`Initials for ${profile.name}`}>{initials(profile.name)}</span>}
+            </div>
+            <div class="profile-card__body">
+              <p class="profile-card__status">{status}</p>
+              <h2>{profile.name}</h2>
+              <p class="profile-card__role">{profile.role}</p>
+              <p class="profile-card__affiliation">{profile.affiliation}</p>
+              <button class="profile-card__more" type="button" data-profile-open data-profile={JSON.stringify(profileData)} aria-haspopup="dialog" aria-label={`More information about ${profile.name}`}>
+                More info <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </article>;
+        })}
+      </div>
+      <p class="profile-note">Volunteer and alumni cards use initials where no approved individual portrait is available.</p>
+    </div>
+  </section>
+
+  <dialog class="profile-modal" data-profile-modal aria-labelledby="profile-modal-title">
+    <article class="profile-modal__card">
+      <button class="profile-modal__close" type="button" data-profile-close aria-label="Close profile">×</button>
+      <div class="profile-modal__body">
+        <header class="profile-modal__identity">
+          <div class="profile-modal__avatar">
+            <img src="" alt="" data-profile-image hidden />
+            <span data-profile-initials></span>
+          </div>
+          <div>
+            <p class="profile-modal__status" data-profile-status></p>
+            <h2 id="profile-modal-title" data-profile-name></h2>
+            <p class="profile-modal__role" data-profile-role></p>
+            <p class="profile-modal__affiliation" data-profile-affiliation></p>
+          </div>
+        </header>
+        <p class="profile-modal__bio" data-profile-bio></p>
+        <dl class="profile-modal__details" data-profile-details></dl>
+        <div class="profile-modal__links" data-profile-links>
+          <a href={`mailto:${SITE.email}`} data-profile-email hidden>Email Durbin →</a>
+        </div>
+      </div>
+    </article>
+  </dialog>
+</BaseLayout>
+
+<script>
+  type ProfileData = {
+    name:string; role:string; affiliation:string; bio:string; status:string; initials:string;
+    image?:string; links:Array<{label:string;href:string}>; details:Array<{label:string;value:string}>;
+  };
+
+  const setupProfileDialogs = () => {
+    const dialog = document.querySelector<HTMLDialogElement>("[data-profile-modal]");
+    if (!dialog || dialog.dataset.ready === "true") return;
+    dialog.dataset.ready = "true";
+    const closeButton = dialog.querySelector<HTMLButtonElement>("[data-profile-close]");
+    const image = dialog.querySelector<HTMLImageElement>("[data-profile-image]");
+    const initials = dialog.querySelector<HTMLElement>("[data-profile-initials]");
+    const email = dialog.querySelector<HTMLAnchorElement>("[data-profile-email]");
+    const links = dialog.querySelector<HTMLElement>("[data-profile-links]");
+    const details = dialog.querySelector<HTMLElement>("[data-profile-details]");
+    let opener:HTMLElement|null = null;
+
+    document.querySelectorAll<HTMLButtonElement>("[data-profile-open]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const profile = JSON.parse(button.dataset.profile ?? "{}") as ProfileData;
+        opener = button;
+        dialog.querySelector<HTMLElement>("[data-profile-name]")!.textContent = profile.name;
+        dialog.querySelector<HTMLElement>("[data-profile-role]")!.textContent = profile.role;
+        dialog.querySelector<HTMLElement>("[data-profile-affiliation]")!.textContent = profile.affiliation;
+        dialog.querySelector<HTMLElement>("[data-profile-bio]")!.textContent = profile.bio;
+        dialog.querySelector<HTMLElement>("[data-profile-status]")!.textContent = profile.status;
+        if (profile.image) {
+          image!.src = profile.image;
+          image!.alt = `Portrait of ${profile.name}`;
+          image!.hidden = false;
+          initials!.hidden = true;
+        } else {
+          image!.hidden = true;
+          image!.removeAttribute("src");
+          initials!.textContent = profile.initials;
+          initials!.hidden = false;
+        }
+        details!.replaceChildren(...profile.details.map(({label,value}) => {
+          const row = document.createElement("div");
+          const term = document.createElement("dt");
+          const description = document.createElement("dd");
+          term.textContent = label;
+          description.textContent = value;
+          row.append(term, description);
+          return row;
+        }));
+        links!.querySelectorAll("[data-profile-external]").forEach((link) => link.remove());
+        profile.links.forEach(({label,href}) => {
+          const link = document.createElement("a");
+          link.href = href;
+          link.textContent = `${label} →`;
+          link.target = "_blank";
+          link.rel = "noopener";
+          link.dataset.profileExternal = "";
+          links!.prepend(link);
+        });
+        email!.hidden = profile.name !== "Farzana Akter Lima";
+        dialog.showModal();
+        closeButton?.focus();
+      });
+    });
+    closeButton?.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+    dialog.addEventListener("close", () => opener?.focus());
+  };
+
+  setupProfileDialogs();
+  document.addEventListener("astro:page-load", setupProfileDialogs);
+</script>
+
+<style>
+  .people-directory-head{padding:clamp(8rem,14vw,10rem) 0 clamp(2.5rem,5vw,4rem);background:radial-gradient(circle at 82% 20%,color-mix(in srgb,var(--brass) 15%,transparent),transparent 30%)}
+  .people-directory-head__grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(2rem,8vw,7rem);align-items:end}.people-directory-head h1{margin-top:.75rem;max-width:14ch;font-size:clamp(2.7rem,6vw,5.2rem);line-height:.96;letter-spacing:-.06em}.people-directory-head__grid>div:last-child>p{max-width:55ch;color:var(--ink-soft);line-height:1.65}.people-directory-head nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.25rem}.people-directory-head nav a{padding:.5rem .78rem;border:1px solid var(--line);border-radius:999px;color:var(--ink-faint);font-size:.74rem;font-weight:600}.people-directory-head nav a.active{color:var(--on-brass);background:var(--brass);border-color:var(--brass)}
+  .people-directory{padding-top:clamp(2.25rem,4vw,3.75rem)}
+  .profile-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(1rem,2vw,1.4rem);align-items:stretch}
+  .profile-card{position:relative;isolation:isolate;display:flex;min-width:0;min-height:27rem;flex-direction:column;align-items:center;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius-card-compact);background:var(--panel);box-shadow:var(--shadow-low);transition:transform .35s cubic-bezier(.22,1,.36,1),border-color .35s,box-shadow .35s}
+  .profile-card::before{content:"";position:absolute;z-index:-1;inset:0 0 auto;height:9.5rem;background:radial-gradient(circle at 72% 12%,rgba(255,255,255,.18),transparent 28%),linear-gradient(135deg,rgba(24,137,127,.72),rgba(29,86,96,.42) 58%,rgba(12,28,34,.16));border-bottom:1px solid var(--line)}
+  .profile-card::after{content:"";position:absolute;z-index:-1;top:6.7rem;left:-10%;width:120%;height:5rem;border-radius:50%;background:var(--panel);transform:rotate(-3deg)}
+  .profile-card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--brass) 50%,var(--line));box-shadow:0 22px 50px rgba(0,0,0,.2)}
+  .profile-card__avatar{position:relative;z-index:1;width:7.25rem;height:7.25rem;display:grid;place-items:center;flex:0 0 auto;margin-top:3.4rem;overflow:hidden;border:4px solid var(--panel);border-radius:50%;color:var(--ink);background:#dce7e4;box-shadow:0 12px 30px rgba(0,0,0,.3)}.profile-card__avatar--photo{background:#dce7e4}.profile-card__avatar :global(img){display:block;width:100%;height:100%;max-width:none;object-fit:cover;object-position:center}.profile-card__avatar span{font-size:1.45rem;font-weight:750;letter-spacing:-.05em}
+  .profile-card__body{display:flex;width:100%;min-width:0;flex:1;flex-direction:column;align-items:center;padding:1rem 1.4rem 1.4rem;text-align:center}.profile-card__status,.profile-modal__status{color:var(--brass);font-size:.62rem;font-weight:750;text-transform:uppercase;letter-spacing:.1em}.profile-card h2{margin-top:.5rem;max-width:18ch;font-size:clamp(1.2rem,2vw,1.45rem);line-height:1.08;letter-spacing:-.035em;text-wrap:balance}.profile-card__role{margin-top:.5rem;max-width:27ch;color:var(--ink-soft);font-size:.8rem;line-height:1.42}.profile-card__affiliation{margin-top:.3rem;max-width:31ch;color:var(--ink-faint);font-size:.72rem;line-height:1.45;text-wrap:balance}.profile-card__more{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;width:min(100%,12rem);margin-top:auto;padding:.72rem .95rem;border:1px solid var(--line);border-radius:999px;color:var(--ink);background:var(--panel-2);font-size:.72rem;font-weight:700;transition:border-color .2s,background .2s,transform .2s}.profile-card__more:hover{border-color:var(--brass);background:color-mix(in srgb,var(--panel-2) 78%,var(--brass));transform:translateY(-1px)}.profile-card__more span{color:var(--brass)}.profile-note{margin-top:1.5rem;color:var(--ink-faint);font-size:.72rem;line-height:1.5}
+  .profile-modal{width:min(94vw,52rem);max-height:90svh;padding:0;border:0;border-radius:var(--radius-card);color:var(--ink);background:transparent;box-shadow:0 35px 100px rgba(0,0,0,.55);overflow:auto}.profile-modal::backdrop{background:rgba(0,0,0,.78);backdrop-filter:blur(12px)}.profile-modal__card{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius-card);background:var(--panel)}.profile-modal__close{position:absolute;z-index:5;top:1rem;right:1rem;width:2.7rem;height:2.7rem;border:1px solid var(--line);border-radius:50%;color:var(--ink);background:var(--panel-2);font-size:1.45rem;line-height:1}.profile-modal__body{padding:clamp(1.25rem,5vw,3rem)}.profile-modal__identity{display:grid;grid-template-columns:9rem minmax(0,1fr);gap:1.5rem;align-items:center;padding-right:3rem}.profile-modal__avatar{width:9rem;height:9rem;display:grid;place-items:center;overflow:hidden;border:1px solid var(--line);border-radius:50%;color:var(--ink);background:var(--panel-2)}.profile-modal__avatar img{display:block;width:100%;height:100%;max-width:100%;object-fit:cover;object-position:center}.profile-modal__avatar span{font-size:2rem;font-weight:750}.profile-modal__body h2{margin-top:.5rem;font-size:clamp(1.75rem,5vw,2.8rem);line-height:1.02;letter-spacing:-.045em}.profile-modal__role{margin-top:.55rem;color:var(--ink-soft);font-weight:650}.profile-modal__affiliation{margin-top:.3rem;color:var(--ink-faint);font-size:.82rem}.profile-modal__bio{margin-top:1.6rem;max-width:60ch;color:var(--ink-soft);font-size:.9rem;line-height:1.65}.profile-modal__details{display:grid;gap:.8rem;margin-top:1.6rem;padding-top:1.35rem;border-top:1px solid var(--line);text-align:left}.profile-modal__details div{display:grid;grid-template-columns:9rem minmax(0,1fr);gap:1rem;padding-bottom:.8rem;border-bottom:1px solid var(--line)}.profile-modal__details dt{color:var(--ink-faint);font-size:.72rem}.profile-modal__details dd{color:var(--ink);font-size:.8rem;font-weight:600;line-height:1.5;overflow-wrap:anywhere}.profile-modal__links{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1.5rem}.profile-modal__links a{color:var(--brass);font-size:.75rem;font-weight:750}
+  @media(max-width:980px){.profile-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:720px){.people-directory-head__grid{grid-template-columns:1fr}.people-directory-head h1{font-size:clamp(2.6rem,12vw,4rem)}}
+  @media(max-width:540px){.profile-grid{grid-template-columns:1fr}.profile-card{min-height:25rem}.profile-card__avatar{width:6.75rem;height:6.75rem}.profile-modal{width:calc(100vw - 1.25rem);border-radius:1.65rem}.profile-modal__card{border-radius:1.65rem}.profile-modal__identity{grid-template-columns:1fr;gap:1rem;padding-right:2.5rem}.profile-modal__avatar{width:7rem;height:7rem}.profile-modal__details div{grid-template-columns:1fr;gap:.2rem}}
+  @media(prefers-reduced-motion:reduce){.profile-card,.profile-card__more{transition:none}}
+</style>

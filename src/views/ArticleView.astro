@@ -30,7 +30,7 @@ const jsonLd = {
   path={`/news/${entry.id}`}
   title={`${d.title} | Durbin`}
   description={d.summary}
-  current="/updates"
+  current="/news"
   ogImage={d.hero?.src}
   ogImageAlt={d.heroAlt}
   ogType="article"
@@ -71,7 +71,7 @@ const jsonLd = {
           <p class="artby mono">Written by: {d.authorHref ? <a href={d.authorHref}>{d.author}</a> : d.author}</p>
         </Reveal>
       )}
-      <p class="artback"><a class="btn" href="/updates">← All updates</a></p>
+      <p class="artback"><a class="btn" href="/news">← All news</a></p>
     </div>
   </article>
 </BaseLayout>

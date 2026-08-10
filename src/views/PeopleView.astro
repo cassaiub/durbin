@@ -28,7 +28,7 @@ const lede =
     </div>
   </section>
 
-  <section class="section section--tight" id="supervisors">
+  <section class="section section--tight" id="management">
     <div class="wrap">
       <Reveal><p class="section-label">Scientific direction</p></Reveal>
       <Reveal delay={60}><h2 class="people-h2">Supervisors</h2></Reveal>
@@ -40,13 +40,8 @@ const lede =
           </article>
         ))}
       </div>
-    </div>
-  </section>
-
-  <section class="section section--line" id="durbin-manager">
-    <div class="wrap">
-      <Reveal><p class="section-label">Programme leadership</p></Reveal>
-      <Reveal delay={60}><h2 class="people-h2">Durbin Manager</h2></Reveal>
+      <Reveal><p class="section-label people-subhead">Programme leadership</p></Reveal>
+      <Reveal delay={60}><h2 class="people-h2">Project manager</h2></Reveal>
       <Reveal delay={100}>
         <article class="manager-card">
           <div>
@@ -100,10 +95,11 @@ const lede =
 
 <style>
   .people-head { padding-top: clamp(7rem, 14vw, 10rem); padding-bottom: 0; }
-  :global(#supervisors), :global(#durbin-manager), :global(#volunteers), :global(#alumni) { scroll-margin-top: 5rem; }
+  :global(#management), :global(#volunteers), :global(#alumni) { scroll-margin-top: 6rem; }
   .people-h2 { margin-top: 0.6rem; font-size: clamp(2rem, 4.5vw, 2.8rem); line-height: 1.05; letter-spacing: -0.03em; }
   .people-grid { display: grid; gap: 0.8rem; margin-top: 2rem; }
   .people-grid--supervisors { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .people-subhead { margin-top: 3rem; padding-top: 2.5rem; border-top: 1px solid var(--line-soft); }
   .person-card, .manager-card, .volcard {
     border: 1px solid var(--line-soft); border-left: 2px solid var(--brass-dim);
     background: var(--panel); border-radius: var(--radius-md);

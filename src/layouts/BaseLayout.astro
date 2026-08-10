@@ -60,6 +60,12 @@ const schemas = [orgSchema, ...pageSchemas];
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      (() => {
+        const saved = localStorage.getItem("durbin-theme");
+        document.documentElement.dataset.theme = saved === "light" || saved === "dark" ? saved : "dark";
+      })();
+    </script>
     <ClientRouter />
     <title>{title}</title>
     <meta name="description" content={description} />

@@ -1,0 +1,81 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+
+const milestones = [
+  { year:"2022", eyebrow:"The idea", title:"A telescope becomes a public mission", text:"A Dunlap Institute seed grant and a partnership led by Dr. Lamiya Mowla shaped an astronomy-outreach programme for Bangladesh." },
+  { year:"2023", eyebrow:"First light", title:"Durbin launches at IUB", text:"Two Unistellar eQuinox telescopes arrived in Bangladesh. Durbin launched on 9 March with its first public astronomy night at Independent University, Bangladesh." },
+  { year:"2024", eyebrow:"Learning in public", title:"Volunteers take the sky outward", text:"Student teams built experience through observing, imaging, public nights and science communication—turning instruments into shared encounters." },
+  { year:"2025", eyebrow:"A permanent home", title:"Durbin becomes a CASSA programme", text:"Independent University, Bangladesh established CASSA and formally ratified Durbin as its astronomy-outreach programme on 14 August." },
+  { year:"2026", eyebrow:"A wider sky", title:"Training, access and lasting resources", text:"A new cycle introduced continuous expert supervision, a growing online exhibition and dedicated support for women astrophotographers and science communicators." },
+];
+const timelineHeight = `${100 + (milestones.length - 1) * 68}svh`;
+---
+
+<BaseLayout path="/history" title="History | Durbin" current="/history" description="Explore the milestones that shaped Durbin's astronomy outreach in Bangladesh.">
+  <header class="history-head">
+    <div class="wrap history-head__inner">
+      <Reveal><p class="section-label">History</p><h1>From one idea to a wider sky.</h1></Reveal>
+      <Reveal delay={70}><p>Scroll to travel through Durbin’s story. Each milestone moves naturally with the page.</p></Reveal>
+    </div>
+  </header>
+
+  <section class="history-experience" style={`--timeline-height:${timelineHeight}`} aria-labelledby="timeline-title" data-timeline-section>
+    <div class="timeline-sticky">
+      <div class="wrap timeline-wrap">
+        <div class="timeline-intro"><p class="section-label">Scroll through time</p><p class="mono"><span data-timeline-current>2022</span> / 2026</p></div>
+        <h2 id="timeline-title" class="visually-hidden">Durbin timeline</h2>
+        <div class="timeline-stage" data-timeline tabindex="0" aria-label="Scroll-driven interactive history timeline. Use left and right arrow keys.">
+          <div class="timeline-orbit" aria-hidden="true"></div>
+          {milestones.map((item,index)=>(
+            <article class="timeline-card" data-timeline-card data-index={index} aria-hidden={index !== 0 ? "true" : "false"}>
+              <p class="timeline-card__year">{item.year}</p>
+              <div class="timeline-card__copy"><p class="timeline-card__eyebrow">{item.eyebrow}</p><h3>{item.title}</h3><p>{item.text}</p></div>
+            </article>
+          ))}
+        </div>
+        <div class="timeline-controls">
+          <ol>
+            <span class="timeline-controls__fill" aria-hidden="true" data-timeline-fill></span>
+            {milestones.map((item,index)=><li><button type="button" data-timeline-dot data-index={index} aria-label={`Show ${item.year}: ${item.title}`} aria-pressed={index===0?"true":"false"}>{item.year}</button></li>)}
+          </ol>
+        </div>
+        <p class="timeline-hint">Keep scrolling <span aria-hidden="true">↓</span></p>
+        <p class="visually-hidden" aria-live="polite" data-timeline-status></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--line history-close"><div class="wrap history-close__grid">
+    <Reveal><p class="section-label">The story continues</p><h2>Every new image adds another point to the timeline.</h2></Reveal>
+    <Reveal delay={70}><p>Durbin’s history is still being made by the volunteers who operate the instruments, process the light and carry the universe into public spaces.</p><a class="btn btn--solid" href="/people/volunteers">Meet the volunteers</a></Reveal>
+  </div></section>
+</BaseLayout>
+
+<style>
+  .history-head{padding:clamp(8rem,14vw,10rem) 0 clamp(3.5rem,7vw,5.5rem);background:radial-gradient(circle at 75% 35%,color-mix(in srgb,var(--brass) 20%,transparent),transparent 30%)}.history-head__inner{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(2rem,8vw,7rem);align-items:end}.history-head h1{margin-top:.8rem;max-width:14ch;font-size:clamp(2.8rem,6.5vw,5.4rem);line-height:.94;letter-spacing:-.06em;text-wrap:balance}.history-head__inner>div:last-child>p{max-width:52ch;color:var(--ink-soft);font-size:1.04rem;line-height:1.65}
+  .history-experience{position:relative;height:var(--timeline-height);border-top:1px solid var(--line)}.timeline-sticky{position:sticky;top:0;height:100svh;display:grid;align-content:center;padding:6.25rem 0 1.25rem;background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--brass) 10%,transparent),transparent 35%),var(--night)}.timeline-wrap{width:100%}.timeline-intro{display:flex;justify-content:space-between;align-items:center;gap:1rem}.timeline-intro>.mono{color:var(--ink-faint);font-size:.72rem}.timeline-intro>.mono span{color:var(--brass)}
+  .timeline-stage{position:relative;height:min(60svh,37rem);overflow:clip;perspective:1200px;outline:none;touch-action:pan-y}.timeline-stage:focus-visible{outline:2px solid var(--focus-ring);outline-offset:6px}.timeline-orbit{position:absolute;left:50%;top:50%;width:min(82vw,56rem);aspect-ratio:2/1;border:1px solid var(--line);border-radius:50%;transform:translate(-50%,-50%) rotateX(69deg);box-shadow:0 0 90px color-mix(in srgb,var(--brass) 11%,transparent)}
+  .timeline-card{--x:0px;--z:0px;--ry:0deg;--scale:1;--alpha:1;position:absolute;left:50%;top:50%;width:min(76vw,33rem);min-height:min(46svh,21rem);display:grid;align-content:space-between;padding:clamp(1.3rem,3vw,2rem);border:1px solid var(--line);border-radius:var(--radius-card);background:linear-gradient(145deg,color-mix(in srgb,var(--panel) 94%,var(--brass) 6%),var(--panel));box-shadow:var(--shadow-low);opacity:var(--alpha);transform:translate(-50%,-50%) translateX(var(--x)) translateZ(var(--z)) rotateY(var(--ry)) scale(var(--scale));pointer-events:none;will-change:transform,opacity}.timeline-card[data-active]{pointer-events:auto}.timeline-card__year{font-family:var(--font-mono);font-size:clamp(2.7rem,7vw,5.2rem);line-height:.86;letter-spacing:-.07em;color:color-mix(in srgb,var(--brass) 72%,var(--ink))}.timeline-card__eyebrow{color:var(--brass);font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.timeline-card h3{margin-top:.55rem;font-size:clamp(1.45rem,3.2vw,2.2rem);line-height:1.03;letter-spacing:-.04em}.timeline-card__copy>p:last-child{margin-top:.85rem;color:var(--ink-soft);font-size:.9rem;line-height:1.58}
+  .timeline-controls{max-width:38rem;margin:0 auto}.timeline-controls ol{position:relative;list-style:none;display:grid;grid-template-columns:repeat(5,1fr)}.timeline-controls ol:before{content:"";position:absolute;left:6%;right:6%;top:50%;height:1px;background:var(--line)}.timeline-controls__fill{position:absolute;left:6%;top:50%;width:88%;height:1px;background:var(--brass);transform:scaleX(0);transform-origin:left;will-change:transform}.timeline-controls li{z-index:1;text-align:center}.timeline-controls li button{padding:.34rem .52rem;border-radius:999px;background:var(--night);color:var(--ink-faint);font-family:var(--font-mono);font-size:.69rem}.timeline-controls li button[aria-pressed="true"]{background:var(--brass);color:var(--on-brass)}.timeline-hint{margin-top:.65rem;text-align:center;color:var(--ink-faint);font-size:.68rem}.timeline-hint span{color:var(--brass)}
+  .history-close__grid{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(2rem,8vw,7rem);align-items:start}.history-close h2{margin-top:.8rem;font-size:clamp(2.2rem,5vw,4.2rem);line-height:.98;letter-spacing:-.05em}.history-close__grid>div:last-child p{color:var(--ink-soft);line-height:1.7}.history-close .btn{margin-top:1.4rem}
+  @media(max-width:720px){.history-head__inner{grid-template-columns:1fr}.history-head h1{font-size:clamp(2.65rem,12vw,3.9rem);line-height:.98}.timeline-sticky{padding-top:6rem}.timeline-stage{height:58svh}.timeline-card{width:min(84vw,31rem);min-height:22rem}.timeline-card__year{font-size:3.1rem}.timeline-controls{gap:.3rem}.timeline-controls li button{font-size:.58rem;padding:.3rem}.timeline-hint{display:none}.history-close__grid{grid-template-columns:1fr}}
+  @media(prefers-reduced-motion:reduce){.timeline-card,.timeline-controls__fill{will-change:auto}}
+</style>
+
+<script>
+  let historyTimelineController:AbortController|undefined;
+  const setupHistoryTimeline=()=>{
+    historyTimelineController?.abort();historyTimelineController=new AbortController();const{signal}=historyTimelineController;
+    const section=document.querySelector<HTMLElement>("[data-timeline-section]");const stage=document.querySelector<HTMLElement>("[data-timeline]");if(!section||!stage)return;
+    const cards=Array.from(stage.querySelectorAll<HTMLElement>("[data-timeline-card]"));const dots=Array.from(document.querySelectorAll<HTMLButtonElement>("[data-timeline-dot]"));const status=document.querySelector<HTMLElement>("[data-timeline-status]");const currentLabel=document.querySelector<HTMLElement>("[data-timeline-current]");const fill=document.querySelector<HTMLElement>("[data-timeline-fill]");
+    let active=-1;let frame=0;let startX:number|null=null;
+    const clamp=(value:number,min:number,max:number)=>Math.min(max,Math.max(min,value));
+    const metrics=()=>{const top=section.getBoundingClientRect().top+scrollY;return{top,range:Math.max(1,section.offsetHeight-innerHeight)}};
+    const scrollToIndex=(index:number)=>{const {top,range}=metrics();const target=top+(clamp(index,0,cards.length-1)/Math.max(1,cards.length-1))*range;scrollTo({top:target,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})};
+    const render=()=>{frame=0;const{top,range}=metrics();const progress=clamp((scrollY-top)/range,0,1);const position=progress*(cards.length-1);const nearest=Math.round(position);cards.forEach((card,index)=>{const offset=index-position;const distance=Math.abs(offset);const travel=Math.min(innerWidth*.39,440);card.style.setProperty("--x",`${offset*travel}px`);card.style.setProperty("--z",`${distance*-190}px`);card.style.setProperty("--ry",`${offset*-19}deg`);card.style.setProperty("--scale",String(Math.max(.72,1-distance*.11)));card.style.setProperty("--alpha",String(Math.max(0,1-distance*.48)));card.toggleAttribute("data-active",index===nearest);card.setAttribute("aria-hidden",String(index!==nearest))});dots.forEach((dot,index)=>dot.setAttribute("aria-pressed",String(index===nearest)));if(fill)fill.style.transform=`scaleX(${progress})`;if(currentLabel)currentLabel.textContent=cards[nearest]?.querySelector(".timeline-card__year")?.textContent??"";if(active!==nearest){active=nearest;if(status)status.textContent=`Showing ${cards[active]?.querySelector("h3")?.textContent??"milestone"}`}};
+    const requestRender=()=>{if(!frame)frame=requestAnimationFrame(render)};const move=(direction:number)=>scrollToIndex(clamp(active+direction,0,cards.length-1));
+    addEventListener("scroll",requestRender,{passive:true,signal});addEventListener("resize",requestRender,{signal});dots.forEach(dot=>dot.addEventListener("click",()=>scrollToIndex(Number(dot.dataset.index)),{signal}));stage.addEventListener("keydown",event=>{if(event.key==="ArrowLeft"){event.preventDefault();move(-1)}if(event.key==="ArrowRight"){event.preventDefault();move(1)}},{signal});stage.addEventListener("pointerdown",event=>{startX=event.clientX},{signal});stage.addEventListener("pointerup",event=>{if(startX===null)return;const delta=event.clientX-startX;if(Math.abs(delta)>45)move(delta>0?-1:1);startX=null},{signal});render();
+  };
+  setupHistoryTimeline();document.addEventListener("astro:page-load",setupHistoryTimeline);
+</script>

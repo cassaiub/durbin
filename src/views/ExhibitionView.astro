@@ -111,7 +111,23 @@ const ogImage = exhibits[0]?.data.image.src;
         <button class="exmodal__object-nav exmodal__object-nav--next" type="button" aria-label="Next object" data-exmodal-next>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
         </button>
-        <img class="exmodal__image" alt="" data-exmodal-image />
+        <div class="exmodal__viewport" data-exmodal-viewport>
+          <img class="exmodal__image" alt="" draggable="false" data-exmodal-image />
+        </div>
+        <div class="exmodal__controls" aria-label="Image view controls">
+          <button type="button" aria-label="Zoom out" title="Zoom out" data-exmodal-zoom-out>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.75" cy="10.75" r="6.75"/><path d="m16 16 4 4M7.75 10.75h6"/></svg>
+          </button>
+          <output aria-live="polite" data-exmodal-zoom-label>100%</output>
+          <button type="button" aria-label="Zoom in" title="Zoom in" data-exmodal-zoom-in>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.75" cy="10.75" r="6.75"/><path d="m16 16 4 4M7.75 10.75h6M10.75 7.75v6"/></svg>
+          </button>
+          <button type="button" data-exmodal-zoom-reset>Fit</button>
+          <button type="button" aria-label="Enter full screen" title="Full screen" aria-pressed="false" data-exmodal-fullscreen>
+            <svg class="exmodal__icon exmodal__icon--enter" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>
+            <svg class="exmodal__icon exmodal__icon--exit" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>
+          </button>
+        </div>
         <p class="exmodal__loading" hidden data-exmodal-loading>Loading image</p>
         <p class="exmodal__fallback" hidden data-exmodal-fallback>Image unavailable</p>
         <div class="exmodal__dots" role="group" aria-label="Choose an image" data-exmodal-dots></div>
@@ -131,7 +147,8 @@ const ogImage = exhibits[0]?.data.image.src;
 </BaseLayout>
 
   <style>
-  .exhead { padding-top: clamp(7rem, 14vw, 10rem); }
+  .exhead { padding-top: clamp(7rem, 12vw, 9rem); }
+  .exhead .h-display { max-width: 18ch; font-size: clamp(2.35rem, 4.8vw, 3.55rem); line-height: 1; }
   .extools__sentinel { display: block; width: 100%; height: 1px; margin-top: 2rem; margin-bottom: -1px; pointer-events: none; }
   .extools {
     position: sticky; top: 5rem; z-index: 35;
@@ -206,7 +223,11 @@ const ogImage = exhibits[0]?.data.image.src;
   .exmodal__shell { position: relative; display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(21rem, 0.85fr); width: 100%; height: 100%; }
   .exmodal__media { position: relative; display: grid; place-items: center; min-width: 0; overflow: hidden; background: #000; }
   .exmodal__media::after { content: ""; position: absolute; inset: auto 0 0; height: 22%; pointer-events: none; background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent); }
-  .exmodal__image { width: 100%; height: 100%; object-fit: contain; background: #000; }
+  .exmodal__viewport { position: absolute; inset: 0; display: grid; place-items: center; overflow: auto; overscroll-behavior: contain; scrollbar-color: rgba(255,255,255,.35) transparent; }
+  .exmodal__image { width: 100%; height: 100%; max-width: none; object-fit: contain; background: #000; cursor: zoom-in; user-select:none; -webkit-user-drag:none; }
+  .exmodal__media[data-zoomed] .exmodal__viewport { cursor: grab; }
+  .exmodal__media[data-zoomed] .exmodal__image { cursor: inherit; }
+  .exmodal__viewport[data-panning] { cursor: grabbing; }
   .exmodal__loading, .exmodal__fallback { position: absolute; color: var(--photo-ink-faint); font-family: var(--font-body); font-size: 0.78rem; font-weight: 600; letter-spacing: 0; text-transform: uppercase; }
   .exmodal__loading::after { content: ""; display: inline-block; width: 1.2em; animation: loading-dots 1.2s steps(4, end) infinite; }
   @keyframes loading-dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75%, 100% { content: "..."; } }
@@ -223,6 +244,12 @@ const ogImage = exhibits[0]?.data.image.src;
   .exmodal__information :global(.exmodal__info-row dt) { color: var(--photo-ink-faint); }
   .exmodal__information :global(.exmodal__info-row dd) { color: var(--photo-ink-soft); overflow-wrap: anywhere; }
   .exmodal__license { margin-top: 1.8rem; color: var(--photo-ink-faint); font-family: var(--font-mono); font-size: 0.65rem; }
+  .exmodal__controls { position: absolute; z-index: 6; top: 1rem; left: 50%; translate: -50% 0; display: flex; align-items: center; gap: .28rem; padding: .3rem; border: 1px solid rgba(255,255,255,.16); border-radius: var(--radius-pill); background: rgba(0,0,0,.66); backdrop-filter: blur(14px); }
+  .exmodal__controls button, .exmodal__controls output { display: grid; place-items: center; min-width: 36px; height: 34px; padding: 0 .65rem; border-radius: var(--radius-pill); color: var(--photo-ink-soft); font-size: .7rem; font-weight: 650; white-space: nowrap; }
+  .exmodal__controls button:hover { color: #fff; background: rgba(255,255,255,.12); }.exmodal__controls button:disabled { opacity: .35; cursor: not-allowed; }.exmodal__controls output { min-width: 48px; color: var(--brand-green-mid); font-family: var(--font-mono); padding: 0 .3rem; }.exmodal__controls svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.exmodal__icon--exit{display:none}.exmodal__controls [data-exmodal-fullscreen][aria-pressed="true"] .exmodal__icon--enter{display:none}.exmodal__controls [data-exmodal-fullscreen][aria-pressed="true"] .exmodal__icon--exit{display:block}
+  .exmodal[data-media-fullscreen] .exmodal__shell { grid-template-columns: 1fr; }
+  .exmodal[data-media-fullscreen] .exmodal__details { display: none; }
+  .exmodal[data-media-fullscreen] .exmodal__media { height: 100dvh; }
   .exmodal__close, .exmodal__object-nav {
     position: absolute; z-index: 5; display: grid; place-items: center; border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: var(--radius-circle); color: var(--photo-ink); background: rgba(0, 0, 0, 0.64);
@@ -253,6 +280,8 @@ const ogImage = exhibits[0]?.data.image.src;
   @media (max-width: 480px) {
     .exmodal__media { height: 46vh; }
     .exmodal__object-nav { width: 44px; height: 44px; }
+    .exmodal__controls { top: .65rem; max-width: calc(100% - 7rem); overflow-x: auto; }
+    .exmodal__controls button, .exmodal__controls output { min-width: 34px; height: 32px; padding-inline: .5rem; }
     .exmodal__information :global(.exmodal__info-row) { grid-template-columns: 1fr; gap: 0.08rem; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -327,6 +356,12 @@ const ogImage = exhibits[0]?.data.image.src;
   const nextButton = modal?.querySelector<HTMLButtonElement>("[data-exmodal-next]");
   const image = modal?.querySelector<HTMLImageElement>("[data-exmodal-image]");
   const media = modal?.querySelector<HTMLElement>("[data-exmodal-media]");
+  const viewport = modal?.querySelector<HTMLElement>("[data-exmodal-viewport]");
+  const zoomOut = modal?.querySelector<HTMLButtonElement>("[data-exmodal-zoom-out]");
+  const zoomIn = modal?.querySelector<HTMLButtonElement>("[data-exmodal-zoom-in]");
+  const zoomReset = modal?.querySelector<HTMLButtonElement>("[data-exmodal-zoom-reset]");
+  const zoomLabel = modal?.querySelector<HTMLOutputElement>("[data-exmodal-zoom-label]");
+  const fullscreenButton = modal?.querySelector<HTMLButtonElement>("[data-exmodal-fullscreen]");
   const loading = modal?.querySelector<HTMLElement>("[data-exmodal-loading]");
   const fallback = modal?.querySelector<HTMLElement>("[data-exmodal-fallback]");
   const title = modal?.querySelector<HTMLElement>("[data-exmodal-title]");
@@ -340,7 +375,34 @@ const ogImage = exhibits[0]?.data.image.src;
   let activePayload: ObjectPayload | null = null;
   let slideIndex = 0;
   let imageRequest = 0;
+  let zoom = 1;
+  let mediaFullscreen = false;
+  let panState: { pointerId:number; x:number; y:number; left:number; top:number } | null = null;
   const imageCache = new Map<string, Promise<HTMLImageElement>>();
+
+  const setZoom = (next: number) => {
+    if (!image || !viewport) return;
+    zoom = Math.min(4, Math.max(1, Math.round(next * 4) / 4));
+    image.style.width = `${zoom * 100}%`;
+    image.style.height = `${zoom * 100}%`;
+    media?.toggleAttribute("data-zoomed", zoom > 1);
+    if (zoomLabel) zoomLabel.value = `${Math.round(zoom * 100)}%`;
+    if (zoomOut) zoomOut.disabled = zoom <= 1;
+    if (zoomIn) zoomIn.disabled = zoom >= 4;
+    requestAnimationFrame(() => {
+      viewport.scrollLeft = Math.max(0, (viewport.scrollWidth - viewport.clientWidth) / 2);
+      viewport.scrollTop = Math.max(0, (viewport.scrollHeight - viewport.clientHeight) / 2);
+    });
+  };
+  const setMediaFullscreen = (expanded: boolean) => {
+    if (!modal || !fullscreenButton) return;
+    mediaFullscreen = expanded;
+    modal.toggleAttribute("data-media-fullscreen", expanded);
+    fullscreenButton.setAttribute("aria-pressed", String(expanded));
+    fullscreenButton.setAttribute("aria-label", expanded ? "Exit full screen" : "Enter full screen");
+    fullscreenButton.title = expanded ? "Exit full screen" : "Full screen";
+    requestAnimationFrame(() => setZoom(zoom));
+  };
 
   const preloadImage = (src: string) => {
     const cached = imageCache.get(src);
@@ -390,6 +452,7 @@ const ogImage = exhibits[0]?.data.image.src;
     slideIndex = ((index % total) + total) % total;
     const slide = payload.slides[slideIndex];
     const request = ++imageRequest;
+    setZoom(1);
     image.alt = slide.alt;
     image.style.objectPosition = payload.imagePosition;
     credit.textContent = slide.credit;
@@ -479,14 +542,46 @@ const ogImage = exhibits[0]?.data.image.src;
   triggers.forEach((trigger) => trigger.addEventListener("click", () => showObject(trigger)));
   previousButton?.addEventListener("click", () => stepObject(-1));
   nextButton?.addEventListener("click", () => stepObject(1));
+  zoomOut?.addEventListener("click", () => setZoom(zoom - 0.25));
+  zoomIn?.addEventListener("click", () => setZoom(zoom + 0.25));
+  zoomReset?.addEventListener("click", () => setZoom(1));
+  fullscreenButton?.addEventListener("click", () => setMediaFullscreen(!mediaFullscreen));
+  image?.addEventListener("dblclick", () => setZoom(zoom > 1 ? 1 : 2));
+  viewport?.addEventListener("pointerdown", (event) => {
+    if (zoom <= 1 || event.button !== 0) return;
+    panState = { pointerId:event.pointerId, x:event.clientX, y:event.clientY, left:viewport.scrollLeft, top:viewport.scrollTop };
+    viewport.setPointerCapture(event.pointerId);
+    viewport.toggleAttribute("data-panning", true);
+    event.preventDefault();
+  });
+  viewport?.addEventListener("pointermove", (event) => {
+    if (!panState || event.pointerId !== panState.pointerId) return;
+    viewport.scrollLeft = panState.left - (event.clientX - panState.x);
+    viewport.scrollTop = panState.top - (event.clientY - panState.y);
+    event.preventDefault();
+  });
+  const stopPanning = (event:PointerEvent) => {
+    if (!panState || event.pointerId !== panState.pointerId || !viewport) return;
+    if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
+    panState = null;
+    viewport.removeAttribute("data-panning");
+  };
+  viewport?.addEventListener("pointerup", stopPanning);
+  viewport?.addEventListener("pointercancel", stopPanning);
   closeButton?.addEventListener("click", () => modal?.close());
   modal?.addEventListener("click", (event) => { if (event.target === modal) modal.close(); });
   modal?.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowRight" && !(event.target as Element).closest("button")) { event.preventDefault(); stepObject(1); }
+    if ((event.key === "+" || event.key === "=") && !(event.target as Element).closest("button")) { event.preventDefault(); setZoom(zoom + .25); }
+    else if (event.key === "-" && !(event.target as Element).closest("button")) { event.preventDefault(); setZoom(zoom - .25); }
+    else if (event.key === "0" && !(event.target as Element).closest("button")) { event.preventDefault(); setZoom(1); }
+    else if (event.key.toLowerCase() === "f" && !(event.target as Element).closest("button")) { event.preventDefault(); setMediaFullscreen(!mediaFullscreen); }
+    else if (event.key === "ArrowRight" && !(event.target as Element).closest("button")) { event.preventDefault(); stepObject(1); }
     else if (event.key === "ArrowLeft" && !(event.target as Element).closest("button")) { event.preventDefault(); stepObject(-1); }
   });
   modal?.addEventListener("close", () => {
     document.body.style.overflow = "";
+    setMediaFullscreen(false);
+    setZoom(1);
     history.replaceState(null, "", location.pathname);
     activeTrigger?.focus();
   });

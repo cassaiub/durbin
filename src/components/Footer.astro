@@ -7,7 +7,6 @@ import cassaLogo from "../assets/partners/cassa-white.svg";
 import dunlapLogo from "../assets/partners/dunlap-white.png";
 import whitinLogo from "../assets/partners/whitin-observatory.png";
 
-const year = new Date().getFullYear();
 // Pixabay video 217245 by olenchic, used under the Pixabay Content License.
 // It is stored locally so the footer is not dependent on a third-party request.
 const footerVideo = "/videos/pixabay-moon-night-217245.mp4";
@@ -68,9 +67,6 @@ const partners = [
     </div>
   </div>
 
-  <div class="wrap foot__base">
-    <p>© {year} CASSA · Independent University, Bangladesh</p>
-  </div>
 </footer>
 
 <style>
@@ -141,7 +137,7 @@ const partners = [
   .foot__partner:hover { opacity: 0.86; }
   .foot__partner img { width: 100%; height: 100%; object-fit: contain; filter: grayscale(1) brightness(0) invert(1); }
   .foot__partner--cassa img { max-width: 6.4rem; }
-  .foot__partner--dunlap img { max-width: 12.75rem; }
+  .foot__partner--dunlap img { max-width: 14.75rem; transform: scale(1.12); }
   .foot__partner--british img { max-width: 7rem; }
   .foot__partner--whitin img { max-width: 11.75rem; }
   @media (max-width: 760px) {
@@ -155,12 +151,6 @@ const partners = [
     .foot__contact { grid-template-columns: 1fr; gap: 1rem; }
   }
 
-  .foot__base {
-    margin-top: clamp(1.75rem, 4vw, 3rem);
-    padding-bottom: 1.5rem;
-    text-align: center;
-    font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-faint);
-  }
 </style>
 
 <script>

@@ -52,7 +52,7 @@ const jsonLd = {
   path={`/events/${entry.id}`}
   title={`${d.title} | Durbin`}
   description={d.summary}
-  current="/updates"
+  current="/events"
   ogImage={d.hero?.src}
   ogImageAlt={d.heroAlt}
   ogType="article"
@@ -86,7 +86,7 @@ const jsonLd = {
             <Content />
           </div>
         </Reveal>
-        <p class="evtback"><a class="btn" href="/updates">← All updates</a></p>
+        <p class="evtback"><a class="btn" href="/events">← All events</a></p>
       </div>
       <aside class="evtside">
         <Reveal delay={80}>

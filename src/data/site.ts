@@ -16,10 +16,12 @@ export const SITE = {
 
 /* The primary nav, in order. */
 export const NAV = [
+  { path: "/about", label: "About" },
   { path: "/people", label: "People" },
+  { path: "/instruments/telescope", label: "Instruments" },
   { path: "/exhibition", label: "Exhibition" },
-  { path: "/news-and-events", label: "News & Events" },
-  { path: "/about", label: "About Us" },
+  { path: "/news", label: "News" },
+  { path: "/events", label: "Events" },
 ] as const;
 
 /* ---- The exhibition's authoritative broad object-type taxonomy, in display
