@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://durbin.cassa.bd/sitemap-index.xml
+Sitemap: https://durbin.cc/sitemap-index.xml

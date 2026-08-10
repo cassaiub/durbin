@@ -6,8 +6,9 @@ Guidance for Claude Code when working in this repo (`durbin/`, durbin-site).
 
 The standalone hub for **Durbin**, CASSA's volunteer astronomy-outreach
 programme, an Astro 6 static site whose centrepiece is the exhibition: all
-astrophotography by Durbin volunteers, one page per image. Will deploy to
-**durbin.cassa.bd** (site root of the subdomain, `base: '/'`).
+astrophotography by Durbin volunteers, one page per image. Deploys to
+**durbin.cc**, its own domain, so the site is at that domain's root
+(`base: '/'`).
 
 ## Commands
 
@@ -15,13 +16,27 @@ astrophotography by Durbin volunteers, one page per image. Will deploy to
   cassa 2026 · ast100 2027 · durbin 2028; kriterion 3000/4000, inside 4317).
 - `npm run build`, static build to `dist/`. Build does NOT typecheck.
 - `npx astro check`, typecheck; keep it at 0 errors.
+- `npm run deploy`, manual deploy (build + dry-run + confirm + rsync).
 
 ## Deployment
 
-No CI workflow yet. When one is added it will mirror ast100's pattern (rsync
-`dist/` to the subdomain's document root on push to `main`), at that point a
-push to `main` becomes a live production deploy; never push without an
-explicit request.
+`.github/workflows/deploy.yml` runs on every push to `main`: `npm ci` →
+`check:content` → `astro build` → `rsync --delete dist/` to Bluehost. **There
+is no staging, so a push to `main` is a live production deploy** — never push
+without an explicit request. The Actions tab also allows a manual re-run
+(`workflow_dispatch`), and `npm run deploy` is the local escape hatch (uses the
+`bluehost` alias in `~/.ssh/config`; CI uses the shared `cassa-ci-deploy` key
+via the four `BLUEHOST_*` repo secrets).
+
+The destination is `~/durbin.cc/` on the server — the document root of the
+`durbin.cc` addon domain, deliberately **outside `public_html`**. The sibling
+`cassa` repo mirrors its build onto `public_html/` with `--delete`, where
+anything not part of the cassa build survives only by being named in that
+repo's exclude list. Keeping this site out of `public_html` means neither
+deploy can reach the other's files; do not move it in there.
+
+Note that `cassa.bd/durbin` is a **different** site — a section of cassa-site,
+built and owned by the `cassa` repo. This repo does not deploy there.
 
 ## English only
 

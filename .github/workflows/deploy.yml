@@ -1,0 +1,73 @@
+name: Deploy to Bluehost — durbin.cc
+
+on:
+  push:
+    branches: [main]
+  # Manual re-run from the Actions tab without needing a new commit.
+  workflow_dispatch:
+
+# Cancel an in-flight run if a newer push arrives on the same branch.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build & Sync to Bluehost
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22        # matches package.json engines (>=22.12.0)
+          cache: npm              # cache ~/.npm across runs
+
+      - name: Install dependencies (npm ci)
+        run: npm ci
+
+      - name: Validate content
+        run: npm run check:content
+
+      - name: Build Astro static site
+        run: npm run build
+
+      # Write the CI deploy key + pinned host key. These are the SAME
+      # credentials as the sibling `cassa` and `ast100` repos (key
+      # cassa-ci-deploy, rotated 2026-06-04). IdentitiesOnly=yes is essential:
+      # it offers ONLY this key, avoiding the server's "Too many
+      # authentication failures" disconnect.
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.BLUEHOST_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          echo "${{ secrets.BLUEHOST_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      # rsync ./dist/ → ~/durbin.cc/ on Bluehost, the document root of the
+      # durbin.cc addon domain. That directory sits OUTSIDE public_html on
+      # purpose: the sibling `cassa` repo mirrors its build onto public_html/
+      # with --delete, and anything under there that is not part of the cassa
+      # build survives only by being named in that repo's exclude list. Keeping
+      # this site out of public_html removes the coupling entirely — neither
+      # deploy can reach the other's files.
+      #
+      # --delete is safe here because the destination holds nothing but this
+      # build. .well-known is excluded anyway so AutoSSL renewal challenges
+      # written by cPanel are never swept away mid-issuance.
+      - name: Deploy with rsync
+        run: |
+          rsync -avz --delete --human-readable \
+            -e "ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o UserKnownHostsFile=~/.ssh/known_hosts" \
+            --exclude '.well-known' \
+            --exclude 'cgi-bin' \
+            --exclude '.htaccess' \
+            --exclude '.user.ini' \
+            --exclude '.ftpquota' \
+            dist/ \
+            "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}:durbin.cc/"
