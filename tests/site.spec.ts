@@ -488,8 +488,8 @@ test("the About page presents the programme story and clear next steps", async (
   await expect(page.locator(".about-marquee")).toBeVisible();
   await expect(page.locator(".about-marquee span")).toHaveText(["Observe the unseen", "Learn together", "Interpret the light", "Share the sky"]);
   const horizontal = page.locator("[data-about-horizontal]");
-  await expect.poll(() => horizontal.evaluate((node) => node.offsetHeight > innerHeight * 2)).toBe(true);
-  await horizontal.evaluate((node) => scrollTo(0, node.getBoundingClientRect().top + scrollY + (node.offsetHeight - innerHeight) * .45));
+  await expect.poll(() => horizontal.evaluate((node: HTMLElement) => node.offsetHeight > innerHeight * 2)).toBe(true);
+  await horizontal.evaluate((node: HTMLElement) => scrollTo(0, node.getBoundingClientRect().top + scrollY + (node.offsetHeight - innerHeight) * .45));
   await expect.poll(() => page.locator("[data-about-track]").evaluate((node) => getComputedStyle(node).transform)).not.toBe("none");
   await expect(page.locator(".about-field")).not.toHaveCSS("position", "fixed");
   await expect(page.locator(".about-field")).not.toHaveCSS("position", "sticky");

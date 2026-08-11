@@ -38,13 +38,20 @@ deploy can reach the other's files; do not move it in there.
 Note that `cassa.bd/durbin` is a **different** site — a section of cassa-site,
 built and owned by the `cassa` repo. This repo does not deploy there.
 
-## English only
+## No localization layer (but content may be Bangla)
 
-The site is monolingual English. It was bilingual (Bangla-default with an
-`/en/` mirror) until 2026-08-01; that whole layer, the `/en/` route tree, the
-`t(locale, key)` dictionary in `src/lib/i18n.ts`, `essayBn`, the per-entry
-`lang` field, the Durer Kotha series and its Bangla posts, was deleted. Do
-not reintroduce it without an explicit request.
+The site **chrome** is monolingual English. It was bilingual (Bangla-default
+with an `/en/` mirror) until 2026-08-01; that whole layer, the `/en/` route
+tree, the `t(locale, key)` dictionary in `src/lib/i18n.ts`, `essayBn`, the
+per-entry `lang` field, and the Durer Kotha series, was deleted. Do not
+reintroduce it without an explicit request.
+
+**Content is a separate question.** On 2026-08-11 the user confirmed that news
+posts may be written in Bangla — the site carries both, with no per-entry
+`lang` field and no route-level split. Do not translate or delete a Bangla
+entry; leave the prose in the language it was written in. `Noto Sans Bengali`
+trails Inter in the font tokens in `src/styles/global.css` (and is loaded in
+`BaseLayout`) so Bengali codepoints resolve to real glyphs; keep it there.
 
 - One unprefixed route tree under `src/pages/`. Every route file is a thin
   wrapper around a shared view in `src/views/`, page logic lives in the view,
@@ -76,8 +83,9 @@ without frontmatter edits. Conventions:
 - `events/`: all non-draft events land in /updates and /events/[slug].
 - Assets referenced by news/events live in `src/assets/news|events/<slug>/`
   and are referenced relatively (`../../assets/…`), keep that layout.
-- Content is English. A migrated entry carrying a stray `lang:` key is
-  harmless (the schema drops it), but its prose must be English.
+- Content may be English or Bangla; both live in the same feed. A migrated
+  entry carrying a stray `lang:` key is harmless (the schema drops it). Do not
+  translate an entry into the other language on your own initiative.
 
 ## Design system
 

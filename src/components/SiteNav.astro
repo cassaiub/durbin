@@ -208,7 +208,7 @@ const isGroupActive = (key: string) =>
           other.removeAttribute("data-open");
           const otherButton = other.querySelector<HTMLButtonElement>("button");
           otherButton?.setAttribute("aria-expanded", "false");
-          if (document.activeElement === otherButton) otherButton.blur();
+          if (otherButton && document.activeElement === otherButton) otherButton.blur();
         });
       }, { signal });
       button?.addEventListener("click", () => {

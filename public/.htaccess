@@ -1,0 +1,35 @@
+# durbin.cc — server config for the static build.
+#
+# This file ships FROM THE REPO: it lands in dist/ and rsync copies it into the
+# document root (~/durbin.cc). Nothing in that directory is cPanel-generated,
+# so there is no server-side copy to preserve. Edit it here, never on the
+# server, or the next deploy will overwrite the change.
+
+# Astro builds directory-style pages (/exhibition/index.html) while emitting
+# links and canonical URLs WITHOUT a trailing slash (trailingSlash: "never" in
+# astro.config.mjs). Left alone, mod_dir answers /exhibition with a 301 to
+# /exhibition/, which contradicts the canonical and puts a redirect in front of
+# every internal link. Serve the index file directly at the no-slash URL.
+DirectorySlash Off
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # /exhibition -> /exhibition/index.html, internally, no redirect.
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteCond %{REQUEST_FILENAME}/index.html -f
+  RewriteRule ^(.*[^/])$ $1/index.html [L]
+
+  # A visitor or an old inbound link supplying the trailing slash is sent to
+  # the canonical no-slash URL, so each page answers on exactly one address.
+  # "/" itself is exempt. This cannot loop: the rule above rewrites internally
+  # rather than redirecting.
+  RewriteCond %{REQUEST_URI} !^/$
+  RewriteRule ^(.+)/$ /$1 [R=301,L]
+</IfModule>
+
+# The build emits a styled 404 page; without this Apache serves its own.
+ErrorDocument 404 /404.html
+
+# DirectorySlash Off must never be paired with directory listings.
+Options -Indexes

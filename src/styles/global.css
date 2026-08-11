@@ -82,10 +82,13 @@
   --photo-ink-soft: rgba(255, 255, 255, 0.84);
   --photo-ink-faint: rgba(255, 255, 255, 0.68);
 
-  /* type */
-  --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, "SF Mono", monospace;
+  /* type — "Noto Sans Bengali" trails Inter/Geist Mono so Bangla content
+     (news posts are allowed in either language) resolves to real Bengali
+     glyphs instead of the OS fallback. Latin text never reaches it: the
+     browser only falls through for codepoints Inter does not cover. */
+  --font-display: "Inter", "Noto Sans Bengali", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Inter", "Noto Sans Bengali", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", "Noto Sans Bengali", ui-monospace, "SF Mono", monospace;
 
   /* rhythm */
   --wrap: 1160px;

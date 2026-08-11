@@ -100,9 +100,13 @@ const schemas = [orgSchema, ...pageSchemas];
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* Inter covers Latin only, so Bangla posts would fall back to whatever
+        the reader's OS happens to have (often nothing, i.e. tofu). Noto Sans
+        Bengali sits after Inter in the stacks in global.css: Latin glyphs
+        still come from Inter, Bengali ones from Noto. */}
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap"
     />
   </head>
   <body>

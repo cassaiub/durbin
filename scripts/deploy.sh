@@ -21,11 +21,11 @@ LOCAL_PATH="dist/"       # Astro build output
 # files and this deploy can never reach cassa's. Keep it that way.
 #
 # Server-owned files that must survive --delete even though the build never
-# emits them.
+# emits them. Note .htaccess is NOT here: this site ships its own from
+# public/.htaccess and must be allowed to overwrite the server copy.
 EXCLUDES=(
   ".well-known" # ACME / AutoSSL validation
   "cgi-bin"     # cPanel default
-  ".htaccess"   # server config, hand-edited
   ".user.ini"   # per-account PHP config
   ".ftpquota"   # cPanel FTP quota file
 )
