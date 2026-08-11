@@ -40,11 +40,16 @@ Note that `cassa.bd/durbin` is a **different** site — a section of cassa-site,
 built and owned by the `cassa` repo. This repo does not deploy there.
 
 `public/.htaccess` ships with the build and is **not** excluded from the rsync,
-so server URL behaviour (no-trailing-slash pages, the 404 document) is version
-controlled. Edit it in the repo, never on the server. Bluehost also runs an
-nginx edge cache in front of Apache with an 8-hour TTL, so after a deploy an
-unchanged URL can serve a stale response; add a throwaway query string when
-verifying.
+so server URL behaviour is version controlled: canonical origin
+(https, no www), no-trailing-slash pages, the 404 document, and the cache
+opt-out. Edit it in the repo, never on the server.
+
+Bluehost fronts Apache with an nginx proxy cache. This site opts out
+(`X-Endurance-Cache-Level: 0`), but entries cached before that opt-out, or on
+any URL that still advertises a level, live for 8 hours and make a good deploy
+look broken. Purge one with `curl -X PURGE <url>` (204 = done); scheme and
+`www.` variants are separate keys. Verify on the **plain** URL — a
+cache-busting query string bypasses the poisoned entry and hides the problem.
 
 ## No localization layer (but content may be Bangla)
 
