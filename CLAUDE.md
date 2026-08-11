@@ -29,7 +29,8 @@ without an explicit request. The Actions tab also allows a manual re-run
 via the four `BLUEHOST_*` repo secrets).
 
 The destination is `~/durbin.cc/` on the server — the document root of the
-`durbin.cc` addon domain, deliberately **outside `public_html`**. The sibling
+`durbin.cc` addon domain (live since 2026-08-11), deliberately **outside
+`public_html`**. The sibling
 `cassa` repo mirrors its build onto `public_html/` with `--delete`, where
 anything not part of the cassa build survives only by being named in that
 repo's exclude list. Keeping this site out of `public_html` means neither
@@ -37,6 +38,13 @@ deploy can reach the other's files; do not move it in there.
 
 Note that `cassa.bd/durbin` is a **different** site — a section of cassa-site,
 built and owned by the `cassa` repo. This repo does not deploy there.
+
+`public/.htaccess` ships with the build and is **not** excluded from the rsync,
+so server URL behaviour (no-trailing-slash pages, the 404 document) is version
+controlled. Edit it in the repo, never on the server. Bluehost also runs an
+nginx edge cache in front of Apache with an 8-hour TTL, so after a deploy an
+unchanged URL can serve a stale response; add a throwaway query string when
+verifying.
 
 ## No localization layer (but content may be Bangla)
 
@@ -79,8 +87,9 @@ without frontmatter edits. Conventions:
 - Run `npm run report:editorial` after exhibition changes and commit the
   generated `reports/editorial-review.md`; `npm run check:content` fails if it
   is stale or if taxonomy/hero-alternative validation fails.
-- `news/`: every non-draft post lands in /updates and /news/[slug].
-- `events/`: all non-draft events land in /updates and /events/[slug].
+- `news/`: every non-draft post lands in /news-and-events and /news/[slug].
+- `events/`: all non-draft events land in /news-and-events and /events/[slug].
+  (`/updates` is only a 301 stub to /news-and-events, kept for old links.)
 - Assets referenced by news/events live in `src/assets/news|events/<slug>/`
   and are referenced relatively (`../../assets/…`), keep that layout.
 - Content may be English or Bangla; both live in the same feed. A migrated

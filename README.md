@@ -14,7 +14,7 @@ localization layer.
 | `/` | Ambient full-screen crossfade of featured plates + about, stats, previews |
 | `/exhibition` | The full exhibition, every object, filterable by object type |
 | `/exhibition/[slug]` | One object: capture carousel, the essay, the two information cards, prev/next walk |
-| `/updates` | Merged news + events feed by year |
+| `/news-and-events` | Merged news + events feed by year (`/updates` 301s here) |
 | `/news/[slug]`, `/events/[slug]` | Dispatch and event pages |
 | `/volunteers` | Current cohort + alumni |
 | `/manual` | The Durbin Manual (governance, volunteer model, safeguarding) |
