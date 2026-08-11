@@ -26,11 +26,14 @@ DirectorySlash Off
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # One canonical host. The build's canonical URLs are all bare durbin.cc, so
-  # send www there rather than serving the site at both. HTTPS is NOT forced
-  # here: cPanel's own "Force HTTPS Redirect" does that, and it reads the
-  # proxy's forwarded scheme. A hand-rolled %{HTTPS} test would loop, because
-  # SSL terminates at nginx and Apache sees plain HTTP.
+  # One canonical origin: https, no www — matching the canonical URLs the
+  # build emits. Despite the nginx proxy in front, Apache is handed the real
+  # scheme (verified: HTTPS=on and SERVER_PORT=443 on a TLS request, unset/80
+  # on a plain one), so %{HTTPS} is trustworthy and cannot loop here — the
+  # redirect target always satisfies both conditions. cPanel's own "Force
+  # HTTPS Redirect" is also enabled for this domain, but it does not take
+  # effect on this vhost, so this rule is what actually does the work.
+  RewriteCond %{HTTPS} !=on [OR]
   RewriteCond %{HTTP_HOST} ^www\.durbin\.cc$ [NC]
   RewriteRule ^(.*)$ https://durbin.cc/$1 [R=301,L]
 
