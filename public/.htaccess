@@ -5,6 +5,17 @@
 # so there is no server-side copy to preserve. Edit it here, never on the
 # server, or the next deploy will overwrite the change.
 
+# Bluehost fronts Apache with an nginx proxy cache that stores HTML for eight
+# hours when the origin advertises a cache level (the header below is what it
+# reads; public_html/.htaccess sets it to "2" for cassa-site). At that TTL a
+# deploy stays invisible on any already-visited URL for most of a day, which
+# is indistinguishable from a broken deploy. Opt this site out: it is small,
+# static, and republished often, so freshness beats edge caching. Assets under
+# /_astro/ are content-hashed, so the browser cache still does the real work.
+<IfModule mod_headers.c>
+  Header set X-Endurance-Cache-Level "0"
+</IfModule>
+
 # Astro builds directory-style pages (/exhibition/index.html) while emitting
 # links and canonical URLs WITHOUT a trailing slash (trailingSlash: "never" in
 # astro.config.mjs). Left alone, mod_dir answers /exhibition with a 301 to
@@ -14,6 +25,14 @@ DirectorySlash Off
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
+
+  # One canonical host. The build's canonical URLs are all bare durbin.cc, so
+  # send www there rather than serving the site at both. HTTPS is NOT forced
+  # here: cPanel's own "Force HTTPS Redirect" does that, and it reads the
+  # proxy's forwarded scheme. A hand-rolled %{HTTPS} test would loop, because
+  # SSL terminates at nginx and Apache sees plain HTTP.
+  RewriteCond %{HTTP_HOST} ^www\.durbin\.cc$ [NC]
+  RewriteRule ^(.*)$ https://durbin.cc/$1 [R=301,L]
 
   # /exhibition -> /exhibition/index.html, internally, no redirect.
   RewriteCond %{REQUEST_FILENAME} -d
