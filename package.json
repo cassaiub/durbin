@@ -19,14 +19,19 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
+    "@astrojs/react": "^5.0.5",
     "@astrojs/sitemap": "3.7.3",
     "astro": "6.4.8",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "rehype-mathjax": "^7.1.0",
     "remark-math": "^6.0.0",
     "typescript": "^6.0.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "yaml": "^2.9.0"
   }
 }

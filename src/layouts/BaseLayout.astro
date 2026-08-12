@@ -62,8 +62,14 @@ const schemas = [orgSchema, ...pageSchemas];
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script is:inline>
       (() => {
-        const saved = localStorage.getItem("durbin-theme");
-        document.documentElement.dataset.theme = saved === "light" || saved === "dark" ? saved : "dark";
+        const readTheme = () => {
+          const saved = localStorage.getItem("durbin-theme");
+          return saved === "light" || saved === "dark" ? saved : "dark";
+        };
+        document.documentElement.dataset.theme = readTheme();
+        document.addEventListener("astro:before-swap", (event) => {
+          event.newDocument.documentElement.dataset.theme = readTheme();
+        });
       })();
     </script>
     <ClientRouter />

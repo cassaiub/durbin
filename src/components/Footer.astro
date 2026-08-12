@@ -4,6 +4,7 @@ import { SITE } from "../data/site";
 import durbinLogo from "../assets/brand/durbin-logo.jpg";
 import britishCouncilLogo from "../assets/partners/british-council.webp";
 import cassaLogo from "../assets/partners/cassa-white.svg";
+import iubLogo from "../assets/partners/iub.png";
 import dunlapLogo from "../assets/partners/dunlap-white.png";
 import whitinLogo from "../assets/partners/whitin-observatory.png";
 
@@ -12,7 +13,7 @@ import whitinLogo from "../assets/partners/whitin-observatory.png";
 const footerVideo = "/videos/pixabay-moon-night-217245.mp4";
 const footerPoster = "/videos/pixabay-moon-night-217245.jpg";
 const partners = [
-  { href: "https://cassa.bd/", alt: "CASSA at Independent University, Bangladesh", logo: cassaLogo, size: "cassa" },
+  { href: "https://cassa.bd/", alt: "Independent University, Bangladesh and CASSA", logo: cassaLogo, size: "host" },
   { href: "https://www.dunlap.utoronto.ca/", alt: "Dunlap Institute for Astronomy and Astrophysics", logo: dunlapLogo, size: "dunlap" },
   { href: "https://www.britishcouncil.org.bd/", alt: "British Council Bangladesh", logo: britishCouncilLogo, size: "british" },
   { href: "https://www.wellesley.edu/whitin-observatory", alt: "Whitin Observatory at Wellesley College", logo: whitinLogo, size: "whitin" },
@@ -40,14 +41,14 @@ const partners = [
       <Image class="foot__logo" src={durbinLogo} alt="" width={64} height={64} densities={[1, 2]} loading="lazy" />
       <span>
         <span class="foot__word">Durbin</span>
-        <span class="foot__tag">Citizens of a distant universe</span>
+        <span class="foot__tag">Citizen of distant world</span>
       </span>
     </a>
 
     <div class="foot__contact" aria-label="Contact Durbin">
       <a class="foot__contact-item" href={`mailto:${SITE.email}`}>
-        <span class="foot__contact-label">Email</span>
-        <span class="foot__contact-value">{SITE.email}</span>
+        <span class="foot__contact-label">Project manager</span>
+        <span class="foot__contact-value">Contact <span aria-hidden="true">↗</span></span>
       </a>
       <a class="foot__contact-item" href={SITE.facebook} target="_blank" rel="noopener">
         <span class="foot__contact-label">Follow</span>
@@ -61,7 +62,13 @@ const partners = [
     <div class="foot__partners">
       {partners.map((partner) => (
         <a class={`foot__partner foot__partner--${partner.size}`} href={partner.href} target="_blank" rel="noopener">
-          <img src={partner.logo.src} alt={partner.alt} loading="lazy" decoding="async" />
+          {partner.size === "host" ? (
+            <span class="foot__host-lockup">
+              <img class="foot__iub" src={iubLogo.src} alt="Independent University, Bangladesh" loading="lazy" decoding="async" />
+              <i aria-hidden="true"></i>
+              <img class="foot__cassa" src={cassaLogo.src} alt="CASSA" loading="lazy" decoding="async" />
+            </span>
+          ) : <img src={partner.logo.src} alt={partner.alt} loading="lazy" decoding="async" />}
         </a>
       ))}
     </div>
@@ -81,6 +88,7 @@ const partners = [
     isolation: isolate;
     overflow: hidden;
     padding-top: clamp(2.75rem, 6vw, 4.75rem);
+    padding-bottom: clamp(2rem, 5vw, 4rem);
     color: var(--photo-ink);
     background: var(--night);
   }
@@ -130,13 +138,18 @@ const partners = [
     margin-bottom: 1.35rem;
   }
   .foot__partners {
-    display: grid; grid-template-columns: 0.8fr 1.7fr 0.9fr 1.3fr;
+    display: grid; grid-template-columns: 1.45fr 1.7fr 0.9fr 1.3fr;
     align-items: center; gap: clamp(1.5rem, 5vw, 4.5rem);
   }
   .foot__partner { display: grid; place-items: center; min-width: 0; height: 38px; opacity: 0.58; transition: opacity 0.2s; }
+  .foot__partner--host { transform: scale(1.05); transform-origin: center; }
   .foot__partner:hover { opacity: 0.86; }
   .foot__partner img { width: 100%; height: 100%; object-fit: contain; filter: grayscale(1) brightness(0) invert(1); }
-  .foot__partner--cassa img { max-width: 6.4rem; }
+  .foot__host-lockup { display: grid; grid-template-columns: 3.685rem 1px 5.885rem; align-items: center; justify-content: center; gap: .715rem; width: fit-content; max-width: 100%; height: 41.8px; margin-inline: auto; }
+  .foot__host-lockup i { align-self: center; width: 1px; height: 30.8px; background: rgba(255,255,255,.32); }
+  .foot__partner .foot__host-lockup img { width: 100%; height: 37.4px; max-width: 100%; object-position: center; }
+  .foot__partner .foot__iub { object-fit: contain; }
+  .foot__partner .foot__cassa { object-fit: contain; }
   .foot__partner--dunlap img { max-width: 14.75rem; transform: scale(1.12); }
   .foot__partner--british img { max-width: 7rem; }
   .foot__partner--whitin img { max-width: 11.75rem; }
@@ -145,6 +158,9 @@ const partners = [
     .foot__contact { grid-template-columns: 1fr 0.75fr; justify-content: stretch; }
     .foot__partners { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem 2rem; }
     .foot__partner { place-items: center start; }
+    .foot__host-lockup { grid-template-columns: 2.75rem 1px 4.25rem; gap: .45rem; height: 32px; margin-inline: 0; }
+    .foot__partner .foot__host-lockup img { height: 29px; }
+    .foot__host-lockup i { height: 23px; }
   }
 
   @media (max-width: 420px) {

@@ -2,17 +2,12 @@
 import { Image } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Reveal from "../components/Reveal.astro";
-import { SITE } from "../data/site";
-import { current, past } from "../data/durbin-volunteers";
-import { getExhibits } from "../lib/exhibits";
 import earthHorizon from "../assets/about/earth-horizon-nasa.jpg";
 import workshopGroup from "../assets/news/dw2/dw2-group.webp";
 import telescopeSession from "../assets/news/pabna-school-outreach/pabna-telescope-session.webp";
 import skyStories from "../assets/news/asman-jominer-golpo-1/clouds-above-stories-below.webp";
 import zineSession from "../assets/news/astrophotography-meets-zine-making/zine-making-session.webp";
-import horseheadNebula from "../content/astrophotography/ngc2023.webp";
-
-const exhibits = await getExhibits();
+import horseheadNebula from "../content/astrophotography/ngc2023-2.webp";
 
 const milestones = [
   {
@@ -37,63 +32,33 @@ const milestones = [
   },
 ];
 
-const pathway = [
-  { number: "01", title: "Learn", text: "Volunteers build a working knowledge of the sky, telescopes, imaging, and science communication." },
-  { number: "02", title: "Observe", text: "Teams plan targets and operate local or remote telescopes to gather light from distant objects." },
-  { number: "03", title: "Interpret", text: "Raw frames become astrophotographs, stories, workshops, zines, and accessible learning material." },
-  { number: "04", title: "Share", text: "The work returns to the public through exhibitions, school visits, astronomy nights, and open resources." },
-];
-
-const facts = [
-  { value: String(exhibits.length), label: "objects in the exhibition" },
-  { value: String(current.length), label: "current volunteers" },
-  { value: String(past.length), label: "volunteer alumni" },
-  { value: "8", label: "universities at the 2026 workshop" },
-];
-
 const lede =
   "Durbin is CASSA's volunteer astronomy-outreach programme: a telescope, a classroom, an image laboratory, and a public invitation to look up.";
 ---
 
 <BaseLayout path="/about" title="About | Durbin" description={lede} current="/about" ogImage={earthHorizon.src}>
   <div class="about-page" data-about-page>
-  <header class="about-hero">
-    <div class="about-hero__media" aria-hidden="true">
-      <video autoplay muted loop playsinline preload="metadata" poster={earthHorizon.src} data-about-video>
-        <source src="/videos/215695.mp4" type="video/mp4" />
-      </video>
-    </div>
-    <div class="about-hero__scrim" aria-hidden="true"></div>
-    <div class="wrap about-hero__inner">
-      <div class="about-hero__copy">
-        <div class="about-hero__meta"><p class="about-chip">About Durbin</p><p>Bangladesh · Since 2023</p></div>
-        <h1>The sky belongs<br />to everyone.</h1>
-        <p>{lede}</p>
-        <div class="about-hero__actions">
-          <a class="btn btn--solid" href="/exhibition" data-astro-reload>Explore the exhibition</a>
-          <a class="btn" href="/people/management">Meet the people</a>
-        </div>
-      </div>
-
-    </div>
-    <div class="about-hero__progress" aria-hidden="true"><span></span><p>Scroll to explore</p></div>
-    <p class="about-hero__credit">Night sky footage · Pixabay</p>
-  </header>
-
-  <div class="about-marquee" aria-hidden="true">
-    <div>
-      <span>Observe the unseen</span><i>✦</i><span>Learn together</span><i>✦</i><span>Interpret the light</span><i>✦</i><span>Share the sky</span>
-    </div>
-  </div>
-
   <div class="about-horizontal" data-about-horizontal>
     <div class="about-horizontal__sticky">
+      <div class="about-horizontal__visual" aria-hidden="true">
+        <video muted playsinline preload="auto" tabindex="-1" data-about-scroll-video>
+          <source src="/videos/pixabay-space-universe-204735.mp4" type="video/mp4" />
+        </video>
+        <span class="about-connection about-connection--near"></span>
+        <span class="about-connection about-connection--far"></span>
+        <span class="about-cosmos about-cosmos--one"></span>
+        <span class="about-cosmos about-cosmos--two"></span>
+        <span class="about-cosmos about-cosmos--three"></span>
+        <span class="about-signal about-signal--one"></span>
+        <span class="about-signal about-signal--two"></span>
+        <span class="about-signal about-signal--three"></span>
+      </div>
       <div class="about-horizontal__track" data-about-track>
   <section class="section about-statement">
     <div class="wrap about-statement__grid">
       <Reveal class="about-statement__lead">
         <p class="section-label">Why Durbin exists</p>
-        <h2 class="about-display">Distance should inspire wonder, not exclusion.</h2>
+        <h1 class="about-display">Distance should inspire wonder, not exclusion.</h1>
       </Reveal>
       <Reveal delay={90}>
         <div class="about-statement__copy prose">
@@ -109,19 +74,6 @@ const lede =
           </p>
         </div>
       </Reveal>
-    </div>
-  </section>
-
-  <section class="section section--line about-facts" aria-label="Durbin facts">
-    <div class="wrap">
-      <ul class="about-facts__grid">
-        {facts.map((fact, index) => (
-          <li data-reveal style={`--reveal-delay:${index * 45}ms`}>
-            <strong>{fact.value}</strong>
-            <span>{fact.label}</span>
-          </li>
-        ))}
-      </ul>
     </div>
   </section>
 
@@ -163,39 +115,23 @@ const lede =
       </div>
 
       <div class="about-mosaic">
-        <figure class="about-mosaic__item about-mosaic__item--wide" data-reveal data-about-depth="0.07">
+        <figure class="about-mosaic__item about-mosaic__item--wide" data-reveal>
           <Image src={skyStories} alt="People seated in a circle around a telescope during a Durbin public evening" widths={[700, 1100, 1500]} sizes="(max-width:800px) 100vw, 66vw" loading="lazy" />
           <figcaption><span>Public astronomy</span>Stories can keep a cloudy sky alive.</figcaption>
         </figure>
-        <figure class="about-mosaic__item" data-reveal data-about-depth="0.12" style="--reveal-delay:70ms">
+        <figure class="about-mosaic__item" data-reveal style="--reveal-delay:70ms">
           <Image src={horseheadNebula} alt="The Horsehead Nebula imaged by Durbin volunteers" widths={[480, 720, 960]} sizes="(max-width:800px) 100vw, 34vw" loading="lazy" />
           <figcaption><span>Astrophotography</span>Light becomes evidence, image, and art.</figcaption>
         </figure>
-        <figure class="about-mosaic__item" data-reveal data-about-depth="0.1">
+        <figure class="about-mosaic__item" data-reveal>
           <Image src={telescopeSession} alt="Students learning to use a telescope during Durbin school outreach in Pabna" widths={[480, 720, 960]} sizes="(max-width:800px) 100vw, 34vw" loading="lazy" />
           <figcaption><span>School outreach</span>The instrument becomes an invitation.</figcaption>
         </figure>
-        <figure class="about-mosaic__item about-mosaic__item--wide" data-reveal data-about-depth="0.06" style="--reveal-delay:70ms">
+        <figure class="about-mosaic__item about-mosaic__item--wide" data-reveal style="--reveal-delay:70ms">
           <Image src={workshopGroup} alt="Durbin volunteers and instructors together after a workshop at CASSA" widths={[700, 1100, 1500]} sizes="(max-width:800px) 100vw, 66vw" loading="lazy" />
           <figcaption><span>Volunteer learning</span>Expert guidance becomes shared capacity.</figcaption>
         </figure>
       </div>
-    </div>
-  </section>
-
-  <section class="section section--line about-path">
-    <div class="wrap">
-      <Reveal><p class="section-label">The volunteer cycle</p></Reveal>
-      <Reveal delay={60}><h2 class="about-display">Knowledge travels outward.</h2></Reveal>
-      <ol class="about-path__grid">
-        {pathway.map((step, index) => (
-          <li data-reveal style={`--reveal-delay:${index * 55}ms`}>
-            <span class="about-path__number">{step.number}</span>
-            <h3>{step.title}</h3>
-            <p>{step.text}</p>
-          </li>
-        ))}
-      </ol>
     </div>
   </section>
 
@@ -227,7 +163,7 @@ const lede =
     <div class="wrap about-governance__grid">
       <Reveal>
         <p class="section-label">Built to last</p>
-        <h2 class="about-display">Volunteer-led. Expert-supervised. Public by design.</h2>
+        <h2 class="about-display">Volunteer led. Expert supervised. Public by design.</h2>
       </Reveal>
       <Reveal delay={90}>
         <div class="about-governance__panel">
@@ -235,11 +171,6 @@ const lede =
             Durbin is an outreach programme of CASSA at Independent University, Bangladesh. It is
             supervised by astronomers, managed through formal programme cycles, and governed by
             CASSA’s safeguarding standards.
-          </p>
-          <p>
-            Initial support came from the University of Toronto’s Dunlap Institute for Astronomy
-            &amp; Astrophysics. From 2026, the British Council’s WOW Bangladesh programme supports
-            Durbin’s expanded work with women and girls.
           </p>
           <a class="btn" href="/manual">Read the programme manual →</a>
         </div>
@@ -251,12 +182,11 @@ const lede =
     <div class="wrap">
       <Reveal>
         <div class="about-close__surface">
-          <p class="section-label">Citizens of a distant universe</p>
+          <p class="section-label">Citizen of distant world</p>
           <h2>Come closer to the sky.</h2>
-          <p>Enter the image collection, meet the volunteers, or start a conversation with Durbin.</p>
+          <p>Explore the image collection and meet the people sharing Bangladesh’s sky.</p>
           <div class="about-close__actions">
             <a class="btn btn--solid" href="/exhibition" data-astro-reload>Enter the exhibition</a>
-            <a class="btn" href={`mailto:${SITE.email}`}>Email Durbin</a>
           </div>
         </div>
       </Reveal>
@@ -268,47 +198,54 @@ const lede =
 <script>
   const setupAboutMotion = () => {
     const page = document.querySelector<HTMLElement>("[data-about-page]");
-    const hero = page?.querySelector<HTMLElement>(".about-hero");
-    const video = page?.querySelector<HTMLVideoElement>("[data-about-video]");
+    const scrollVideo = page?.querySelector<HTMLVideoElement>("[data-about-scroll-video]");
     const horizontal = page?.querySelector<HTMLElement>("[data-about-horizontal]");
     const track = page?.querySelector<HTMLElement>("[data-about-track]");
-    if (!page || !hero || page.dataset.motionReady === "true") return;
+    if (!page || page.dataset.motionReady === "true") return;
     page.dataset.motionReady = "true";
     const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reducedMotion) {
-      video?.pause();
+      scrollVideo?.pause();
       return;
     }
     const controller = new AbortController();
-    video?.play().catch(() => undefined);
     let ticking = false;
+    let travel = 0;
+    let range = 1;
+    let lastProgress = -1;
+    let lastVideoSeekAt = 0;
+    const syncScrollVideo = (progress:number, now:number) => {
+      if (!scrollVideo || !Number.isFinite(scrollVideo.duration) || scrollVideo.duration <= 0) return;
+      const target = progress * Math.max(0, scrollVideo.duration - 0.05);
+      scrollVideo.dataset.scrollProgress = progress.toFixed(4);
+      const delta = Math.abs(scrollVideo.currentTime - target);
+      if (delta <= 0.06) return;
+      if (now - lastVideoSeekAt < 64 && delta < 0.35) return;
+      lastVideoSeekAt = now;
+      scrollVideo.currentTime = target;
+    };
     const updateGeometry = () => {
       if (!horizontal || !track || innerWidth <= 900) {
         horizontal?.style.removeProperty("height");
+        horizontal?.style.removeProperty("--about-progress");
         track?.style.removeProperty("transform");
         return;
       }
-      const travel = Math.max(0, track.scrollWidth - innerWidth);
+      travel = Math.max(0, track.scrollWidth - innerWidth);
       horizontal.style.height = `${travel + innerHeight}px`;
+      range = Math.max(1, horizontal.offsetHeight - innerHeight);
     };
-    const update = () => {
-      const heroRect = hero.getBoundingClientRect();
-      const heroProgress = Math.max(0, Math.min(1, -heroRect.top / Math.max(1, heroRect.height)));
-      page.style.setProperty("--about-hero-progress", heroProgress.toFixed(3));
+    const update = (now = performance.now()) => {
       if (horizontal && track && innerWidth > 900) {
         const rect = horizontal.getBoundingClientRect();
-        const range = Math.max(1, horizontal.offsetHeight - innerHeight);
         const progress = Math.max(0, Math.min(1, -rect.top / range));
-        const travel = Math.max(0, track.scrollWidth - innerWidth);
-        track.style.transform = `translate3d(${-progress * travel}px,0,0)`;
-        page.style.setProperty("--about-horizontal-progress", progress.toFixed(3));
+        if (Math.abs(progress - lastProgress) > 0.0005) {
+          horizontal.style.setProperty("--about-progress", progress.toFixed(4));
+          track.style.transform = `translate3d(${-progress * travel}px,0,0)`;
+          lastProgress = progress;
+        }
+        syncScrollVideo(progress, now);
       }
-      page.querySelectorAll<HTMLElement>("[data-about-depth]").forEach((item) => {
-        const rect = item.getBoundingClientRect();
-        const center = rect.top + rect.height / 2 - innerHeight / 2;
-        const depth = Number(item.dataset.aboutDepth ?? 0.08);
-        item.style.setProperty("--about-shift", `${Math.max(-28, Math.min(28, -center * depth))}px`);
-      });
       ticking = false;
     };
     const requestUpdate = () => {
@@ -319,6 +256,7 @@ const lede =
     };
     updateGeometry();
     update();
+    scrollVideo?.addEventListener("loadedmetadata", requestUpdate, { signal: controller.signal });
     addEventListener("scroll", requestUpdate, { passive: true, signal: controller.signal });
     addEventListener("resize", () => { updateGeometry(); requestUpdate(); }, { passive: true, signal: controller.signal });
     document.addEventListener("astro:before-swap", () => controller.abort(), { once: true });
@@ -328,73 +266,50 @@ const lede =
 </script>
 
 <style>
-  .about-page { --about-hero-progress: 0; position: relative; overflow: clip; background: var(--night); }
-  .about-hero {
-    position: relative; isolation: isolate; min-height: 88svh; overflow: hidden;
-    display: grid; align-items: end; padding-block: clamp(9rem, 18vh, 13rem) clamp(4rem, 9vh, 7rem);
-    color: var(--photo-ink); background: #030708;
-  }
-  .about-hero__media, .about-hero__scrim { position: absolute; inset: 0; z-index: -2; }
-  .about-hero__media :global(video) { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; transform: scale(calc(1.02 + var(--about-hero-progress) * 0.09)) translateY(calc(var(--about-hero-progress) * 2.5%)); transition: opacity .6s ease; }
-  .about-hero__scrim {
-    z-index: -1;
-    background:
-      radial-gradient(circle at 76% 48%, rgba(56, 218, 183, 0.08), transparent 26%),
-      linear-gradient(90deg, rgba(3, 7, 8, 0.93) 0%, rgba(3, 7, 8, 0.63) 52%, rgba(3, 7, 8, 0.22) 100%),
-      linear-gradient(0deg, #0a0a0a 0%, transparent 34%);
-  }
-  .about-hero__inner { display: grid; grid-template-columns: minmax(0, 1fr); align-items: end; }
-  .about-hero__copy { max-width: 47rem; transform: translateY(calc(var(--about-hero-progress) * 4.5rem)); opacity: calc(1 - var(--about-hero-progress) * .72); will-change: transform, opacity; }
-  .about-hero__meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; max-width: 39rem; }
-  .about-hero__meta > p:last-child { color: rgba(255,255,255,.6); font-family: var(--font-mono); font-size: .66rem; letter-spacing: .04em; text-transform: uppercase; }
-  .about-chip {
-    width: fit-content; padding: 0.48rem 0.9rem; border: 0; border-radius: var(--radius-pill);
-    color: #fff; background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.08));
-    box-shadow: 0 12px 34px rgba(0,0,0,0.16); backdrop-filter: blur(28px) saturate(180%);
-    font-size: 0.76rem; font-weight: 600;
-  }
-  .about-hero h1 { margin-top: 0.85rem; max-width: 12ch; font-size: clamp(3rem, 6.7vw, 5.6rem); line-height: 0.94; letter-spacing: -0.06em; text-wrap: balance; }
-  .about-hero__copy > p:not(.about-chip) { margin-top: 1.5rem; max-width: 61ch; color: rgba(255,255,255,0.82); font-size: clamp(1rem, 1.5vw, 1.16rem); line-height: 1.65; }
-  .about-hero__actions, .about-close__actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.75rem; }
-  .about-hero .btn, .about-close .btn { min-width: 13.5rem; min-height: 52px; justify-content: center; border: 0; }
-  .about-hero .btn { color: #fff; background: rgba(255,255,255,0.13); backdrop-filter: blur(18px) saturate(140%); }
-  .about-hero .btn--solid { color: #0a0a0a; background: #fff; }
-  .about-hero__credit { position: absolute; right: 1.2rem; bottom: 1rem; color: rgba(255,255,255,0.48); font-family: var(--font-mono); font-size: 0.62rem; }
-  .about-hero__progress { position: absolute; z-index: 2; left: 1.25rem; bottom: 1.15rem; display: flex; align-items: center; gap: .75rem; color: rgba(255,255,255,.58); font-family: var(--font-mono); font-size: .6rem; text-transform: uppercase; letter-spacing: .06em; }
-  .about-hero__progress span { width: 3.5rem; height: 1px; overflow: hidden; background: rgba(255,255,255,.25); }
-  .about-hero__progress span::after { content: ""; display: block; width: 100%; height: 100%; background: #fff; transform-origin: left; animation: about-cue 2.1s ease-in-out infinite; }
-  @keyframes about-cue { 0% { transform: scaleX(0); transform-origin: left; } 48% { transform: scaleX(1); transform-origin: left; } 52% { transform: scaleX(1); transform-origin: right; } 100% { transform: scaleX(0); transform-origin: right; } }
+  .about-page { position: relative; overflow: clip; background: var(--night); }
+  .about-close__actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.75rem; }
+  .about-close .btn { min-width: 13.5rem; min-height: 52px; justify-content: center; border: 0; }
 
-  .about-marquee { overflow: hidden; border-block: 1px solid rgba(255,255,255,.08); background: #0d0f0f; }
-  .about-marquee > div { display: flex; width: min(100%, var(--wrap)); margin-inline: auto; align-items: center; justify-content: space-between; gap: 1.25rem; padding: 1.15rem var(--gutter); color: var(--ink); }
-  .about-marquee span { font-size: clamp(1.1rem,2.2vw,1.85rem); font-weight: 600; letter-spacing: -.035em; }
-  .about-marquee i { color: var(--brand-green-mid); font-style: normal; font-size: .8rem; }
-
-  .about-horizontal { position: relative; }
-  .about-horizontal__sticky { position: sticky; top: 0; height: 100svh; overflow: hidden; }
-  .about-horizontal__track { display: flex; width: max-content; height: 100%; will-change: transform; }
+  .about-horizontal {
+    --about-progress: 0;
+    --ink: var(--photo-ink);
+    --ink-soft: var(--photo-ink-soft);
+    --ink-faint: var(--photo-ink-faint);
+    --line: rgba(255,255,255,.12);
+    --line-soft: rgba(255,255,255,.1);
+    position: relative;
+    color: var(--photo-ink);
+    background: #060a0b;
+  }
+  .about-horizontal__sticky { position: sticky; top: 0; height: 100svh; overflow: hidden; background: radial-gradient(circle at 76% 40%, rgba(34,124,117,.22), transparent 28%), linear-gradient(120deg,#070a0c,#0b1113 58%,#071211); }
+  .about-horizontal__track { position: relative; z-index: 2; display: flex; width: max-content; height: 100%; will-change: transform; }
+  .about-horizontal__visual { position: absolute; z-index: 0; inset: 0; overflow: hidden; pointer-events: none; background-image: radial-gradient(circle, rgba(255,255,255,.42) 0 1px, transparent 1.4px), radial-gradient(circle, rgba(71,224,195,.28) 0 1px, transparent 1.5px); background-position: calc(var(--about-progress) * -18vw) 0, calc(var(--about-progress) * 28vw) 0; background-size: 83px 83px, 131px 131px; opacity: .82; }
+  .about-horizontal__visual :global(video) { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.52; filter:brightness(.48) saturate(.78) contrast(1.16); transform:scale(1.035); }
+  .about-horizontal__visual::before { content:""; position:absolute; left:48%; top:50%; width:52vw; aspect-ratio:1; border-radius:50%; border:1px solid rgba(103,237,211,.13); background:radial-gradient(circle at 36% 35%,rgba(135,255,231,.26),rgba(28,123,113,.1) 23%,rgba(3,12,14,.02) 61%,transparent 64%); box-shadow:0 0 9rem rgba(31,159,142,.14),inset 0 0 6rem rgba(50,208,181,.08); transform:translate3d(calc(var(--about-progress) * -23vw),-47%,0) scale(calc(.84 + var(--about-progress) * .22)); }
+  .about-horizontal__visual::after { content:""; position:absolute; left:-12vw; right:-28vw; top:65%; height:1px; background:linear-gradient(90deg,transparent 0 4%,rgba(84,226,200,.15) 18%,rgba(176,255,240,.58) 43%,rgba(84,226,200,.19) 72%,transparent 96%); box-shadow:0 0 2rem rgba(58,222,191,.22); transform:translate3d(calc(var(--about-progress) * -16vw),0,0) rotate(-4deg); transform-origin:center; }
+  .about-connection { position:absolute; width:74vw; height:26vw; border:1px solid rgba(126,244,220,.17); border-left-color:transparent; border-right-color:transparent; border-radius:50%; }
+  .about-connection--near { left:29%; top:48%; transform:translate3d(calc(var(--about-progress) * -24vw),-50%,0) rotate(-8deg); }
+  .about-connection--far { left:61%; top:17%; width:42vw; height:42vw; opacity:.48; transform:translate3d(calc(var(--about-progress) * -38vw),0,0) rotate(18deg); }
+  .about-cosmos { position:absolute; border-radius:50%; background:#bffcef; box-shadow:0 0 0 .45rem rgba(75,224,195,.08),0 0 2rem rgba(82,236,207,.75); }
+  .about-cosmos--one { left:35%; top:62%; width:.55rem; height:.55rem; transform:translateX(calc(var(--about-progress) * -18vw)); }
+  .about-cosmos--two { left:68%; top:27%; width:.75rem; height:.75rem; transform:translateX(calc(var(--about-progress) * -35vw)); }
+  .about-cosmos--three { left:91%; top:72%; width:.45rem; height:.45rem; transform:translateX(calc(var(--about-progress) * -52vw)); }
+  .about-signal { position:absolute; width:clamp(7rem,12vw,12rem); height:clamp(7rem,12vw,12rem); border:1px solid rgba(111,240,215,.12); border-radius:50%; }
+  .about-signal::before,.about-signal::after { content:""; position:absolute; inset:18%; border:inherit; border-radius:inherit; }.about-signal::after{inset:36%}
+  .about-signal--one { left:56%; top:56%; transform:translate3d(calc(var(--about-progress) * -28vw),0,0); }
+  .about-signal--two { left:82%; top:13%; opacity:.58; transform:translate3d(calc(var(--about-progress) * -46vw),0,0) scale(.72); }
+  .about-signal--three { left:108%; top:62%; opacity:.38; transform:translate3d(calc(var(--about-progress) * -62vw),0,0) scale(1.25); }
+  .about-horizontal .section-label { color:var(--photo-ink-faint); }.about-horizontal .about-display,.about-horizontal .about-statement__copy p:first-child,.about-horizontal .about-timeline h3 { color:var(--photo-ink); }.about-horizontal .about-statement__copy,.about-horizontal .about-timeline li div p { color:var(--photo-ink-soft); }
 
   @media (min-width: 901px) {
     .about-horizontal__track > .section { flex: 0 0 100vw; width: 100vw; height: 100svh; overflow: hidden; padding-block: clamp(7.5rem, 12vh, 9rem) clamp(2rem, 5vh, 4rem); }
     .about-horizontal .about-statement__grid { height: 100%; align-items: center; }
-    .about-horizontal .about-facts { display: grid; align-items: center; }
     .about-horizontal .about-story { flex-basis: 112vw; width: 112vw; }
     .about-horizontal .about-story .wrap { display: grid; grid-template-columns: minmax(17rem,.65fr) minmax(32rem,1.35fr); column-gap: clamp(3rem,7vw,8rem); align-items: start; }
     .about-horizontal .about-story .section-label { grid-column: 1; }
     .about-horizontal .about-story__title { grid-column: 1; }
     .about-horizontal .about-timeline { grid-column: 2; grid-row: 1 / span 3; margin-top: 0; }
     .about-horizontal .about-timeline li { padding-block: 1.25rem; }
-    .about-horizontal .about-field { flex-basis: 145vw; width: 145vw; }
-    .about-horizontal .about-field > .wrap { width: calc(145vw - 2 * var(--gutter)); max-width: none; }
-    .about-horizontal .about-field__head { grid-template-columns: .75fr .55fr; max-width: 72rem; }
-    .about-horizontal .about-mosaic { grid-template-columns: repeat(4, minmax(20rem,1fr)); grid-auto-rows: min(52vh,31rem); }
-    .about-horizontal .about-mosaic__item--wide { grid-column: span 1; }
-    .about-horizontal .about-path__grid { margin-top: 2rem; }
-    .about-horizontal .about-path__grid li { min-height: min(42vh,20rem); }
-    .about-horizontal .about-inclusion__grid { height: 100%; align-items: center; }
-    .about-horizontal :global(.about-inclusion__image) { min-height: min(58vh,35rem); }
-    .about-horizontal .about-governance__grid { height: 100%; align-items: center; }
-    .about-horizontal .about-close { display: grid; align-items: center; padding-top: clamp(7.5rem,12vh,9rem); }
   }
 
   .about-display { margin-top: 0.65rem; max-width: 17ch; color: var(--ink); font-size: clamp(2.7rem, 6vw, 5.2rem); line-height: 0.96; letter-spacing: -0.055em; text-wrap: balance; }
@@ -402,14 +317,6 @@ const lede =
   :global(.about-statement__lead) { position: sticky; top: 8.5rem; }
   .about-statement__copy { padding-top: 2rem; }
   .about-statement__copy p:first-child { color: var(--ink); font-size: 1.16rem; }
-
-  .about-facts { padding-block: 0; }
-  .about-facts__grid { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .about-facts__grid li { min-height: 13rem; padding: 2.25rem 1.5rem; border-right: 1px solid rgba(255,255,255,0.075); background: linear-gradient(180deg, rgba(255,255,255,.025), transparent); }
-  .about-facts__grid li:first-child { padding-left: 0; }
-  .about-facts__grid li:last-child { border-right: 0; }
-  .about-facts__grid strong { display: block; color: var(--ink); font-size: clamp(3.2rem, 7vw, 6.4rem); line-height: 0.84; letter-spacing: -0.07em; }
-  .about-facts__grid span { display: block; margin-top: 0.8rem; max-width: 14ch; color: var(--ink-faint); font-size: 0.8rem; line-height: 1.4; }
 
   .about-story__title { max-width: 12ch; }
   .about-timeline { list-style: none; display: grid; margin-top: 3.5rem; border-top: 1px solid rgba(255,255,255,0.1); }
@@ -423,18 +330,11 @@ const lede =
   .about-mosaic { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 23rem; gap: 1rem; margin-top: 3.5rem; }
   .about-mosaic__item { position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.075); border-radius: var(--radius-card-compact); background: #000; }
   .about-mosaic__item--wide { grid-column: span 2; }
-  .about-mosaic__item :global(img) { width: 100%; height: calc(100% + 4rem); object-fit: cover; transform: translateY(calc(-2rem + var(--about-shift, 0px))) scale(1.03); transition: transform 0.8s cubic-bezier(0.22,1,0.36,1); will-change: transform; }
-  .about-mosaic__item:hover :global(img) { transform: translateY(calc(-2rem + var(--about-shift, 0px))) scale(1.065); }
+  .about-mosaic__item :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s cubic-bezier(0.22,1,0.36,1); }
+  .about-mosaic__item:hover :global(img) { transform: scale(1.025); }
   .about-mosaic__item::after { content: ""; position: absolute; inset: 35% 0 0; background: linear-gradient(transparent, rgba(0,0,0,0.86)); }
   .about-mosaic figcaption { position: absolute; z-index: 1; left: 1.2rem; right: 1.2rem; bottom: 1.1rem; color: #fff; font-weight: 600; }
   .about-mosaic figcaption span { display: block; margin-bottom: 0.35rem; color: var(--brand-green-mid); font-family: var(--font-body); font-size: 0.7rem; text-transform: uppercase; }
-
-  .about-path__grid { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-top: 3rem; }
-  .about-path__grid li { position: relative; min-height: 18rem; padding: 1.4rem; border: 1px solid rgba(255,255,255,0.075); border-radius: var(--radius-card-compact); background: linear-gradient(150deg, rgba(255,255,255,0.055), rgba(255,255,255,0.018)); }
-  .about-path__grid li:not(:last-child)::after { content: ""; position: absolute; top: 2.25rem; right: -1.05rem; z-index: 2; width: 1.1rem; height: 1px; background: var(--brand-green-mid); }
-  .about-path__number { color: var(--brand-green-mid); font-family: var(--font-mono); font-size: 0.72rem; }
-  .about-path h3 { margin-top: 5.5rem; color: var(--ink); font-size: 1.45rem; }
-  .about-path li p { margin-top: 0.7rem; color: var(--ink-soft); font-size: 0.86rem; line-height: 1.6; }
 
   .about-inclusion__grid { align-items: center; }
   :global(.about-inclusion__image) { position: relative; min-height: 34rem; overflow: hidden; border-radius: var(--radius-card); }
@@ -443,15 +343,17 @@ const lede =
   :global(.about-inclusion__copy) .prose { margin-top: 1.6rem; }
 
   .about-governance__grid { align-items: center; }
+  .about-governance .about-display { max-width: 15ch; font-size: clamp(2.3rem, 5.2vw, 4.6rem); line-height: 0.98; letter-spacing: -0.045em; }
   .about-governance__panel { padding: clamp(1.5rem, 4vw, 2.6rem); border: 0; border-radius: var(--radius-card); background: rgba(255,255,255,0.07); box-shadow: inset 0 1px 0 rgba(255,255,255,0.09); backdrop-filter: blur(22px) saturate(130%); }
   .about-governance__panel p { color: var(--ink-soft); line-height: 1.7; }
   .about-governance__panel p + p { margin-top: 1rem; }
   .about-governance__panel .btn { margin-top: 1.5rem; }
 
   .about-close { padding-top: 0; }
-  .about-close__surface { overflow: hidden; padding: clamp(2rem, 7vw, 5.5rem); border-radius: var(--radius-card); background: radial-gradient(circle at 85% 20%, rgba(61,223,187,0.2), transparent 28%), linear-gradient(135deg, #1a1d1d, #0d0f0f); }
-  .about-close h2 { margin-top: 0.7rem; max-width: 12ch; color: var(--ink); font-size: clamp(3rem, 8vw, 6.5rem); line-height: 0.9; letter-spacing: -0.065em; }
-  .about-close__surface > p:not(.section-label) { margin-top: 1.2rem; max-width: 52ch; color: var(--ink-soft); line-height: 1.65; }
+  .about-close__surface { overflow: hidden; padding: clamp(2rem, 7vw, 5.5rem); border-radius: var(--radius-card); color: var(--photo-ink); background: radial-gradient(circle at 85% 20%, rgba(61,223,187,0.2), transparent 28%), linear-gradient(135deg, #1a1d1d, #0d0f0f); }
+  .about-close .section-label { color: var(--photo-ink-faint); }
+  .about-close h2 { margin-top: 0.7rem; max-width: 12ch; color: var(--photo-ink); font-size: clamp(3rem, 8vw, 6.5rem); line-height: 0.9; letter-spacing: -0.065em; }
+  .about-close__surface > p:not(.section-label) { margin-top: 1.2rem; max-width: 52ch; color: var(--photo-ink-soft); line-height: 1.65; }
   .about-close .btn { color: var(--ink); background: rgba(255,255,255,0.1); }
   .about-close .btn--solid { color: #0a0a0a; background: #fff; }
 
@@ -459,47 +361,25 @@ const lede =
     .about-horizontal { height: auto !important; }
     .about-horizontal__sticky { position: static; height: auto; overflow: visible; }
     .about-horizontal__track { display: block; width: auto; height: auto; transform: none !important; }
-    .about-hero__inner { grid-template-columns: 1fr; }
+    .about-horizontal__visual { display: none; }
     :global(.about-statement__lead) { position: static; }
     .about-statement__grid, .about-field__head, .about-inclusion__grid, .about-governance__grid { grid-template-columns: 1fr; }
     .about-inclusion__grid { gap: 2.5rem; }
     :global(.about-inclusion__copy) { max-width: 46rem; }
     :global(.about-inclusion__copy) .about-display { max-width: 15ch; font-size: clamp(2.65rem, 8vw, 4.2rem); }
-    .about-facts__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .about-facts__grid li:nth-child(2) { border-right: 0; }
-    .about-facts__grid li:nth-child(n+3) { border-top: 1px solid rgba(255,255,255,0.075); }
-    .about-facts__grid li:nth-child(3) { padding-left: 0; }
     .about-mosaic { grid-template-columns: 1fr 1fr; }
     .about-mosaic__item--wide { grid-column: span 1; }
-    .about-path__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .about-path__grid li:nth-child(2)::after { display: none; }
   }
   @media (max-width: 620px) {
-    .about-hero { min-height: 92svh; padding-bottom: 4rem; }
-    .about-hero__meta { align-items: flex-start; flex-direction: column; gap: .6rem; }
-    .about-hero h1 { font-size: clamp(2.8rem, 13vw, 4rem); line-height: 0.98; }
-    .about-hero__actions .btn, .about-close__actions .btn { width: 100%; }
-    .about-hero__credit { display: none; }
-    .about-hero__progress { left: 1rem; bottom: .85rem; }
-    .about-marquee > div { display: grid; grid-template-columns: 1fr auto 1fr; gap: .65rem .8rem; padding-block: .85rem; }
-    .about-marquee > div span { text-align: center; font-size: .9rem; }
-    .about-marquee > div span:nth-of-type(3), .about-marquee > div span:nth-of-type(4), .about-marquee > div i:nth-of-type(n+2) { display: none; }
-    .about-facts__grid { grid-template-columns: 1fr 1fr; }
-    .about-facts__grid li { min-height: 8.5rem; padding: 1.5rem 1rem; }
+    .about-close__actions .btn { width: 100%; }
     .about-timeline li { grid-template-columns: 5.5rem minmax(0,1fr); gap: 1rem; }
     .about-mosaic { grid-template-columns: 1fr; grid-auto-rows: 21rem; }
-    .about-path__grid { grid-template-columns: 1fr; }
-    .about-path__grid li { min-height: 14rem; }
-    .about-path__grid li::after { display: none; }
-    .about-path h3 { margin-top: 3.5rem; }
     :global(.about-inclusion__image) { min-height: 27rem; }
   }
   @media (prefers-reduced-motion: reduce) {
     .about-horizontal { height: auto !important; }
     .about-horizontal__sticky { position: static; height: auto; overflow: visible; }
     .about-horizontal__track { display: block; width: auto; height: auto; transform: none !important; }
-    .about-hero__progress span::after { animation: none; }
-    .about-hero__copy, .about-hero__media :global(video) { transform: none; opacity: 1; }
     .about-mosaic__item :global(img) { transition: none; }
   }
 </style>

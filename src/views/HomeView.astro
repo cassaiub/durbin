@@ -12,6 +12,7 @@ import { current, past } from "../data/durbin-volunteers";
 import { fmtDate } from "../lib/format";
 import britishCouncilLogo from "../assets/partners/british-council.webp";
 import cassaLogo from "../assets/partners/cassa-white.svg";
+import iubLogo from "../assets/partners/iub.png";
 import dunlapLogo from "../assets/partners/dunlap-white.png";
 import whitinLogo from "../assets/partners/whitin-observatory.png";
 
@@ -48,7 +49,7 @@ const stats = [
 
 const partners = [
   {
-    slug: "cassa",
+    slug: "host",
     href: "https://cassa.bd/",
     title: "CASSA at Independent University, Bangladesh",
     alt: "CASSA at Independent University, Bangladesh",
@@ -80,7 +81,7 @@ const partners = [
 const ogImage = featured[0]?.data.image.src;
 ---
 
-<BaseLayout path="/" title="Durbin | Citizens of a distant universe" current="/" ogImage={ogImage}>
+<BaseLayout path="/" title="Durbin | Citizen of distant world" current="/" ogImage={ogImage}>
   <!-- ambient hero -->
   <header class="hh hero" data-hh>
     <div class="hh__stage" aria-hidden="true">
@@ -102,7 +103,7 @@ const ogImage = featured[0]?.data.image.src;
       <p class="section-label chip hh__eyebrow">An outreach programme of CASSA</p>
       <h1 class="hh__title">Durbin</h1>
       <p class="hero__lede">
-        Citizens of a distant universe. The cosmos through the eyes of student volunteers across
+        Citizen of distant world. The cosmos through the eyes of student volunteers across
         Bangladesh. A national programme of astrophotography and science communication.
       </p>
       <div class="hh__cta">
@@ -121,9 +122,17 @@ const ogImage = featured[0]?.data.image.src;
                   rel="noopener"
                   title={partner.title}
                 >
-                  <span class="hh__partner-mark" style={`--partner-mark: url("${partner.logo.src}")`}>
-                    <img src={partner.logo.src} alt={partner.alt} loading="eager" decoding="async" />
-                  </span>
+                  {partner.slug === "host" ? (
+                    <span class="hh__host-lockup">
+                      <img src={iubLogo.src} alt="Independent University, Bangladesh" loading="eager" decoding="async" />
+                      <i aria-hidden="true"></i>
+                      <img src={cassaLogo.src} alt="CASSA" loading="eager" decoding="async" />
+                    </span>
+                  ) : (
+                    <span class="hh__partner-mark" style={`--partner-mark: url("${partner.logo.src}")`}>
+                      <img src={partner.logo.src} alt={partner.alt} loading="eager" decoding="async" />
+                    </span>
+                  )}
                 </a>
               ))}
             </div>
@@ -202,7 +211,7 @@ const ogImage = featured[0]?.data.image.src;
       <ul class="hgrid hgrid--featured-six">
         {preview.map((e, i) => (
           <li>
-            <a class="plate" href={`/exhibition?object=${encodeURIComponent(e.id)}`} data-reveal style={`--reveal-delay:${Math.min(i, 8) * 40}ms`}>
+            <a class="plate" href={`/exhibition?object=${encodeURIComponent(e.id)}`} data-astro-reload data-reveal style={`--reveal-delay:${Math.min(i, 8) * 40}ms`}>
               <span class="plate__media" data-image-error={unavailableImageIds.has(e.id) ? "" : undefined}>
                 <Image src={e.data.image} alt={e.data.imageAlt ?? e.data.title} widths={[300, 480, 640]} sizes="(max-width:560px) 50vw, (max-width:980px) 33vw, 270px" loading="lazy" data-fallback-image />
                 <span class="plate__fallback" aria-hidden="true">Image unavailable</span>
@@ -341,7 +350,7 @@ const ogImage = featured[0]?.data.image.src;
     width: 100%;
   }
   .hh__partners {
-    display: grid; grid-template-columns: 0.8fr 1.7fr 0.9fr 1.3fr;
+    display: grid; grid-template-columns: 1.45fr 1.7fr 0.9fr 1.3fr;
     align-items: center; gap: clamp(0.8rem, 2.4vw, 2.3rem); width: 100%;
   }
   .hh__partner {
@@ -365,7 +374,12 @@ const ogImage = featured[0]?.data.image.src;
     .hh__partner-mark :global(img) { opacity: 0; filter: none; }
   }
   .hh__partner:hover .hh__partner-mark { opacity: 0.82; }
-  .hh__partner--cassa .hh__partner-mark { max-width: 6.4rem; }
+  .hh__host-lockup { display: grid; grid-template-columns: 3.52rem 1px 5.61rem; align-items: center; justify-content: center; gap: .66rem; width: fit-content; max-width: 100%; height: 37.4px; margin-inline: auto; opacity: .55; transition: opacity .2s; }
+  .hh__host-lockup img { width: 100%; height: 34.1px; object-fit: contain; object-position: center; filter: grayscale(1) brightness(0) invert(1); }
+  .hh__host-lockup img:first-child { transform: scale(1.1); }
+  .hh__host-lockup img:last-child { transform: scale(1.05); }
+  .hh__host-lockup i { align-self: center; width: 1px; height: 27.5px; background: rgba(255,255,255,.42); }
+  .hh__partner:hover .hh__host-lockup { opacity: .82; }
   .hh__partner--dunlap .hh__partner-mark { max-width: 12.75rem; transform: scale(1.3); transform-origin: center; }
   .hh__partner--british .hh__partner-mark { max-width: 7rem; }
   .hh__partner--whitin .hh__partner-mark { max-width: 8.25rem; }
@@ -382,7 +396,9 @@ const ogImage = featured[0]?.data.image.src;
   @media (max-width: 520px) {
     .hh__partners { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem 1.2rem; }
     .hh__partner { height: 30px; padding-inline: 0.4rem; }
-    .hh__partner--cassa .hh__partner-mark { max-width: 5.25rem; }
+    .hh__host-lockup { grid-template-columns: 2.65rem 1px 4.3rem; gap: .42rem; height: 29px; }
+    .hh__host-lockup img { height: 27px; }
+    .hh__host-lockup i { height: 22px; }
     .hh__partner--british .hh__partner-mark { max-width: 5.7rem; }
   }
   @media (max-width: 520px) and (max-height: 700px) {

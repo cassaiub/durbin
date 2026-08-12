@@ -1,5 +1,6 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
+import react from "@astrojs/react";
 import remarkMath from "remark-math";
 import rehypeMathjax from "rehype-mathjax/svg";
 
@@ -163,5 +164,5 @@ export default defineConfig({
     rehypePlugins: [rehypeMathjax, rehypeArticleFigure],
   },
 
-  integrations: [sitemap()],
+  integrations: [react(), sitemap()],
 });

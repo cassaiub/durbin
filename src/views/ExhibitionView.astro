@@ -41,9 +41,10 @@ const ogImage = exhibits[0]?.data.image.src;
       <Reveal><p class="section-label">The exhibition <em class="mono">{exhibits.length} objects</em></p></Reveal>
       <Reveal delay={60}><h1 class="h-display">An exhibition of deep space</h1></Reveal>
       <Reveal delay={100}><p class="lede">{lede}</p></Reveal>
+    </div>
 
-      <span class="extools__sentinel" aria-hidden="true" data-extools-sentinel></span>
-      <div class="extools" data-reveal style="--reveal-delay:130ms">
+    <div class="extools-dock" data-extools-dock>
+      <div class="extools" data-extools data-reveal style="--reveal-delay:130ms">
         <div class="exsearch">
           <label for="exhibition-search">Search the exhibition</label>
           <div class="exsearch__field">
@@ -58,7 +59,9 @@ const ogImage = exhibits[0]?.data.image.src;
           ))}
         </nav>
       </div>
+    </div>
 
+    <div class="wrap">
       <p class="exresult mono" aria-live="polite" aria-atomic="true">
         <span data-result-count>{exhibits.length}</span> <span data-result-label>objects shown</span>
       </p>
@@ -114,20 +117,10 @@ const ogImage = exhibits[0]?.data.image.src;
         <div class="exmodal__viewport" data-exmodal-viewport>
           <img class="exmodal__image" alt="" draggable="false" data-exmodal-image />
         </div>
-        <div class="exmodal__controls" aria-label="Image view controls">
-          <button type="button" aria-label="Zoom out" title="Zoom out" data-exmodal-zoom-out>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.75" cy="10.75" r="6.75"/><path d="m16 16 4 4M7.75 10.75h6"/></svg>
-          </button>
-          <output aria-live="polite" data-exmodal-zoom-label>100%</output>
-          <button type="button" aria-label="Zoom in" title="Zoom in" data-exmodal-zoom-in>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.75" cy="10.75" r="6.75"/><path d="m16 16 4 4M7.75 10.75h6M10.75 7.75v6"/></svg>
-          </button>
-          <button type="button" data-exmodal-zoom-reset>Fit</button>
-          <button type="button" aria-label="Enter full screen" title="Full screen" aria-pressed="false" data-exmodal-fullscreen>
-            <svg class="exmodal__icon exmodal__icon--enter" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>
-            <svg class="exmodal__icon exmodal__icon--exit" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>
-          </button>
-        </div>
+        <button class="exmodal__fullscreen" type="button" aria-label="Enter full screen" title="Full screen" aria-pressed="false" data-exmodal-fullscreen>
+          <svg class="exmodal__icon exmodal__icon--enter" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7"/></svg>
+          <svg class="exmodal__icon exmodal__icon--exit" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10h-6V4M14 10l7-7M4 14h6v6M10 14l-7 7"/></svg>
+        </button>
         <p class="exmodal__loading" hidden data-exmodal-loading>Loading image</p>
         <p class="exmodal__fallback" hidden data-exmodal-fallback>Image unavailable</p>
         <div class="exmodal__dots" role="group" aria-label="Choose an image" data-exmodal-dots></div>
@@ -149,32 +142,42 @@ const ogImage = exhibits[0]?.data.image.src;
   <style>
   .exhead { padding-top: clamp(7rem, 12vw, 9rem); }
   .exhead .h-display { max-width: 18ch; font-size: clamp(2.35rem, 4.8vw, 3.55rem); line-height: 1; }
-  .extools__sentinel { display: block; width: 100%; height: 1px; margin-top: 2rem; margin-bottom: -1px; pointer-events: none; }
   .extools {
-    position: sticky; top: 5rem; z-index: 35;
-    isolation: isolate; display: grid;
+    position: relative; z-index: 1; display: grid;
     grid-template-columns: minmax(14rem, 20rem) minmax(0, 1fr);
     align-items: center; gap: 0.65rem;
-    margin-top: 0; padding: 0.65rem;
-    border-radius: var(--radius-card-compact); background: transparent;
+    margin-top: 2rem; padding: 0.65rem;
+    border: 1px solid var(--line); border-radius: var(--radius-card-compact); background: var(--panel);
+    box-shadow: var(--shadow-low);
     transition:
       opacity 0.7s ease var(--reveal-delay, 0ms),
       translate 0.7s ease var(--reveal-delay, 0ms),
-      box-shadow 0.24s ease;
+      transform .66s cubic-bezier(.22,1,.36,1),
+      border-radius .66s cubic-bezier(.22,1,.36,1),
+      background-color .36s ease;
   }
-  .extools::before {
-    content: ""; position: absolute; z-index: -1; inset: 0;
-    border-radius: inherit; opacity: 0; pointer-events: none;
-    background: rgba(10, 10, 10, 0.86);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(24px) saturate(135%);
-    -webkit-backdrop-filter: blur(24px) saturate(135%);
-    transition: opacity 0.24s ease;
+  .extools-dock {
+    --extools-gutter: clamp(.45rem, 2vw, 1.25rem);
+    position:relative;
+    width:min(calc(100vw - var(--extools-gutter) - var(--extools-gutter)),67rem);
+    margin:2rem auto 0;
   }
-  .extools[data-stuck] {
-    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38);
+  .extools-dock .extools { margin-top:0; }
+  .extools[data-docked] {
+    position:fixed; z-index:49; top:.7rem; left:50%; right:auto;
+    width:min(calc(100vw - var(--extools-gutter) - var(--extools-gutter)),67rem);
+    margin:0; opacity:1; translate:0 0; transform:translate3d(-50%,0,0);
+    background:color-mix(in srgb,var(--panel) 92%,transparent);
+    box-shadow:none;
+    backdrop-filter:blur(22px) saturate(130%);
+    -webkit-backdrop-filter:blur(22px) saturate(130%);
+    will-change:transform;
   }
-  .extools[data-stuck]::before { opacity: 1; }
+  .extools[data-docked][data-nav-visible] {
+    transform:translate3d(-50%,calc(var(--extools-nav-top,4.5rem) - .7rem),0);
+    border-radius:.55rem .55rem 1.25rem 1.25rem;
+  }
+  .extools[data-docked][data-dock-entering] { transform:translate3d(-50%,calc(var(--extools-nav-top,4.5rem) - .7rem),0); }
   .exsearch {
     min-width: 0; width: 100%;
   }
@@ -188,7 +191,6 @@ const ogImage = exhibits[0]?.data.image.src;
     border: 1px solid var(--line); border-radius: var(--radius-pill); background: var(--panel);
     transition: border-color 0.2s, background-color 0.2s ease, box-shadow 0.2s ease;
   }
-  .extools[data-stuck] .exsearch__field { background: rgba(26, 26, 26, 0.94); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04); }
   .exsearch__field:focus-within { border-color: rgba(255, 255, 255, 0.3); box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.07); }
   .exsearch__field svg { width: 18px; height: 18px; fill: none; stroke: var(--ink-faint); stroke-width: 1.6; }
   .exsearch__field input { width: 100%; border: 0; outline: 0; color: var(--ink); background: transparent; font: inherit; }
@@ -202,7 +204,7 @@ const ogImage = exhibits[0]?.data.image.src;
   .exfilter .chip { flex: none; min-height: 42px; white-space: nowrap; }
   .exresult { margin-top: 1rem; min-height: 1.5em; color: var(--ink-faint); font-size: 0.75rem; }
   .exgrid { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-top: 1.2rem; }
-  .exgrid > li { min-width: 0; }
+  .exgrid > li { min-width: 0; content-visibility: auto; contain-intrinsic-size: auto 22rem; }
   .explate { width: 100%; text-align: left; }
   .explate__open {
     position: absolute; right: 0.65rem; bottom: 0.65rem; padding: 0.38rem 0.55rem;
@@ -223,9 +225,9 @@ const ogImage = exhibits[0]?.data.image.src;
   .exmodal__shell { position: relative; display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(21rem, 0.85fr); width: 100%; height: 100%; }
   .exmodal__media { position: relative; display: grid; place-items: center; min-width: 0; overflow: hidden; background: #000; }
   .exmodal__media::after { content: ""; position: absolute; inset: auto 0 0; height: 22%; pointer-events: none; background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent); }
-  .exmodal__viewport { position: absolute; inset: 0; display: grid; place-items: center; overflow: auto; overscroll-behavior: contain; scrollbar-color: rgba(255,255,255,.35) transparent; }
-  .exmodal__image { width: 100%; height: 100%; max-width: none; object-fit: contain; background: #000; cursor: zoom-in; user-select:none; -webkit-user-drag:none; }
-  .exmodal__media[data-zoomed] .exmodal__viewport { cursor: grab; }
+  .exmodal__viewport { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; overscroll-behavior: contain; }
+  .exmodal__image { width: 100%; height: 100%; max-width: none; object-fit: contain; background: #000; cursor: zoom-in; user-select:none; -webkit-user-drag:none; transform:translate3d(0,0,0); will-change:width,height,transform; }
+  .exmodal__media[data-zoomed] .exmodal__viewport { cursor: grab; touch-action: none; }
   .exmodal__media[data-zoomed] .exmodal__image { cursor: inherit; }
   .exmodal__viewport[data-panning] { cursor: grabbing; }
   .exmodal__loading, .exmodal__fallback { position: absolute; color: var(--photo-ink-faint); font-family: var(--font-body); font-size: 0.78rem; font-weight: 600; letter-spacing: 0; text-transform: uppercase; }
@@ -244,9 +246,12 @@ const ogImage = exhibits[0]?.data.image.src;
   .exmodal__information :global(.exmodal__info-row dt) { color: var(--photo-ink-faint); }
   .exmodal__information :global(.exmodal__info-row dd) { color: var(--photo-ink-soft); overflow-wrap: anywhere; }
   .exmodal__license { margin-top: 1.8rem; color: var(--photo-ink-faint); font-family: var(--font-mono); font-size: 0.65rem; }
-  .exmodal__controls { position: absolute; z-index: 6; top: 1rem; left: 50%; translate: -50% 0; display: flex; align-items: center; gap: .28rem; padding: .3rem; border: 1px solid rgba(255,255,255,.16); border-radius: var(--radius-pill); background: rgba(0,0,0,.66); backdrop-filter: blur(14px); }
-  .exmodal__controls button, .exmodal__controls output { display: grid; place-items: center; min-width: 36px; height: 34px; padding: 0 .65rem; border-radius: var(--radius-pill); color: var(--photo-ink-soft); font-size: .7rem; font-weight: 650; white-space: nowrap; }
-  .exmodal__controls button:hover { color: #fff; background: rgba(255,255,255,.12); }.exmodal__controls button:disabled { opacity: .35; cursor: not-allowed; }.exmodal__controls output { min-width: 48px; color: var(--brand-green-mid); font-family: var(--font-mono); padding: 0 .3rem; }.exmodal__controls svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.exmodal__icon--exit{display:none}.exmodal__controls [data-exmodal-fullscreen][aria-pressed="true"] .exmodal__icon--enter{display:none}.exmodal__controls [data-exmodal-fullscreen][aria-pressed="true"] .exmodal__icon--exit{display:block}
+  .exmodal__fullscreen { position: absolute; z-index: 6; right: 1rem; bottom: 1rem; display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; color: var(--photo-ink); background: rgba(0,0,0,.64); backdrop-filter: blur(12px); transition: border-color .2s, background-color .2s, transform .2s; }
+  .exmodal__fullscreen:hover { border-color: var(--brand-green-mid); background: rgba(0,0,0,.84); transform: translateY(-1px); }
+  .exmodal__fullscreen svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .exmodal__icon--exit { display: none; }
+  .exmodal__fullscreen[aria-pressed="true"] .exmodal__icon--enter { display: none; }
+  .exmodal__fullscreen[aria-pressed="true"] .exmodal__icon--exit { display: block; }
   .exmodal[data-media-fullscreen] .exmodal__shell { grid-template-columns: 1fr; }
   .exmodal[data-media-fullscreen] .exmodal__details { display: none; }
   .exmodal[data-media-fullscreen] .exmodal__media { height: 100dvh; }
@@ -280,12 +285,11 @@ const ogImage = exhibits[0]?.data.image.src;
   @media (max-width: 480px) {
     .exmodal__media { height: 46vh; }
     .exmodal__object-nav { width: 44px; height: 44px; }
-    .exmodal__controls { top: .65rem; max-width: calc(100% - 7rem); overflow-x: auto; }
-    .exmodal__controls button, .exmodal__controls output { min-width: 34px; height: 32px; padding-inline: .5rem; }
+    .exmodal__fullscreen { right: .65rem; bottom: .65rem; width: 44px; height: 44px; }
     .exmodal__information :global(.exmodal__info-row) { grid-template-columns: 1fr; gap: 0.08rem; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .extools, .extools::before, .exsearch__field,
+    .extools, .exsearch__field,
     .explate__open, .exmodal__image, .exmodal__dots :global(.exmodal__dot::before), .exmodal__close, .exmodal__object-nav { transition: none; }
     .exmodal__loading::after { animation: none; content: "..."; }
   }
@@ -305,12 +309,75 @@ const ogImage = exhibits[0]?.data.image.src;
     imagePosition: string;
   };
 
+  const toolsDock = document.querySelector<HTMLElement>("[data-extools-dock]");
+  const exhibitionTools = document.querySelector<HTMLElement>("[data-extools]");
+  const siteNav = document.querySelector<HTMLElement>("[data-nav]");
+  if (toolsDock && exhibitionTools && siteNav) {
+    const dockController = new AbortController();
+    let dockTop = 0;
+    let stackTop = 70;
+    let dockFrame = 0;
+    let dockEnterFrame = 0;
+    let wasDocked = false;
+    const navBar = siteNav.querySelector<HTMLElement>(".nav__bar");
+    const syncStackTop = () => {
+      const navTop = Number.parseFloat(getComputedStyle(siteNav).paddingTop) || 11;
+      stackTop = Math.max(0, navTop + (navBar?.offsetHeight ?? 59) - 1);
+      exhibitionTools.style.setProperty("--extools-nav-top", `${stackTop}px`);
+    };
+    const measureDock = () => {
+      toolsDock.style.minHeight = `${exhibitionTools.offsetHeight}px`;
+      dockTop = toolsDock.getBoundingClientRect().top + scrollY;
+      syncStackTop();
+    };
+    const syncDock = () => {
+      dockFrame = 0;
+      const currentScrollY = scrollY;
+      const docked = currentScrollY >= dockTop - stackTop;
+      if (docked && !wasDocked) syncStackTop();
+      exhibitionTools.toggleAttribute("data-docked", docked);
+      const navHidden = siteNav.hasAttribute("data-scroll-hidden");
+      if (docked && !wasDocked && navHidden) {
+        exhibitionTools.setAttribute("data-dock-entering", "");
+        cancelAnimationFrame(dockEnterFrame);
+        dockEnterFrame = requestAnimationFrame(() => {
+          dockEnterFrame = requestAnimationFrame(() => exhibitionTools.removeAttribute("data-dock-entering"));
+        });
+      } else if (!docked) {
+        exhibitionTools.removeAttribute("data-dock-entering");
+      }
+      if (docked && navHidden) {
+        siteNav.removeAttribute("data-exhibition-stack");
+        exhibitionTools.removeAttribute("data-nav-visible");
+      } else {
+        exhibitionTools.toggleAttribute("data-nav-visible", docked);
+        siteNav.toggleAttribute("data-exhibition-stack", docked);
+      }
+      if (!docked) toolsDock.style.minHeight = `${exhibitionTools.offsetHeight}px`;
+      wasDocked = docked;
+    };
+    const requestDockSync = () => {
+      if (!dockFrame) dockFrame = requestAnimationFrame(syncDock);
+    };
+    measureDock();
+    syncDock();
+    addEventListener("scroll", requestDockSync, { passive:true, signal:dockController.signal });
+    addEventListener("resize", () => { measureDock(); requestDockSync(); }, { passive:true, signal:dockController.signal });
+    siteNav.addEventListener("durbin:nav-visibility", () => {
+      syncStackTop();
+      requestDockSync();
+    }, { signal:dockController.signal });
+    document.addEventListener("astro:before-swap", () => {
+      dockController.abort();
+      cancelAnimationFrame(dockEnterFrame);
+      siteNav.removeAttribute("data-exhibition-stack");
+    }, { once:true });
+  }
+
   const chips = Array.from(document.querySelectorAll<HTMLButtonElement>(".exfilter .chip"));
   const tiles = Array.from(document.querySelectorAll<HTMLElement>(".exgrid li[data-cat]"));
   const triggers = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-object-open]"));
   const search = document.querySelector<HTMLInputElement>("[data-exhibition-search]");
-  const tools = document.querySelector<HTMLElement>(".extools");
-  const toolsSentinel = document.querySelector<HTMLElement>("[data-extools-sentinel]");
   const count = document.querySelector<HTMLElement>("[data-result-count]");
   const label = document.querySelector<HTMLElement>("[data-result-label]");
   let activeFilter = "all";
@@ -333,23 +400,6 @@ const ogImage = exhibits[0]?.data.image.src;
   }));
   search?.addEventListener("input", syncGrid);
 
-  if (tools && toolsSentinel) {
-    const stickyTop = Number.parseFloat(getComputedStyle(tools).top) || 0;
-    const syncTools = (sentinelTop: number, visible: boolean) => {
-      tools.toggleAttribute("data-stuck", !visible && sentinelTop <= stickyTop);
-    };
-    if ("IntersectionObserver" in window) {
-      const toolsObserver = new IntersectionObserver(([entry]) => {
-        syncTools(entry.boundingClientRect.top, entry.isIntersecting);
-      }, { rootMargin: `${-stickyTop}px 0px 0px 0px`, threshold: 0 });
-      toolsObserver.observe(toolsSentinel);
-    } else {
-      const fallbackSync = () => syncTools(toolsSentinel.getBoundingClientRect().top, toolsSentinel.getBoundingClientRect().top > stickyTop);
-      fallbackSync();
-      addEventListener("scroll", fallbackSync, { passive: true });
-    }
-  }
-
   const modal = document.querySelector<HTMLDialogElement>("[data-exmodal]");
   const closeButton = modal?.querySelector<HTMLButtonElement>("[data-exmodal-close]");
   const previousButton = modal?.querySelector<HTMLButtonElement>("[data-exmodal-prev]");
@@ -357,10 +407,6 @@ const ogImage = exhibits[0]?.data.image.src;
   const image = modal?.querySelector<HTMLImageElement>("[data-exmodal-image]");
   const media = modal?.querySelector<HTMLElement>("[data-exmodal-media]");
   const viewport = modal?.querySelector<HTMLElement>("[data-exmodal-viewport]");
-  const zoomOut = modal?.querySelector<HTMLButtonElement>("[data-exmodal-zoom-out]");
-  const zoomIn = modal?.querySelector<HTMLButtonElement>("[data-exmodal-zoom-in]");
-  const zoomReset = modal?.querySelector<HTMLButtonElement>("[data-exmodal-zoom-reset]");
-  const zoomLabel = modal?.querySelector<HTMLOutputElement>("[data-exmodal-zoom-label]");
   const fullscreenButton = modal?.querySelector<HTMLButtonElement>("[data-exmodal-fullscreen]");
   const loading = modal?.querySelector<HTMLElement>("[data-exmodal-loading]");
   const fallback = modal?.querySelector<HTMLElement>("[data-exmodal-fallback]");
@@ -377,22 +423,42 @@ const ogImage = exhibits[0]?.data.image.src;
   let imageRequest = 0;
   let zoom = 1;
   let mediaFullscreen = false;
-  let panState: { pointerId:number; x:number; y:number; left:number; top:number } | null = null;
+  let panX = 0;
+  let panY = 0;
+  let panState: { pointerId:number; x:number; y:number; panX:number; panY:number } | null = null;
   const imageCache = new Map<string, Promise<HTMLImageElement>>();
 
-  const setZoom = (next: number) => {
+  const renderImage = () => {
+    if (!image || !viewport || !image.naturalWidth || !image.naturalHeight) return;
+    const viewportWidth = viewport.clientWidth;
+    const viewportHeight = viewport.clientHeight;
+    if (!viewportWidth || !viewportHeight) return;
+    const imageRatio = image.naturalWidth / image.naturalHeight;
+    const viewportRatio = viewportWidth / viewportHeight;
+    const fitWidth = imageRatio >= viewportRatio ? viewportWidth : viewportHeight * imageRatio;
+    const fitHeight = imageRatio >= viewportRatio ? viewportWidth / imageRatio : viewportHeight;
+    const renderedWidth = fitWidth * zoom;
+    const renderedHeight = fitHeight * zoom;
+    const maxX = Math.max(0, (renderedWidth - viewportWidth) / 2);
+    const maxY = Math.max(0, (renderedHeight - viewportHeight) / 2);
+    panX = Math.min(maxX, Math.max(-maxX, panX));
+    panY = Math.min(maxY, Math.max(-maxY, panY));
+    image.style.width = `${renderedWidth}px`;
+    image.style.height = `${renderedHeight}px`;
+    image.style.transform = `translate3d(${panX}px,${panY}px,0)`;
+  };
+  const setZoom = (next: number, anchor?: { x: number; y: number }) => {
     if (!image || !viewport) return;
+    const previousZoom = zoom;
+    const focalX = (anchor?.x ?? viewport.clientWidth / 2) - viewport.clientWidth / 2;
+    const focalY = (anchor?.y ?? viewport.clientHeight / 2) - viewport.clientHeight / 2;
     zoom = Math.min(4, Math.max(1, Math.round(next * 4) / 4));
-    image.style.width = `${zoom * 100}%`;
-    image.style.height = `${zoom * 100}%`;
+    const ratio = zoom / previousZoom;
+    panX = focalX - (focalX - panX) * ratio;
+    panY = focalY - (focalY - panY) * ratio;
+    if (zoom === 1) { panX = 0; panY = 0; }
     media?.toggleAttribute("data-zoomed", zoom > 1);
-    if (zoomLabel) zoomLabel.value = `${Math.round(zoom * 100)}%`;
-    if (zoomOut) zoomOut.disabled = zoom <= 1;
-    if (zoomIn) zoomIn.disabled = zoom >= 4;
-    requestAnimationFrame(() => {
-      viewport.scrollLeft = Math.max(0, (viewport.scrollWidth - viewport.clientWidth) / 2);
-      viewport.scrollTop = Math.max(0, (viewport.scrollHeight - viewport.clientHeight) / 2);
-    });
+    renderImage();
   };
   const setMediaFullscreen = (expanded: boolean) => {
     if (!modal || !fullscreenButton) return;
@@ -401,7 +467,7 @@ const ogImage = exhibits[0]?.data.image.src;
     fullscreenButton.setAttribute("aria-pressed", String(expanded));
     fullscreenButton.setAttribute("aria-label", expanded ? "Exit full screen" : "Enter full screen");
     fullscreenButton.title = expanded ? "Exit full screen" : "Full screen";
-    requestAnimationFrame(() => setZoom(zoom));
+    requestAnimationFrame(renderImage);
   };
 
   const preloadImage = (src: string) => {
@@ -491,6 +557,7 @@ const ogImage = exhibits[0]?.data.image.src;
         /* The preloaded image is already complete; decode support can vary by format. */
       }
       if (request !== imageRequest || activePayload !== payload) return;
+      setZoom(1);
       if (status) status.textContent = `${payload.title}, image ${slideIndex + 1} of ${total}`;
     } catch {
       if (request !== imageRequest || activePayload !== payload) return;
@@ -542,22 +609,33 @@ const ogImage = exhibits[0]?.data.image.src;
   triggers.forEach((trigger) => trigger.addEventListener("click", () => showObject(trigger)));
   previousButton?.addEventListener("click", () => stepObject(-1));
   nextButton?.addEventListener("click", () => stepObject(1));
-  zoomOut?.addEventListener("click", () => setZoom(zoom - 0.25));
-  zoomIn?.addEventListener("click", () => setZoom(zoom + 0.25));
-  zoomReset?.addEventListener("click", () => setZoom(1));
   fullscreenButton?.addEventListener("click", () => setMediaFullscreen(!mediaFullscreen));
-  image?.addEventListener("dblclick", () => setZoom(zoom > 1 ? 1 : 2));
+  image?.addEventListener("dblclick", (event) => {
+    if (!viewport) return;
+    const rect = viewport.getBoundingClientRect();
+    setZoom(zoom > 1 ? 1 : 2, { x: event.clientX - rect.left, y: event.clientY - rect.top });
+  });
+  viewport?.addEventListener("wheel", (event) => {
+    if (!modal?.open || event.deltaY === 0) return;
+    event.preventDefault();
+    const rect = viewport.getBoundingClientRect();
+    setZoom(zoom + (event.deltaY < 0 ? .25 : -.25), {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    });
+  }, { passive: false });
   viewport?.addEventListener("pointerdown", (event) => {
     if (zoom <= 1 || event.button !== 0) return;
-    panState = { pointerId:event.pointerId, x:event.clientX, y:event.clientY, left:viewport.scrollLeft, top:viewport.scrollTop };
+    panState = { pointerId:event.pointerId, x:event.clientX, y:event.clientY, panX, panY };
     viewport.setPointerCapture(event.pointerId);
     viewport.toggleAttribute("data-panning", true);
     event.preventDefault();
   });
   viewport?.addEventListener("pointermove", (event) => {
     if (!panState || event.pointerId !== panState.pointerId) return;
-    viewport.scrollLeft = panState.left - (event.clientX - panState.x);
-    viewport.scrollTop = panState.top - (event.clientY - panState.y);
+    panX = panState.panX + event.clientX - panState.x;
+    panY = panState.panY + event.clientY - panState.y;
+    renderImage();
     event.preventDefault();
   });
   const stopPanning = (event:PointerEvent) => {
@@ -568,6 +646,7 @@ const ogImage = exhibits[0]?.data.image.src;
   };
   viewport?.addEventListener("pointerup", stopPanning);
   viewport?.addEventListener("pointercancel", stopPanning);
+  addEventListener("resize", () => { if (modal?.open) requestAnimationFrame(renderImage); }, { passive: true });
   closeButton?.addEventListener("click", () => modal?.close());
   modal?.addEventListener("click", (event) => { if (event.target === modal) modal.close(); });
   modal?.addEventListener("keydown", (event) => {

@@ -118,21 +118,31 @@ const isGroupActive = (key: string) =>
 </header>
 
 <style>
-  .nav { position: fixed; inset-inline: 0; top: 0; z-index: 50; padding: 0.7rem 0 0; transition: padding 0.82s cubic-bezier(.22,1,.36,1); }
+  .nav { position: fixed; inset-inline: 0; top: 0; z-index: 50; padding: 0.7rem 0 0; transform:translate3d(0,0,0); will-change:transform; transition: padding 0.82s cubic-bezier(.22,1,.36,1), transform .66s cubic-bezier(.22,1,.36,1); }
+  .nav[data-scroll-hidden] { transform:translate3d(0,calc(-100% - 1rem),0); pointer-events:none; }
+  .nav[data-open] { transform:none; will-change:auto; }
   .nav__bar {
     display: flex; align-items: center; justify-content: space-between; gap: 1rem;
     box-sizing: border-box; width: min(calc(100% - 1.5rem), var(--wrap)); margin-inline: auto;
     padding: 0.6rem 0.8rem; border: 1px solid var(--line); border-radius: var(--radius-circle);
     color: var(--ink); background: color-mix(in srgb, var(--panel) 82%, transparent);
-    box-shadow: var(--shadow-low); backdrop-filter: blur(24px) saturate(130%); -webkit-backdrop-filter: blur(24px) saturate(130%);
-    transition: width .82s cubic-bezier(.22,1,.36,1), padding .82s cubic-bezier(.22,1,.36,1), background-color .5s ease, border-color .3s ease;
+    box-shadow: none; backdrop-filter: blur(24px) saturate(130%); -webkit-backdrop-filter: blur(24px) saturate(130%);
+    transition: width .82s cubic-bezier(.22,1,.36,1), padding .82s cubic-bezier(.22,1,.36,1), background-color .5s ease, border-color .3s ease, border-radius .66s cubic-bezier(.22,1,.36,1);
   }
   .nav:not([data-scrolled]) .nav__bar { width: min(calc(100% - 1.5rem), var(--wrap)); padding: 0.7rem 0.9rem; }
   .nav[data-scrolled] { padding-inline: clamp(.45rem, 2vw, 1.25rem); }
   .nav[data-scrolled] .nav__bar { width: min(100%, 67rem); padding: .48rem .65rem; }
+  .nav[data-exhibition-stack] .nav__bar { border-radius: 1.25rem 1.25rem .55rem .55rem; }
   .nav--home { --ink:#fff; --ink-soft:rgba(255,255,255,.84); --line:rgba(255,255,255,.12); --panel:#111722; }
   .nav--home:not([data-scrolled]) .nav__bar { background: transparent; border-color: transparent; box-shadow: none; backdrop-filter:none; -webkit-backdrop-filter:none; }
-  .nav--home[data-scrolled] .nav__bar { background:rgba(20,26,38,.58); border-color:rgba(255,255,255,.1); }
+  .nav--home[data-scrolled] .nav__bar {
+    background:rgba(20,26,38,.72);
+    border-color:rgba(255,255,255,.1);
+    box-shadow:none;
+    filter:none;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+  }
   .nav__brand { display:flex; align-items:center; gap:.65rem; flex:none; }
   .nav__logo { width:42px; height:42px; object-fit:cover; border-radius:50%; }
   .nav__name { font-size:1.18rem; font-weight:700; letter-spacing:-.03em; color:var(--ink); }
@@ -163,6 +173,13 @@ const isGroupActive = (key: string) =>
   .nav__burger-line:nth-child(2){top:16px}.nav__burger-line:nth-child(3){top:25px}
   .nav[data-open] .nav__burger-line:nth-child(2){top:21px;rotate:45deg}.nav[data-open] .nav__burger-line:nth-child(3){top:21px;rotate:-45deg}
   .nav__overlay[hidden]{display:none}.nav__overlay{position:fixed;inset:0;z-index:2;overflow-y:auto;background:var(--night);padding:5.2rem 1.25rem 2rem}
+  :global(:root[data-theme="light"]) .nav__overlay{
+    --ink:#111716;
+    --ink-soft:#5f6866;
+    --ink-faint:#6e7774;
+    --line:#d8dcda;
+    background:#f3f2ed;
+  }
   .nav__overlay-close{position:absolute;top:1.1rem;right:1.2rem;width:44px;height:44px;font-size:2rem;color:var(--ink)}
   .nav__mobile{max-width:34rem;margin:auto;display:grid;gap:1.35rem}.nav__mobile-group p{color:var(--ink-faint);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
   .nav__mobile-group ul{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.35rem;margin-top:.45rem}
@@ -183,9 +200,63 @@ const isGroupActive = (key: string) =>
     const nav = document.querySelector<HTMLElement>("[data-nav]");
     if (!nav) return;
 
-    const syncSurface = () => nav.toggleAttribute("data-scrolled", scrollY > 24);
+    let navFrame = 0;
+    let lastObservedY = scrollY;
+    let directionTravel = 0;
+    let direction = 0;
+    let scrollHidden = false;
+    const setScrollHidden = (hidden:boolean) => {
+      const next = hidden && !nav.hasAttribute("data-open");
+      if (scrollHidden === next && nav.hasAttribute("data-scroll-hidden") === next) return;
+      scrollHidden = next;
+      nav.toggleAttribute("data-scroll-hidden", next);
+      nav.dispatchEvent(new CustomEvent("durbin:nav-visibility"));
+    };
+    const syncSurface = () => {
+      navFrame = 0;
+      const currentScrollY = scrollY;
+      nav.toggleAttribute("data-scrolled", currentScrollY > 24);
+      if (currentScrollY <= 24) {
+        setScrollHidden(false);
+      }
+    };
+    const requestSurface = () => {
+      if (!navFrame) navFrame = requestAnimationFrame(syncSurface);
+    };
+    const observeScroll = () => {
+      const currentScrollY = scrollY;
+      const delta = currentScrollY - lastObservedY;
+      lastObservedY = currentScrollY;
+      if (currentScrollY <= 24) {
+        direction = 0;
+        directionTravel = 0;
+        setScrollHidden(false);
+      } else if (Math.abs(delta) > .5) {
+        const nextDirection = delta > 0 ? 1 : -1;
+        if (direction !== nextDirection) {
+          direction = nextDirection;
+          directionTravel = 0;
+        }
+        directionTravel += Math.abs(delta);
+        if (directionTravel > 14) setScrollHidden(direction > 0);
+      }
+      requestSurface();
+    };
     syncSurface();
-    addEventListener("scroll", syncSurface, { passive:true, signal });
+    addEventListener("wheel", (event) => {
+      if (Math.abs(event.deltaY) < .5) return;
+      direction = event.deltaY > 0 ? 1 : -1;
+      directionTravel = 15;
+      setScrollHidden(direction > 0 && scrollY > 24);
+    }, { passive:true, signal });
+    addEventListener("scroll", observeScroll, { passive:true, signal });
+    if (location.hash) requestAnimationFrame(() => requestAnimationFrame(() => {
+      lastObservedY = scrollY;
+      direction = 0;
+      directionTravel = 0;
+      setScrollHidden(false);
+      syncSurface();
+    }));
 
     const themeToggle = nav.querySelector<HTMLButtonElement>("[data-theme-toggle]");
     const syncThemeLabel = () => {
@@ -208,7 +279,7 @@ const isGroupActive = (key: string) =>
           other.removeAttribute("data-open");
           const otherButton = other.querySelector<HTMLButtonElement>("button");
           otherButton?.setAttribute("aria-expanded", "false");
-          if (document.activeElement === otherButton) otherButton.blur();
+          if (otherButton && document.activeElement === otherButton) otherButton.blur();
         });
       }, { signal });
       button?.addEventListener("click", () => {
@@ -237,6 +308,7 @@ const isGroupActive = (key: string) =>
     const previousInert = new Map<HTMLElement, boolean>();
     const focusable = () => Array.from(overlay.querySelectorAll<HTMLElement>('a[href],button:not([disabled])')).filter((item) => item.getClientRects().length > 0);
     const setMenu = (open:boolean) => {
+      if(open){ setScrollHidden(false); lastObservedY=scrollY; direction=0; directionTravel=0; }
       nav.toggleAttribute("data-open", open); overlay.hidden = !open; bar.inert = open;
       toggle.setAttribute("aria-expanded", String(open)); if(label) label.textContent = open ? "Close menu" : "Open menu";
       document.body.style.overflow = open ? "hidden" : "";
@@ -245,13 +317,16 @@ const isGroupActive = (key: string) =>
         background.forEach((item)=>{previousInert.set(item,item.inert);item.inert=true});
         requestAnimationFrame(()=>overlay.querySelector<HTMLAnchorElement>("a")?.focus());
       } else {
-        background.forEach((item)=>item.inert=previousInert.get(item)??false);previousInert.clear();restoreFocus?.focus();
+        background.forEach((item)=>item.inert=previousInert.get(item)??false);previousInert.clear();
+        const focusTarget=restoreFocus;restoreFocus=null;
+        requestAnimationFrame(()=>focusTarget?.focus());
       }
     };
     toggle.addEventListener("click",()=>setMenu(true),{signal});close.addEventListener("click",()=>setMenu(false),{signal});
     overlay.addEventListener("keydown",(event)=>{if(event.key!=="Tab")return;const items=focusable();if(!items.length)return;const first=items[0],last=items[items.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}},{signal});
     document.addEventListener("keydown",(event)=>{if(event.key==="Escape"&&!overlay.hidden)setMenu(false)},{signal});
     addEventListener("resize",()=>{if(innerWidth>860&&!overlay.hidden)setMenu(false)},{signal});
+    nav.addEventListener("focusin",()=>{setScrollHidden(false);lastObservedY=scrollY;direction=0;directionTravel=0},{signal});
   };
   setupSiteNav();
   document.addEventListener("astro:page-load", setupSiteNav);
