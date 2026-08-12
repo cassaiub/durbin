@@ -1,0 +1,397 @@
+---
+import { Image } from "astro:assets";
+import durbinLogo from "../assets/brand/durbin-logo.jpg";
+
+interface Props { current?: string }
+const { current = "" } = Astro.props;
+
+const groups = [
+  {
+    label: "About",
+    key: "about",
+    items: [
+      { path: "/about", label: "Durbin", note: "Mission and programme" },
+      { path: "/manual", label: "Manual", note: "How Durbin works" },
+      { path: "/history", label: "History", note: "An interactive timeline" },
+    ],
+  },
+  {
+    label: "People",
+    key: "people",
+    items: [
+      { path: "/people/management", label: "Management", note: "Supervisors and project manager" },
+      { path: "/people/volunteers", label: "Volunteers", note: "The current cohort" },
+      { path: "/people/alumni", label: "Alumni", note: "Past volunteers" },
+    ],
+  },
+  {
+    label: "Instruments",
+    key: "instruments",
+    items: [
+      { path: "/instruments/telescope", label: "Telescope", note: "Optical and smart telescopes" },
+      { path: "/instruments/equipment", label: "Equipment", note: "Imaging and field kit" },
+    ],
+  },
+] as const;
+
+const direct = [
+  { path: "/exhibition", label: "Exhibition" },
+  { path: "/news", label: "News" },
+  { path: "/events", label: "Events" },
+] as const;
+
+const isGroupActive = (key: string) =>
+  key === "about" ? ["/about", "/manual", "/history"].includes(current) : current.startsWith(`/${key}`);
+---
+
+<header class:list={["nav", { "nav--home": current === "/" }]} data-nav>
+  <div class="nav__bar">
+    <a class="nav__brand" href="/" aria-label="Durbin home">
+      <Image class="nav__logo" src={durbinLogo} alt="" width={42} height={42} densities={[1, 2]} loading="eager" />
+      <span class="nav__name">Durbin</span>
+    </a>
+
+    <nav class="nav__links" aria-label="Primary navigation">
+      {groups.map((group) => (
+        <div class="nav__group" data-nav-group>
+          <button
+            class:list={["nav__link", "nav__link--button", { "is-active": isGroupActive(group.key) }]}
+            type="button"
+            aria-expanded="false"
+            data-dropdown-toggle
+          >
+            {group.label}
+            <svg viewBox="0 0 12 8" aria-hidden="true"><path d="m1 1 5 5 5-5" /></svg>
+          </button>
+          <div class="nav__dropdown">
+            {group.items.map((item) => (
+              <a class:list={["nav__drop-link", { "is-active": current === item.path.split("#")[0] }]} href={item.path}>
+                <span>{item.label}</span><small>{item.note}</small>
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+      {direct.map((item) => (
+        <a
+          class:list={["nav__link", { "is-active": current === item.path }]}
+          href={item.path}
+          data-astro-reload={item.path === "/exhibition" ? true : undefined}
+          aria-current={current === item.path ? "page" : undefined}
+        >{item.label}</a>
+      ))}
+    </nav>
+
+    <div class="nav__end">
+      <button class="theme-toggle" type="button" aria-label="Switch to light mode" title="Switch colour theme" data-theme-toggle>
+        <svg class="theme-toggle__sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
+        </svg>
+        <svg class="theme-toggle__moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.2 15.2A8.5 8.5 0 0 1 8.8 3.8a8.5 8.5 0 1 0 11.4 11.4Z" />
+        </svg>
+      </button>
+      <button class="nav__burger" type="button" aria-expanded="false" aria-controls="nav-overlay" data-nav-toggle>
+        <span class="visually-hidden" data-menu-label>Open menu</span>
+        <span class="nav__burger-line"></span><span class="nav__burger-line"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="nav__overlay" id="nav-overlay" role="dialog" aria-modal="true" aria-labelledby="nav-overlay-title">
+    <h2 class="visually-hidden" id="nav-overlay-title">Site menu</h2>
+    <button class="nav__overlay-close" type="button" aria-label="Close menu" data-nav-close>&times;</button>
+    <nav class="nav__mobile" aria-label="Mobile navigation">
+      {groups.map((group, index) => (
+        <section class="nav__mobile-group" style={`--stagger:${index}`}>
+          <p>{group.label}</p>
+          <ul>
+            {group.items.map((item) => <li><a href={item.path}>{item.label}</a></li>)}
+          </ul>
+        </section>
+      ))}
+      <ul class="nav__mobile-direct" style={`--stagger:${groups.length}`}>
+        {direct.map((item) => <li><a href={item.path} data-astro-reload={item.path === "/exhibition" ? true : undefined}>{item.label}</a></li>)}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .nav { position: fixed; inset-inline: 0; top: 0; z-index: 50; padding: 0.7rem 0 0; transform:translate3d(0,0,0); will-change:transform; transition: padding 0.82s cubic-bezier(.22,1,.36,1), transform .66s cubic-bezier(.22,1,.36,1); }
+  /* While hiding, the bar takes .66s to clear the top of the screen, but the
+     exhibition tool bar docks the instant the scroll position crosses its
+     threshold - the two triggers are independent, so the bar was still sliding
+     over the docked panel. Drop below it (docked tools are z-index 49) for the
+     duration of the hide; the bar is off-screen and non-interactive anyway, and
+     an open menu is never in this state because opening one un-hides the bar. */
+  .nav[data-scroll-hidden] { transform:translate3d(0,calc(-100% - 1rem),0); pointer-events:none; z-index:48; }
+  .nav[data-open] { transform:none; will-change:auto; }
+  /* The open overlay paints over the bar, so the bar's backdrop blur is blurring
+     something nobody can see - and because the backdrop changes on every frame of
+     the fade, it is re-blurred on every one of them. Blur is among the most
+     expensive things a mobile GPU can be asked to do per frame, so drop it. */
+  .nav[data-open] .nav__bar { backdrop-filter:none; -webkit-backdrop-filter:none; }
+  .nav__bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    box-sizing: border-box; width: min(calc(100% - 1.5rem), var(--wrap)); margin-inline: auto;
+    padding: 0.6rem 0.8rem; border: 1px solid var(--line); border-radius: var(--radius-circle);
+    color: var(--ink); background: color-mix(in srgb, var(--panel) 82%, transparent);
+    /* Backdrop blur re-rasterises the strip behind the bar on every scroll frame,
+       and the cost scales with the radius. 14px keeps the glass read at a fraction
+       of the work; the bar is only ~60px tall so the larger radius bought little. */
+    box-shadow: none; backdrop-filter: blur(14px) saturate(125%); -webkit-backdrop-filter: blur(14px) saturate(125%);
+    transition: width .82s cubic-bezier(.22,1,.36,1), padding .82s cubic-bezier(.22,1,.36,1), background-color .5s ease, border-color .3s ease, border-radius .66s cubic-bezier(.22,1,.36,1);
+  }
+  .nav:not([data-scrolled]) .nav__bar { width: min(calc(100% - 1.5rem), var(--wrap)); padding: 0.7rem 0.9rem; }
+  .nav[data-scrolled] { padding-inline: clamp(.45rem, 2vw, 1.25rem); }
+  .nav[data-scrolled] .nav__bar { width: min(100%, 67rem); padding: .48rem .65rem; }
+  .nav[data-exhibition-stack] .nav__bar { border-radius: 1.25rem 1.25rem .55rem .55rem; }
+  .nav--home { --ink:#fff; --ink-soft:rgba(255,255,255,.84); --line:rgba(255,255,255,.12); --panel:#111722; }
+  .nav--home:not([data-scrolled]) .nav__bar { background: transparent; border-color: transparent; box-shadow: none; backdrop-filter:none; -webkit-backdrop-filter:none; }
+  .nav--home[data-scrolled] .nav__bar {
+    background:rgba(20,26,38,.72);
+    border-color:rgba(255,255,255,.1);
+    box-shadow:none;
+    filter:none;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+  }
+  .nav__brand { display:flex; align-items:center; gap:.65rem; flex:none; }
+  .nav__logo { width:42px; height:42px; object-fit:cover; border-radius:50%; }
+  .nav__name { font-size:1.18rem; font-weight:700; letter-spacing:-.03em; color:var(--ink); }
+  .nav__links { display:flex; align-items:center; justify-content:center; gap:clamp(.55rem,1.2vw,1rem); }
+  .nav__group { position:relative; }
+  .nav__link { display:flex; align-items:center; gap:.28rem; min-height:40px; padding:.45rem .2rem; color:var(--ink-soft); font-size:.8rem; font-weight:600; white-space:nowrap; border-bottom:1px solid transparent; }
+  .nav__link svg { width:.58rem; fill:none; stroke:currentColor; stroke-width:1.5; transition:transform .2s; }
+  .nav__link:hover,.nav__link.is-active { color:var(--ink); border-bottom-color:var(--brass); }
+  .nav__group[data-open] .nav__link svg,.nav__group:focus-within .nav__link svg { transform:rotate(180deg); }
+  .nav__dropdown {
+    position:absolute; top:calc(100% + .55rem); left:50%; width:16.5rem; padding:.45rem; opacity:0; visibility:hidden; transform:translate(-50%,-.4rem);
+    border:1px solid var(--line); border-radius:var(--radius-md); background:var(--panel); box-shadow:var(--shadow-low); transition:opacity .18s,transform .18s,visibility .18s;
+  }
+  .nav__group:hover .nav__dropdown,.nav__group:focus-within .nav__dropdown,.nav__group[data-open] .nav__dropdown { opacity:1; visibility:visible; transform:translate(-50%,0); }
+  .nav__drop-link { display:grid; gap:.08rem; padding:.7rem .8rem; border-radius:.75rem; color:var(--ink); }
+  .nav__drop-link:hover,.nav__drop-link.is-active { background:color-mix(in srgb,var(--brass) 13%,transparent); }
+  .nav__drop-link span { font-size:.84rem; font-weight:600; }
+  .nav__drop-link small { color:var(--ink-faint); font-size:.68rem; }
+  .nav__end { display:flex; align-items:center; gap:.4rem; flex:none; }
+  .theme-toggle { display:grid; place-items:center; width:42px; height:42px; border:1px solid var(--line); border-radius:50%; background:color-mix(in srgb,var(--panel) 78%,transparent); color:var(--ink); }
+  .theme-toggle:hover { border-color:var(--brass); }
+  .theme-toggle svg { width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .theme-toggle__moon { display:none; }
+  :global(:root[data-theme="light"]) .theme-toggle__sun { display:none; }
+  :global(:root[data-theme="light"]) .theme-toggle__moon { display:block; }
+  .nav__burger { display:none; position:relative; width:42px; height:42px; }
+  .nav__burger-line { position:absolute; left:10px; right:10px; height:2px; background:currentColor; transition:rotate .25s,top .25s; }
+  .nav__burger-line:nth-child(2){top:16px}.nav__burger-line:nth-child(3){top:25px}
+  .nav[data-open] .nav__burger-line:nth-child(2){top:21px;rotate:45deg}.nav[data-open] .nav__burger-line:nth-child(3){top:21px;rotate:-45deg}
+  /* Closed with visibility, not display, so the overlay stays laid out and the
+     open transition can start on the very next frame. Toggling display meant the
+     first frame after the tap went on building the panel, which is what made the
+     menu feel like it hesitated before appearing. visibility is in the
+     transition list so it holds "visible" for the whole exit. */
+  .nav__overlay{
+    position:fixed;inset:0;z-index:2;overflow-y:auto;background:var(--night);padding:5.2rem 1.25rem 2rem;
+    contain:layout paint;visibility:hidden;pointer-events:none;opacity:0;transform:translate3d(0,-0.75rem,0);
+    /* visibility steps at 0s but only after the fade has run, so the panel stays
+       on screen for the whole exit. Transitioning visibility itself would hold
+       the start value at progress 0, leaving the overlay computed as hidden on
+       the frame we move focus into it - and focusing a hidden element is a
+       silent no-op. */
+    transition:opacity .26s cubic-bezier(.22,1,.36,1),transform .34s cubic-bezier(.22,1,.36,1),visibility 0s linear .34s;
+  }
+  .nav__overlay[data-open]{visibility:visible;pointer-events:auto;opacity:1;transform:none;transition:opacity .26s cubic-bezier(.22,1,.36,1),transform .34s cubic-bezier(.22,1,.36,1),visibility 0s}
+  .nav__mobile-group,.nav__mobile-direct{
+    opacity:0;transform:translate3d(0,.6rem,0);
+    transition:opacity .34s cubic-bezier(.22,1,.36,1),transform .34s cubic-bezier(.22,1,.36,1);
+    transition-delay:calc(var(--stagger,0) * 40ms);
+  }
+  .nav__overlay[data-open] .nav__mobile-group,.nav__overlay[data-open] .nav__mobile-direct{opacity:1;transform:none}
+  :global(:root[data-theme="light"]) .nav__overlay{
+    --ink:#111716;
+    --ink-soft:#5f6866;
+    --ink-faint:#6e7774;
+    --line:#d8dcda;
+    background:#f3f2ed;
+  }
+  .nav__overlay-close{position:absolute;top:1.1rem;right:1.2rem;width:44px;height:44px;font-size:2rem;color:var(--ink)}
+  .nav__mobile{max-width:34rem;margin:auto;display:grid;gap:1.35rem}.nav__mobile-group p{color:var(--ink-faint);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+  .nav__mobile-group ul{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.35rem;margin-top:.45rem}
+  .nav__mobile a{display:block;padding:.55rem 0;color:var(--ink);font-size:1.2rem;font-weight:600}
+  .nav__mobile-direct{list-style:none;border-top:1px solid var(--line);padding-top:.65rem}.nav__mobile-direct a{font-size:1.65rem}
+  @media(max-width:1040px){.nav__links{gap:.45rem}.nav__link{font-size:.74rem}.nav__name{display:none}}
+  @media(max-width:860px){.nav__links{display:none}.nav__burger{display:block}.nav__name{display:block}.nav[data-scrolled] .nav__bar{width:min(100%,44rem)} }
+  @media(max-width:420px){.nav__mobile-group ul{grid-template-columns:1fr}.nav__name{font-size:1.05rem}}
+  @media(prefers-reduced-motion:reduce){
+    .nav,.nav__bar,.nav__dropdown{transition-duration:.01ms}
+    .nav__overlay,.nav__mobile-group,.nav__mobile-direct{transition:none;transform:none}
+  }
+</style>
+
+<script>
+  let navController: AbortController | undefined;
+  const setupSiteNav = () => {
+    navController?.abort();
+    navController = new AbortController();
+    const { signal } = navController;
+    const nav = document.querySelector<HTMLElement>("[data-nav]");
+    if (!nav) return;
+
+    let navFrame = 0;
+    let lastObservedY = scrollY;
+    let directionTravel = 0;
+    let direction = 0;
+    let scrollHidden = false;
+    // Landing on a URL with a hash makes the browser jump the page after load,
+    // and late-loading images shift it again. The direction tracker reads those
+    // as a deliberate scroll down and hides the bar, leaving the navigation
+    // off-screen on arrival. Ignore hide requests until the landing settles.
+    let suppressHideUntil = location.hash ? performance.now() + 900 : 0;
+    const setScrollHidden = (hidden:boolean) => {
+      if (hidden && performance.now() < suppressHideUntil) return;
+      const next = hidden && !nav.hasAttribute("data-open");
+      if (scrollHidden === next && nav.hasAttribute("data-scroll-hidden") === next) return;
+      scrollHidden = next;
+      nav.toggleAttribute("data-scroll-hidden", next);
+      nav.dispatchEvent(new CustomEvent("durbin:nav-visibility"));
+    };
+    const syncSurface = () => {
+      navFrame = 0;
+      const currentScrollY = scrollY;
+      nav.toggleAttribute("data-scrolled", currentScrollY > 24);
+      if (currentScrollY <= 24) {
+        setScrollHidden(false);
+      }
+    };
+    const requestSurface = () => {
+      if (!navFrame) navFrame = requestAnimationFrame(syncSurface);
+    };
+    const observeScroll = () => {
+      const currentScrollY = scrollY;
+      const delta = currentScrollY - lastObservedY;
+      lastObservedY = currentScrollY;
+      if (currentScrollY <= 24) {
+        direction = 0;
+        directionTravel = 0;
+        setScrollHidden(false);
+      } else if (Math.abs(delta) > .5) {
+        const nextDirection = delta > 0 ? 1 : -1;
+        if (direction !== nextDirection) {
+          direction = nextDirection;
+          directionTravel = 0;
+        }
+        directionTravel += Math.abs(delta);
+        if (directionTravel > 14) setScrollHidden(direction > 0);
+      }
+      requestSurface();
+    };
+    syncSurface();
+    addEventListener("wheel", (event) => {
+      if (Math.abs(event.deltaY) < .5) return;
+      direction = event.deltaY > 0 ? 1 : -1;
+      directionTravel = 15;
+      setScrollHidden(direction > 0 && scrollY > 24);
+    }, { passive:true, signal });
+    addEventListener("scroll", observeScroll, { passive:true, signal });
+    if (location.hash) requestAnimationFrame(() => requestAnimationFrame(() => {
+      lastObservedY = scrollY;
+      direction = 0;
+      directionTravel = 0;
+      setScrollHidden(false);
+      syncSurface();
+    }));
+
+    const themeToggle = nav.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+    const syncThemeLabel = () => {
+      const light = document.documentElement.dataset.theme === "light";
+      themeToggle?.setAttribute("aria-label", light ? "Switch to dark mode" : "Switch to light mode");
+    };
+    syncThemeLabel();
+    themeToggle?.addEventListener("click", () => {
+      const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("durbin-theme", next);
+      syncThemeLabel();
+    }, { signal });
+
+    const groups = Array.from(nav.querySelectorAll<HTMLElement>("[data-nav-group]"));
+    groups.forEach((group) => {
+      const button = group.querySelector<HTMLButtonElement>("[data-dropdown-toggle]");
+      group.addEventListener("pointerenter", () => {
+        groups.filter((other) => other !== group).forEach((other) => {
+          other.removeAttribute("data-open");
+          const otherButton = other.querySelector<HTMLButtonElement>("button");
+          otherButton?.setAttribute("aria-expanded", "false");
+          if (otherButton && document.activeElement === otherButton) otherButton.blur();
+        });
+      }, { signal });
+      button?.addEventListener("click", () => {
+        const open = !group.hasAttribute("data-open");
+        groups.forEach((other) => {
+          other.removeAttribute("data-open");
+          other.querySelector("button")?.setAttribute("aria-expanded", "false");
+        });
+        group.toggleAttribute("data-open", open);
+        button.setAttribute("aria-expanded", String(open));
+      }, { signal });
+    });
+    document.addEventListener("click", (event) => {
+      if (event.target instanceof Node && nav.contains(event.target)) return;
+      groups.forEach((group) => group.removeAttribute("data-open"));
+    }, { signal });
+
+    const toggle = nav.querySelector<HTMLButtonElement>("[data-nav-toggle]");
+    const overlay = nav.querySelector<HTMLElement>(".nav__overlay");
+    const bar = nav.querySelector<HTMLElement>(".nav__bar");
+    const close = nav.querySelector<HTMLButtonElement>("[data-nav-close]");
+    const label = toggle?.querySelector<HTMLElement>("[data-menu-label]");
+    if (!toggle || !overlay || !bar || !close) return;
+    let restoreFocus: HTMLElement | null = null;
+    const background = Array.from(document.querySelectorAll<HTMLElement>("body > .skip, body > main, body > footer, body > .lightbox"));
+    const previousInert = new Map<HTMLElement, boolean>();
+    const focusable = () => Array.from(overlay.querySelectorAll<HTMLElement>('a[href],button:not([disabled])')).filter((item) => item.getClientRects().length > 0);
+    let menuOpen = false;
+    const setMenu = (open:boolean) => {
+      if (menuOpen === open) return;
+      menuOpen = open;
+      if(open){ setScrollHidden(false); lastObservedY=scrollY; direction=0; directionTravel=0; }
+      nav.toggleAttribute("data-open", open);
+      toggle.setAttribute("aria-expanded", String(open)); if(label) label.textContent = open ? "Close menu" : "Open menu";
+      if(open){
+        restoreFocus=document.activeElement instanceof HTMLElement?document.activeElement:toggle;
+        // Flip the attribute synchronously so the transition starts on the next
+        // frame. Marking main/footer inert and locking body scroll each force a
+        // full-document layout, so they wait a frame: doing them inline pushed
+        // the first visible frame out to ~180ms on a throttled phone.
+        overlay.setAttribute("data-open","");
+        requestAnimationFrame(()=>{
+          if(!menuOpen) return;
+          // Flush first: the data-open set above has not been committed yet, so
+          // the overlay can still compute as visibility:hidden here, and focusing
+          // a hidden element is a silent no-op. Move focus in before marking the
+          // page inert, so the inert focus-fixup cannot land on top of it.
+          void overlay.offsetHeight;
+          overlay.querySelector<HTMLAnchorElement>("a")?.focus({ preventScroll:true });
+          bar.inert = true;
+          document.body.style.overflow = "hidden";
+          background.forEach((item)=>{previousInert.set(item,item.inert);item.inert=true});
+        });
+      } else {
+        overlay.removeAttribute("data-open");
+        bar.inert = false;
+        document.body.style.overflow = "";
+        background.forEach((item)=>item.inert=previousInert.get(item)??false);previousInert.clear();
+        const focusTarget=restoreFocus;restoreFocus=null;
+        focusTarget?.focus({ preventScroll:true });
+      }
+    };
+    toggle.addEventListener("click",()=>setMenu(true),{signal});close.addEventListener("click",()=>setMenu(false),{signal});
+    overlay.addEventListener("keydown",(event)=>{if(event.key!=="Tab")return;const items=focusable();if(!items.length)return;const first=items[0],last=items[items.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}},{signal});
+    document.addEventListener("keydown",(event)=>{if(event.key==="Escape"&&menuOpen)setMenu(false)},{signal});
+    addEventListener("resize",()=>{if(innerWidth>860&&menuOpen)setMenu(false)},{signal});
+    nav.addEventListener("focusin",()=>{setScrollHidden(false);lastObservedY=scrollY;direction=0;directionTravel=0},{signal});
+  };
+  setupSiteNav();
+  document.addEventListener("astro:page-load", setupSiteNav);
+</script>

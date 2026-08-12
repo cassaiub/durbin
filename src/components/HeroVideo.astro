@@ -1,0 +1,68 @@
+---
+/**
+ * Ambient background loop for the editorial heroes. Purely decorative, so it is
+ * aria-hidden and never focusable. The grade is baked into the encode rather
+ * than applied as a CSS filter, so nothing is re-filtered per painted frame.
+ */
+interface Props { src: string; poster: string; class?: string }
+const { src, poster, class: className } = Astro.props;
+---
+
+<div class:list={["herovid", className]} aria-hidden="true">
+  <video
+    class="herovid__media"
+    muted
+    loop
+    playsinline
+    autoplay
+    preload="none"
+    tabindex="-1"
+    poster={poster}
+    data-ambient-video
+    data-src={src}
+  ></video>
+</div>
+
+<style>
+  .herovid { position:absolute; z-index:-1; inset:0; overflow:hidden; pointer-events:none; }
+  .herovid__media { width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .9s ease; }
+  .herovid__media[data-ready] { opacity:.58; }
+  /* Keeps the headline legible over whatever frame happens to be on screen. */
+  .herovid::after {
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg,rgba(8,11,12,.72) 0%,rgba(8,11,12,.35) 38%,rgba(8,11,12,.86) 100%);
+  }
+  @media (prefers-reduced-motion: reduce) { .herovid__media { transition:none; } }
+</style>
+
+<script>
+  const setupHeroVideos = () => {
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.querySelectorAll<HTMLVideoElement>("[data-ambient-video]").forEach((video) => {
+      if (video.dataset.heroReady === "true") return;
+      video.dataset.heroReady = "true";
+      // Reduced motion keeps the poster frame and never fetches the clip.
+      if (reduced) return;
+      const src = video.dataset.src;
+      if (!src) return;
+      video.preload = "auto";
+      video.src = src;
+      const reveal = () => video.setAttribute("data-ready", "");
+      if (video.readyState >= 2) reveal();
+      else video.addEventListener("loadeddata", reveal, { once: true });
+      // Decoding a hero that has scrolled away competes with the scroll itself
+      // for the same frame budget, so playback follows visibility.
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver(([entry]) => {
+          if (entry?.isIntersecting) void video.play().catch(() => reveal());
+          else video.pause();
+        }, { rootMargin: "120px 0px" }).observe(video);
+      } else {
+        const play = video.play();
+        if (play) play.catch(() => reveal());
+      }
+    });
+  };
+  setupHeroVideos();
+  document.addEventListener("astro:page-load", setupHeroVideos);
+</script>

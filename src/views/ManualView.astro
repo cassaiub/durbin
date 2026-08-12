@@ -1,0 +1,124 @@
+---
+/* The Durbin Manual: governing principles, the volunteer model, and safeguarding. */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+
+const lede = "How Durbin is governed under the CASSA Constitution, including its volunteer model and safeguarding standards.";
+---
+
+<BaseLayout path="/manual" title="The Durbin Manual | Durbin" description={lede} current="/manual">
+  <section class="section manhead">
+    <div class="wrap">
+      <Reveal><p class="section-label">How the programme runs</p></Reveal>
+      <Reveal delay={60}><h1 class="h-display">The Durbin Manual</h1></Reveal>
+      <Reveal delay={100}><p class="lede">{lede}</p></Reveal>
+    </div>
+  </section>
+
+  <!-- Purpose -->
+  <section class="section section--tight">
+    <div class="wrap wrap--narrow">
+      <Reveal><p class="section-label">Purpose</p></Reveal>
+      <Reveal delay={60}><h2 class="manh2">A volunteer programme, by design</h2></Reveal>
+      <Reveal delay={100}>
+        <div class="prose">
+          <p>
+            Durbin is CASSA's public astronomy-outreach programme: astrophotography, immersive
+            science communication, school visits, and public Astronomy Nights. It was founded on
+            9 March 2023 by Dr. Lamiya Mowla.
+          </p>
+          <p>
+            The Constitution makes one principle binding: Durbin "shall always remain an outreach
+            program conducted by volunteers under the supervision of the Directors of CASSA"
+            (cl. 33.1). Changes to its funding or affiliation are managed by the Durbin Management
+            Team in consultation with the Office of the Director.
+          </p>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+
+  <!-- Volunteer model -->
+  <section class="section section--line">
+    <div class="wrap wrap--narrow">
+      <Reveal><p class="section-label">Taking part</p></Reveal>
+      <Reveal delay={60}><h2 class="manh2">The volunteer model</h2></Reveal>
+      <Reveal delay={100}>
+        <div class="prose">
+          <p>
+            Volunteers form fixed teams for each programme cycle, once a team is constituted,
+            members are not transferred between teams. Across a cycle, teams:
+          </p>
+          <ul>
+            <li>develop lasting materials, text, imagery, audiovisual and immersive, from Durbin astrophotography;</li>
+            <li>operate telescopes at Durbin events and Astronomy Nights, and run remote imaging camps;</li>
+            <li>produce physical prints and visual-art installations of deep-sky imagery.</li>
+          </ul>
+          <p>
+            CASSA covers pre-authorized costs. Volunteers who complete a cycle receive a Letter of
+            Experience, and winning teams at public exhibitions receive prizes.
+          </p>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+
+  <!-- Safeguarding -->
+  <section class="section section--line">
+    <div class="wrap wrap--narrow">
+      <Reveal><p class="section-label">Safeguarding · Appendix E</p></Reveal>
+      <Reveal delay={60}><h2 class="manh2">Everyone is safe at a Durbin event</h2></Reveal>
+      <Reveal delay={100}>
+        <div class="prose">
+          <p>
+            All Durbin activity with minors is governed by the CASSA Safeguarding Policy
+            (Constitution Appendix E), which takes a zero-tolerance-to-inaction stance on abuse and
+            on sexual exploitation, abuse and harassment. Safeguarding is overseen by a Central
+            Safeguarding Focal Point (CSFP), currently the Research Affiliate Rafia Rokaiya
+            Hossain, and a Project Safeguarding Focal Point (PSFP) for the programme.
+          </p>
+          <p>Core rules at every Durbin and Astronomy Night activity:</p>
+          <ul>
+            <li>at least two CASSA representatives are present at every evening or rooftop event;</li>
+            <li>no one is ever alone with a child in a closed or unlit space, activities run in pairs or groups;</li>
+            <li>photography of a minor requires prior written consent from the parent and the child;</li>
+            <li>all communication uses official CASSA/IUB channels;</li>
+            <li>anyone working with children is vetted (reference checks and a boundary interview).</li>
+          </ul>
+          <p>
+            Concerns can be raised with the PSFP or CSFP, or directly with the IUB Gender &amp;
+            Sexual Harassment Committee (safeplace@iub.edu.bd) or the Proctorial Committee
+            (proctor@iub.edu.bd). The approach is survivor-centred, and severe cases are reported to
+            IUB within 24 hours. The policy aligns with IUB policy and Bangladeshi law, including
+            the Children Act 2013.
+          </p>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+
+  <!-- Funding & governing document -->
+  <section class="section section--line">
+    <div class="wrap wrap--narrow">
+      <Reveal><p class="section-label">Funding &amp; governance</p></Reveal>
+      <Reveal delay={60}><h2 class="manh2">Support, and the governing document</h2></Reveal>
+      <Reveal delay={100}>
+        <div class="prose">
+          <p>
+            Durbin was seeded by the University of Toronto's Dunlap Institute for Astronomy &amp;
+            Astrophysics, and from May 2026 is supported by a British Council Bangladesh grant
+            through Women of the World. Under the Constitution, Durbin is transitioned or wound down
+            only on dissolution of the Center (cl. 28).
+          </p>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .manhead { padding-top: clamp(7rem, 14vw, 10rem); padding-bottom: 0; }
+  .manh2 { font-size: clamp(2rem, 4.5vw, 2.8rem); font-weight: 700; letter-spacing: -0.04em; line-height: 1.05; margin-top: 0.6rem; color: var(--ink); }
+  .section .prose { margin-top: 1.4rem; }
+
+</style>

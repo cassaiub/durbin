@@ -1,0 +1,47 @@
+/* Durbin volunteers, verbatim from the legacy WordPress 'volunteers' page table. */
+export type Volunteer = { name: string; region: string; institution?: string; duration?: string };
+
+export const current: Volunteer[] = [
+  { name: "Adiba Habiba", region: "Dhaka", institution: "UIU" },
+  { name: "Ali Newaj", region: "Chattogram", institution: "CU" },
+  { name: "Asmaul Husna Juhana", region: "Dhaka", institution: "IUB" },
+  { name: "Fariba Nehreen Binti", region: "Chattogram", institution: "CU" },
+  { name: "Aiman Sheikh", region: "Dhaka", institution: "IUB" },
+  { name: "Kashfia Rahman", region: "Dhaka", institution: "IUB" },
+  { name: "M.O.B. Jihad", region: "Dhaka", institution: "AIUB" },
+  { name: "Mahjan Sabibia Aban", region: "Dhaka", institution: "UIU" },
+  { name: "Md Munem Shahriar", region: "Gazipur", institution: "National" },
+  { name: "Mohammed Tariqul Islam", region: "Dhaka", institution: "Siddheswari" },
+  { name: "Mozammal Hossain Masum", region: "Dhaka", institution: "IUB" },
+  { name: "MST. MARIA KHATUN", region: "Pabna", institution: "Edward" },
+  { name: "Nafia Papry", region: "Dhaka", institution: "BRACU" },
+  { name: "Rownok Shahriar", region: "Pabna", institution: "Edward" },
+  { name: "Shaibal Saha", region: "Dhaka", institution: "ULAB" },
+  { name: "Shanjida Nahar", region: "Gopalganj", institution: "GSTU" },
+  { name: "Sowmi Sarker", region: "Dhaka", institution: "AIUB" },
+  { name: "Tanmoy Das", region: "Dhaka", institution: "ex-AIUB" },
+  { name: "Tanzila Tabassum", region: "Dhaka", institution: "IUB" },
+  { name: "Tasnin Ara", region: "Pabna", institution: "Edward" },
+];
+
+export const past: Volunteer[] = [
+  { name: "Abdullah Al Mahmud", region: "Barishal", duration: "2024 - 2025" },
+  { name: "Chonchol Kumar Ray", region: "Sylhet", duration: "2023 - 2025" },
+  { name: "Fahim Rajit Hossain", region: "Rajshahi", duration: "2023 - 2024" },
+  { name: "Jahirul Islam", region: "Barishal", duration: "2023 - 2025 (Astrophotographer)" },
+  { name: "Joyeeta Kundu Aishi", region: "Jashore", duration: "2024 - 2025" },
+  { name: "Kazi Tasmiya Binte Imam", region: "Sylhet", duration: "2024 - 2025" },
+  { name: "Md. Bayozid Hossen", region: "Dhaka", duration: "2024 - 2025" },
+  { name: "Md. Hasan Mahmud Sajib", region: "Chattogram", duration: "2023 - 2025" },
+  { name: "Naeemur Rahman", region: "Jashore", duration: "2023 - 2025" },
+  { name: "Nuzhat Fatima Purnota", region: "Dhaka", duration: "2023 - 2025" },
+  { name: "Robin Khisa", region: "Khagrachari", duration: "2023 - 2024" },
+  { name: "Rubaiat Rehman Khan", region: "Dhaka", duration: "2024 - 2025" },
+  { name: "Rukaiya Binte Rashid", region: "Rajshahi", duration: "2023 - 2025 (Project Manager)" },
+  { name: "Sadia Tamanna Tamim", region: "Dhaka", duration: "2024 - 2025" },
+  { name: "Sanjana Jebin Chhoa", region: "Dhaka", duration: "2024 - 2025" },
+  { name: "Sheikh Samia Akter Sami", region: "Brahmanbaria", duration: "2024 - 2025" },
+  { name: "Sohanur Rohman", region: "Pabna", duration: "2023 - 2025" },
+  { name: "Soyed Ahmed Provat", region: "Chapainawabganj", duration: "2023 - 2024" },
+  { name: "Tasnim Mahfuz Nafis", region: "Dhaka", duration: "2023 - 2025" },
+];

@@ -1,0 +1,24 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout path="/404" title="Page not found | Durbin" noindex>
+  <section class="section nf">
+    <div class="wrap wrap--narrow">
+      <p class="section-label">404</p>
+      <h1 class="h-display">Page not found</h1>
+      <p class="lede">
+        There is nothing at this address, the page may have moved. Start again from the exhibition.
+      </p>
+      <div class="nf__cta">
+        <a class="btn btn--solid" href="/exhibition">Exhibition</a>
+        <a class="btn" href="/">Home</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf { padding-top: clamp(8rem, 16vw, 12rem); min-height: 70svh; }
+  .nf__cta { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2.2rem; }
+</style>

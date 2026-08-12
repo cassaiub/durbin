@@ -1,0 +1,96 @@
+---
+import { Image } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+import { SITE } from "../data/site";
+import { getUpdates } from "../lib/updates";
+import { fmtDate } from "../lib/format";
+
+const all = await getUpdates();
+const lede = "The latest stories and activities from Durbin's astronomy outreach across Bangladesh.";
+---
+
+<BaseLayout path="/news-and-events" title="News & Events | Durbin" description={lede} current="/news-and-events">
+  <section class="section newsroom-head">
+    <div class="wrap">
+      <Reveal><p class="section-label">News &amp; Events</p></Reveal>
+      <Reveal delay={60}><h1 class="h-display">News &amp; Events</h1></Reveal>
+      <Reveal delay={100}><p class="lede">{lede}</p></Reveal>
+    </div>
+  </section>
+
+  <section class="section section--tight" id="recent-highlights">
+    <div class="wrap">
+      <Reveal><p class="section-label">Latest from Durbin</p></Reveal>
+      <Reveal delay={60}><h2 class="newsroom-h2">Latest stories</h2></Reveal>
+
+      <ol class="highlight-list" data-highlight-list>
+        {all.map((item, index) => (
+          <li data-kind={item.kind}>
+            <a class="highlight-card" href={item.path} data-reveal style={`--reveal-delay:${Math.min(index, 6) * 35}ms`}>
+              {item.hero && (
+                <span class="highlight-card__media">
+                  <Image src={item.hero} alt={item.heroAlt ?? ""} widths={[280, 480]} sizes="(max-width:700px) 100vw, 220px" loading="lazy" />
+                </span>
+              )}
+              <span class="highlight-card__body">
+                <span class="highlight-card__meta">
+                  <span class="highlight-card__kind">{item.kind === "event" ? "Event" : "News"}</span>
+                  {item.category && <span>{item.category}</span>}
+                  <time datetime={item.date.toISOString()}>{fmtDate(item.date)}</time>
+                </span>
+                <span class="highlight-card__title">{item.title}</span>
+                {item.summary && <span class="highlight-card__summary">{item.summary}</span>}
+                <span class="highlight-card__read">Read →</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--line">
+    <div class="wrap newsroom-loop">
+      <div>
+        <Reveal><p class="section-label">Stay in the loop</p></Reveal>
+        <Reveal delay={60}><h2 class="newsroom-h2">News, events &amp; the wider programme</h2></Reveal>
+      </div>
+      <div class="newsroom-actions newsroom-actions--end">
+        <a class="btn btn--solid" href={SITE.facebook} target="_blank" rel="noopener">Follow on Facebook ↗</a>
+        <a class="btn" href={`mailto:${SITE.email}`}>Email Durbin</a>
+        <a class="btn" href="/people/volunteers">Meet the volunteers</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .newsroom-head { padding-top: clamp(7rem, 14vw, 10rem); padding-bottom: 0; }
+  .newsroom-h2 { margin-top: 0.65rem; font-size: clamp(2rem, 4.5vw, 2.8rem); line-height: 1.05; letter-spacing: -0.03em; }
+  .highlight-list { list-style: none; display: grid; gap: 0.85rem; margin-top: 2rem; }
+  .highlight-card {
+    display: grid; grid-template-columns: 13rem minmax(0, 1fr); min-height: 10rem;
+    border: 1px solid var(--line-soft); border-radius: var(--radius-md); overflow: hidden;
+    background: var(--panel); transition: border-color 0.2s, transform 0.2s;
+  }
+  .highlight-card:hover { border-color: var(--brass-dim); transform: translateY(-2px); }
+  .highlight-card__media { min-height: 100%; background: #000; overflow: hidden; }
+  .highlight-card__media :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+  .highlight-card:hover .highlight-card__media :global(img) { transform: scale(1.035); }
+  .highlight-card__body { display: flex; flex-direction: column; align-items: flex-start; padding: 1.15rem 1.25rem; }
+  .highlight-card__meta { display: flex; flex-wrap: wrap; gap: 0.35rem 0.7rem; color: var(--ink-faint); font-family: var(--font-body); font-size: 0.69rem; font-weight: 600; letter-spacing: 0; }
+  .highlight-card__kind { color: var(--brass); text-transform: uppercase; letter-spacing: 0; }
+  .highlight-card__title { margin-top: 0.55rem; color: var(--ink); font-size: 1.12rem; font-weight: 600; line-height: 1.35; }
+  .highlight-card__summary { margin-top: 0.45rem; color: var(--ink-soft); font-size: 0.88rem; line-height: 1.55; }
+  .highlight-card__read { margin-top: auto; padding-top: 0.65rem; color: var(--brass); font-family: var(--font-mono); font-size: 0.72rem; }
+  .newsroom-actions { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 1.5rem; }
+  .newsroom-loop { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 2rem; }
+  .newsroom-actions--end { justify-content: flex-end; margin-top: 0; }
+  @media (max-width: 760px) {
+    .highlight-card { grid-template-columns: 1fr; }
+    .highlight-card__media { aspect-ratio: 16 / 8; }
+    .newsroom-loop { grid-template-columns: 1fr; align-items: start; }
+    .newsroom-actions--end { justify-content: flex-start; }
+  }
+</style>

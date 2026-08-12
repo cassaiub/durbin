@@ -1,0 +1,24 @@
+---
+/* A museum wall label: a captioned list of [label, value] rows set in the
+   data face. Rows with empty values are filtered by the caller. */
+interface Props {
+  caption: string;
+  rows: [string, string][];
+  class?: string;
+  hidden?: boolean;
+  style?: string;
+  /** Extra attributes (data-*, …) pass through via the rest spread. */
+  [key: `data-${string}`]: unknown;
+}
+const { caption, rows, class: cls = "", ...rest } = Astro.props;
+---
+
+<dl class:list={["placard", cls]} {...rest}>
+  <p class="placard__cap">{caption}</p>
+  {rows.map(([k, v]) => (
+    <div class="placard__row">
+      <dt>{k}</dt>
+      <dd>{v}</dd>
+    </div>
+  ))}
+</dl>

@@ -1,0 +1,419 @@
+---
+import { Image } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+import earthHorizon from "../assets/about/earth-horizon-nasa.jpg";
+import workshopGroup from "../assets/news/dw2/dw2-group.webp";
+import telescopeSession from "../assets/news/pabna-school-outreach/pabna-telescope-session.webp";
+import skyStories from "../assets/news/asman-jominer-golpo-1/clouds-above-stories-below.webp";
+import horseheadNebula from "../content/astrophotography/ngc2023-2.webp";
+
+const milestones = [
+  {
+    year: "2022",
+    title: "A plan takes shape",
+    text: "A Dunlap Institute seed grant and a partnership between Dr. Lamiya Mowla and astronomers at IUB turn an outreach idea into a programme.",
+  },
+  {
+    year: "2023",
+    title: "First light",
+    text: "Two Unistellar eQuinox telescopes arrive in Bangladesh. Durbin launches on 9 March before an audience of about one thousand at IUB.",
+  },
+  {
+    year: "2025",
+    title: "A permanent home",
+    text: "IUB establishes CASSA and ratifies Durbin as its public astronomy-outreach programme, joining observation, research, and communication.",
+  },
+  {
+    year: "2026",
+    title: "A wider sky",
+    text: "A new cycle combines expert-led training, lasting public resources, and dedicated support for women astrophotographers and science communicators.",
+  },
+];
+
+const lede =
+  "Durbin is CASSA's volunteer astronomy-outreach programme: a telescope, a classroom, an image laboratory, and a public invitation to look up.";
+---
+
+<BaseLayout path="/about" title="About | Durbin" description={lede} current="/about" ogImage={earthHorizon.src}>
+  <div class="about-page" data-about-page>
+  <div class="about-horizontal" data-about-horizontal>
+    <div class="about-horizontal__sticky">
+      <div class="about-horizontal__visual" aria-hidden="true">
+        <video
+          muted
+          playsinline
+          preload="none"
+          tabindex="-1"
+          poster="/videos/pexels-night-sky-12336940.jpg"
+          data-about-scroll-video
+          data-src="/videos/pexels-night-sky-12336940.mp4"
+        ></video>
+      </div>
+      <div class="about-horizontal__track" data-about-track>
+  <section class="section about-statement">
+    <div class="wrap about-statement__grid">
+      <Reveal class="about-statement__lead">
+        <p class="section-label">Why Durbin exists</p>
+        <h1 class="about-display">Distance should inspire wonder, not exclusion.</h1>
+      </Reveal>
+      <Reveal delay={90}>
+        <div class="about-statement__copy prose">
+          <p>
+            <em>Durbin</em> is Bangla for telescope: an instrument that makes the distant visible.
+            The programme applies that same idea socially, bringing astronomy closer to students,
+            schools, families, and communities across Bangladesh.
+          </p>
+          <p>
+            Our volunteers do more than point telescopes upward. They learn to capture and process
+            light, translate science into stories, create public experiences, and help people find
+            their own place in a shared universe.
+          </p>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+
+  <section class="section section--line about-story">
+    <div class="wrap">
+      <Reveal><p class="section-label">How we got here</p></Reveal>
+      <Reveal delay={60}><h2 class="about-display about-story__title">A young programme with deep roots.</h2></Reveal>
+      <ol class="about-timeline">
+        {milestones.map((milestone, index) => (
+          <li data-reveal style={`--reveal-delay:${index * 55}ms`}>
+            <p class="about-timeline__year">{milestone.year}</p>
+            <div>
+              <h3>{milestone.title}</h3>
+              <p>{milestone.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--line about-field">
+    <div class="wrap">
+      <div class="about-field__head">
+        <Reveal>
+          <p class="section-label">What it looks like</p>
+          <h2 class="about-display">Two telescopes. Many ways into the universe.</h2>
+        </Reveal>
+        <Reveal delay={90}>
+          <p class="lede">
+            Durbin moves between rooftops, classrooms, image-processing sessions, public lawns,
+            and a growing online exhibition. Each setting makes a different kind of curiosity possible.
+          </p>
+        </Reveal>
+      </div>
+
+      <div class="about-mosaic">
+        <figure class="about-mosaic__item about-mosaic__item--wide" data-reveal>
+          <Image src={skyStories} alt="People seated in a circle around a telescope during a Durbin public evening" widths={[700, 1100, 1500]} sizes="(max-width:800px) 100vw, 66vw" loading="lazy" />
+          <figcaption><span>Public astronomy</span>Stories can keep a cloudy sky alive.</figcaption>
+        </figure>
+        <figure class="about-mosaic__item" data-reveal style="--reveal-delay:70ms">
+          <Image src={horseheadNebula} alt="The Horsehead Nebula imaged by Durbin volunteers" widths={[480, 720, 960]} sizes="(max-width:800px) 100vw, 34vw" loading="lazy" />
+          <figcaption><span>Astrophotography</span>Light becomes evidence, image, and art.</figcaption>
+        </figure>
+        <figure class="about-mosaic__item" data-reveal>
+          <Image src={telescopeSession} alt="Students learning to use a telescope during Durbin school outreach in Pabna" widths={[480, 720, 960]} sizes="(max-width:800px) 100vw, 34vw" loading="lazy" />
+          <figcaption><span>School outreach</span>The instrument becomes an invitation.</figcaption>
+        </figure>
+        <figure class="about-mosaic__item about-mosaic__item--wide" data-reveal style="--reveal-delay:70ms">
+          <Image src={workshopGroup} alt="Durbin volunteers and instructors together after a workshop at CASSA" widths={[700, 1100, 1500]} sizes="(max-width:800px) 100vw, 66vw" loading="lazy" />
+          <figcaption><span>Volunteer learning</span>Expert guidance becomes shared capacity.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--line about-governance">
+    <div class="wrap about-governance__grid">
+      <Reveal>
+        <p class="section-label">Built to last</p>
+        <h2 class="about-display">Volunteer led. Expert supervised. Public by design.</h2>
+      </Reveal>
+      <Reveal delay={90}>
+        <div class="about-governance__panel">
+          <p>
+            Durbin is an outreach programme of CASSA at Independent University, Bangladesh. It is
+            supervised by astronomers, managed through formal programme cycles, and governed by
+            CASSA’s safeguarding standards.
+          </p>
+          <a class="btn" href="/manual">Read the programme manual →</a>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+
+      </div>
+    </div>
+  </div>
+
+  <section class="section about-close">
+    <div class="wrap">
+      <Reveal>
+        <div class="about-close__surface">
+          <p class="section-label">Citizen of distant world</p>
+          <h2>Come closer to the sky.</h2>
+          <p>Explore the image collection and meet the people sharing Bangladesh’s sky.</p>
+          <div class="about-close__actions">
+            <a class="btn btn--solid" href="/exhibition" data-astro-reload>Enter the exhibition</a>
+          </div>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+  </div>
+</BaseLayout>
+
+<script>
+  const setupAboutMotion = () => {
+    const page = document.querySelector<HTMLElement>("[data-about-page]");
+    const scrollVideo = page?.querySelector<HTMLVideoElement>("[data-about-scroll-video]");
+    const horizontal = page?.querySelector<HTMLElement>("[data-about-horizontal]");
+    const track = page?.querySelector<HTMLElement>("[data-about-track]");
+    if (!page || page.dataset.motionReady === "true") return;
+    page.dataset.motionReady = "true";
+    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) {
+      scrollVideo?.pause();
+      return;
+    }
+    const controller = new AbortController();
+    // Time constant of the damped follow, in ms. Larger = heavier, more glide.
+    const FOLLOW_TAU = 105;
+    const SETTLED = 0.0002;
+    let travel = 0;
+    let range = 1;
+    let target = 0;
+    let eased = 0;
+    let rendered = -1;
+    let rafId = 0;
+    let lastFrameAt = 0;
+
+    const isHorizontal = () => Boolean(horizontal && track) && innerWidth > 900;
+
+    // The video is only ever scrubbed, never played, so it stays paused and we
+    // move currentTime. Every frame is a keyframe, so seeks land immediately.
+    const syncScrollVideo = (progress:number) => {
+      if (!scrollVideo || !scrollVideo.src) return;
+      const duration = scrollVideo.duration;
+      if (!Number.isFinite(duration) || duration <= 0) return;
+      // Re-seeking while a seek is in flight thrashes the decoder; skip instead.
+      if (scrollVideo.seeking) return;
+      const at = progress * Math.max(0, duration - 0.05);
+      if (Math.abs(scrollVideo.currentTime - at) <= 0.02) return;
+      scrollVideo.currentTime = at;
+    };
+
+    const render = (progress:number) => {
+      if (!isHorizontal()) return;
+      if (Math.abs(progress - rendered) < 0.00005) return;
+      rendered = progress;
+      // Only the track transform is driven now. Writing a custom property here
+      // as well invalidated style for the whole four-panel subtree on every
+      // frame - 250ms of recalc per 2.5s of scrolling - and nothing has read it
+      // since the decorative overlay was removed.
+      track!.style.transform = `translate3d(${-progress * travel}px,0,0)`;
+      syncScrollVideo(progress);
+    };
+
+    const readTarget = () => {
+      const rect = horizontal!.getBoundingClientRect();
+      return Math.max(0, Math.min(1, -rect.top / range));
+    };
+
+    const frame = (now:number) => {
+      const dt = Math.min(64, now - lastFrameAt || 16);
+      lastFrameAt = now;
+      // Frame-rate independent exponential damping, so a 144Hz display glides
+      // exactly like a 60Hz one instead of easing 2.4x faster.
+      eased += (target - eased) * (1 - Math.exp(-dt / FOLLOW_TAU));
+      if (Math.abs(target - eased) < SETTLED) {
+        eased = target;
+        render(eased);
+        rafId = 0;
+        return;
+      }
+      render(eased);
+      rafId = requestAnimationFrame(frame);
+    };
+
+    const start = () => {
+      if (rafId) return;
+      lastFrameAt = performance.now();
+      rafId = requestAnimationFrame(frame);
+    };
+
+    const onScroll = () => {
+      if (!isHorizontal()) return;
+      target = readTarget();
+      start();
+    };
+
+    const updateGeometry = () => {
+      if (!isHorizontal()) {
+        if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+        horizontal?.style.removeProperty("height");
+        track?.style.removeProperty("transform");
+        rendered = -1;
+        return;
+      }
+      travel = Math.max(0, track!.scrollWidth - innerWidth);
+      horizontal!.style.height = `${travel + innerHeight}px`;
+      range = Math.max(1, horizontal!.offsetHeight - innerHeight);
+      rendered = -1;
+    };
+
+    // 8.5MB of video is desktop-only: below 900px the visual is display:none and
+    // the track stacks vertically, so never fetch it there. The poster covers
+    // reduced-motion and pre-load states.
+    if (scrollVideo && isHorizontal()) {
+      const src = scrollVideo.dataset.src;
+      if (src) {
+        scrollVideo.preload = "auto";
+        scrollVideo.src = src;
+        scrollVideo.load();
+      }
+    }
+
+    updateGeometry();
+    target = isHorizontal() ? readTarget() : 0;
+    eased = target;
+    render(eased);
+    scrollVideo?.addEventListener("loadedmetadata", () => { rendered = -1; render(eased); }, { signal: controller.signal });
+    addEventListener("scroll", onScroll, { passive: true, signal: controller.signal });
+    addEventListener("resize", () => { updateGeometry(); onScroll(); }, { passive: true, signal: controller.signal });
+    document.addEventListener("astro:before-swap", () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      controller.abort();
+    }, { once: true });
+  };
+  setupAboutMotion();
+  document.addEventListener("astro:page-load", setupAboutMotion);
+</script>
+
+<style>
+  .about-page { position: relative; overflow: clip; background: var(--night); }
+  .about-close__actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.75rem; }
+  .about-close .btn { min-width: 13.5rem; min-height: 52px; justify-content: center; border: 0; }
+
+  .about-horizontal {
+    --ink: var(--photo-ink);
+    --ink-soft: var(--photo-ink-soft);
+    --ink-faint: var(--photo-ink-faint);
+    --line: rgba(255,255,255,.12);
+    --line-soft: rgba(255,255,255,.1);
+    position: relative;
+    color: var(--photo-ink);
+    background: #060a0b;
+  }
+  .about-horizontal__sticky { position: sticky; top: 0; height: 100svh; overflow: hidden; background: radial-gradient(circle at 76% 40%, rgba(34,124,117,.22), transparent 28%), linear-gradient(120deg,#070a0c,#0b1113 58%,#071211); }
+  .about-horizontal__track { position: relative; z-index: 2; display: flex; width: max-content; height: 100%; will-change: transform; }
+  .about-horizontal__visual { position: absolute; z-index: 0; inset: 0; overflow: hidden; pointer-events: none; opacity: .82; }
+  /* The brightness/saturate/contrast grade is baked into the encode, so no CSS
+     filter runs over a full-screen video on every painted frame. */
+  .about-horizontal__visual :global(video) { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.52; transform:scale(1.035); }
+  .about-horizontal .section-label { color:var(--photo-ink-faint); }.about-horizontal .about-display,.about-horizontal .about-statement__copy p:first-child,.about-horizontal .about-timeline h3 { color:var(--photo-ink); }.about-horizontal .about-statement__copy,.about-horizontal .about-timeline li div p { color:var(--photo-ink-soft); }
+
+  @media (min-width: 901px) {
+    .about-horizontal__track > .section { flex: 0 0 100vw; width: 100vw; height: 100svh; overflow: hidden; padding-block: clamp(7.5rem, 12vh, 9rem) clamp(2rem, 5vh, 4rem); }
+    .about-horizontal .about-statement__grid { height: 100%; align-items: center; }
+    .about-horizontal .about-story { flex-basis: 112vw; width: 112vw; }
+    .about-horizontal .about-story .wrap { display: grid; grid-template-columns: minmax(17rem,.65fr) minmax(32rem,1.35fr); column-gap: clamp(3rem,7vw,8rem); align-items: start; }
+    .about-horizontal .about-story .section-label { grid-column: 1; }
+    .about-horizontal .about-story__title { grid-column: 1; }
+    .about-horizontal .about-timeline { grid-column: 2; grid-row: 1 / span 3; margin-top: 0; }
+    .about-horizontal .about-timeline li { padding-block: 1.25rem; }
+
+    /* "What it looks like" as a full-height panel: the mosaic becomes one row
+       of four tiles instead of a 2x2 block that would overflow 100svh. */
+    .about-horizontal .about-field { flex-basis: 146vw; width: 146vw; border-top: 0; }
+    /* The panel is wider than --wrap, so let the container span it rather than
+       centring 1160px inside 146vw and stranding ~550px of dead space each side. */
+    .about-horizontal .about-field .wrap { display: grid; grid-template-rows: auto minmax(0, 1fr); max-width: none; width: 100%; height: 100%; padding-inline: clamp(var(--space-sm), 4vw, var(--space-lg)); }
+    .about-horizontal .about-field__head { gap: clamp(2rem, 5vw, 5rem); align-items: end; }
+    .about-horizontal .about-field__head .about-display { font-size: clamp(2.4rem, 4vw, 3.9rem); }
+    .about-horizontal .about-field__head .lede { max-width: 54ch; }
+    .about-horizontal .about-mosaic {
+      grid-template-columns: 1.32fr 1fr 1fr 1.32fr;
+      grid-auto-rows: auto;
+      min-height: 0;
+      height: 100%;
+      margin-top: clamp(1.75rem, 3.5vh, 2.75rem);
+    }
+    .about-horizontal .about-mosaic__item--wide { grid-column: span 1; }
+
+    /* "Built to last" as a full-height panel. */
+    .about-horizontal .about-governance { border-top: 0; }
+    .about-horizontal .about-governance__grid { height: 100%; align-content: center; }
+  }
+
+  .about-display { margin-top: 0.65rem; max-width: 17ch; color: var(--ink); font-size: clamp(2.7rem, 6vw, 5.2rem); line-height: 0.96; letter-spacing: -0.055em; text-wrap: balance; }
+  .about-statement__grid, .about-field__head, .about-governance__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-section-gap); align-items: start; }
+  :global(.about-statement__lead) { position: sticky; top: 8.5rem; }
+  .about-statement__copy { padding-top: 2rem; }
+  .about-statement__copy p:first-child { color: var(--ink); font-size: 1.16rem; }
+
+  .about-story__title { max-width: 12ch; }
+  .about-timeline { list-style: none; display: grid; margin-top: 3.5rem; border-top: 1px solid rgba(255,255,255,0.1); }
+  .about-timeline li { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 2rem; padding-block: 2.35rem; border-bottom: 1px solid rgba(255,255,255,0.075); transition: padding-left .6s cubic-bezier(.22,1,.36,1),background .4s; }
+  .about-timeline li:hover { padding-left: 1.25rem; background: linear-gradient(90deg, rgba(72,221,193,.06), transparent 60%); }
+  .about-timeline__year { color: var(--brand-green-mid); font-family: var(--font-mono); font-size: clamp(1.4rem, 3vw, 2.3rem); }
+  .about-timeline h3 { color: var(--ink); font-size: 1.2rem; }
+  .about-timeline li div p { margin-top: 0.55rem; max-width: 68ch; color: var(--ink-soft); line-height: 1.65; }
+
+  .about-field__head .lede { align-self: end; padding-bottom: 0.25rem; }
+  .about-mosaic { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 23rem; gap: 1rem; margin-top: 3.5rem; }
+  .about-mosaic__item { position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.075); border-radius: var(--radius-card-compact); background: #000; }
+  .about-mosaic__item--wide { grid-column: span 2; }
+  .about-mosaic__item :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s cubic-bezier(0.22,1,0.36,1); }
+  .about-mosaic__item:hover :global(img) { transform: scale(1.025); }
+  .about-mosaic__item::after { content: ""; position: absolute; inset: 35% 0 0; background: linear-gradient(transparent, rgba(0,0,0,0.86)); }
+  .about-mosaic figcaption { position: absolute; z-index: 1; left: 1.2rem; right: 1.2rem; bottom: 1.1rem; color: #fff; font-weight: 600; }
+  .about-mosaic figcaption span { display: block; margin-bottom: 0.35rem; color: var(--brand-green-mid); font-family: var(--font-body); font-size: 0.7rem; text-transform: uppercase; }
+
+
+  /* The three clauses each want their own line, so the column is sized in ch to
+     hold the longest ("Expert supervised.") and the type is dropped well below
+     the other section headings to keep the pairing with the panel balanced. */
+  .about-governance__grid { align-items: center; column-gap: clamp(2rem, 5vw, 4.5rem); }
+  .about-governance .section-label { margin-bottom: 0.85rem; }
+  .about-governance .about-display { max-width: 19ch; font-size: clamp(1.75rem, 2.6vw, 2.45rem); line-height: 1.12; letter-spacing: -0.025em; text-wrap: balance; }
+  .about-governance__panel { padding: clamp(1.5rem, 4vw, 2.6rem); border: 0; border-radius: var(--radius-card); background: rgba(255,255,255,0.07); box-shadow: inset 0 1px 0 rgba(255,255,255,0.09); backdrop-filter: blur(14px) saturate(125%); }
+  .about-governance__panel p { color: var(--ink-soft); line-height: 1.7; }
+  .about-governance__panel p + p { margin-top: 1rem; }
+  .about-governance__panel .btn { margin-top: 1.5rem; }
+
+  .about-close { padding-top: 0; }
+  .about-close__surface { overflow: hidden; padding: clamp(2rem, 7vw, 5.5rem); border-radius: var(--radius-card); color: var(--photo-ink); background: radial-gradient(circle at 85% 20%, rgba(61,223,187,0.2), transparent 28%), linear-gradient(135deg, #1a1d1d, #0d0f0f); }
+  .about-close .section-label { color: var(--photo-ink-faint); }
+  .about-close h2 { margin-top: 0.7rem; max-width: 12ch; color: var(--photo-ink); font-size: clamp(3rem, 8vw, 6.5rem); line-height: 0.9; letter-spacing: -0.065em; }
+  .about-close__surface > p:not(.section-label) { margin-top: 1.2rem; max-width: 52ch; color: var(--photo-ink-soft); line-height: 1.65; }
+  .about-close .btn { color: var(--ink); background: rgba(255,255,255,0.1); }
+  .about-close .btn--solid { color: #0a0a0a; background: #fff; }
+
+  @media (max-width: 900px) {
+    .about-horizontal { height: auto !important; }
+    .about-horizontal__sticky { position: static; height: auto; overflow: visible; }
+    .about-horizontal__track { display: block; width: auto; height: auto; transform: none !important; }
+    .about-horizontal__visual { display: none; }
+    :global(.about-statement__lead) { position: static; }
+    .about-statement__grid, .about-field__head, .about-governance__grid { grid-template-columns: 1fr; }
+    .about-mosaic { grid-template-columns: 1fr 1fr; }
+    .about-mosaic__item--wide { grid-column: span 1; }
+  }
+  @media (max-width: 620px) {
+    .about-close__actions .btn { width: 100%; }
+    .about-timeline li { grid-template-columns: 5.5rem minmax(0,1fr); gap: 1rem; }
+    .about-mosaic { grid-template-columns: 1fr; grid-auto-rows: 21rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .about-horizontal { height: auto !important; }
+    .about-horizontal__sticky { position: static; height: auto; overflow: visible; }
+    .about-horizontal__track { display: block; width: auto; height: auto; transform: none !important; }
+    .about-mosaic__item :global(img) { transition: none; }
+  }
+</style>

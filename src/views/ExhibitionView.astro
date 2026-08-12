@@ -1,0 +1,678 @@
+---
+import { Image } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+import { objectTypeOf, catOrder } from "../data/site";
+import { getExhibits, physicsRows, slidesOf, unavailableImageIds } from "../lib/exhibits";
+
+const exhibits = await getExhibits();
+const cats = [...new Set(exhibits.map(objectTypeOf))].sort((a, b) => catOrder(a) - catOrder(b));
+const objects = exhibits.map((entry) => {
+  const data = entry.data;
+  return {
+    entry,
+    payload: {
+      id: entry.id,
+      title: data.title,
+      type: objectTypeOf(entry),
+      catalog: data.catalog ?? "",
+      description: data.caption ?? `${data.title}, imaged by Durbin volunteers.`,
+      slides: slidesOf(entry).map((slide) => ({
+        src: slide.image.src,
+        alt: slide.alt,
+        credit: slide.attribution ?? "",
+        capture: slide.capture,
+      })),
+      physics: physicsRows(entry),
+      imageAvailable: !unavailableImageIds.has(entry.id),
+      imagePosition: entry.id === "lunar-eclipse-2025" ? "center 27%" : "center",
+    },
+  };
+});
+
+const lede =
+  "Explore deep-sky objects imaged by Durbin volunteers. Filter the collection, search by name, and open any object without leaving the exhibition.";
+const ogImage = exhibits[0]?.data.image.src;
+---
+
+<BaseLayout path="/exhibition" title="The Exhibition | Durbin" description={lede} current="/exhibition" ogImage={ogImage}>
+  <section class="section exhead">
+    <div class="wrap">
+      <Reveal><p class="section-label">The exhibition <em class="mono">{exhibits.length} objects</em></p></Reveal>
+      <Reveal delay={60}><h1 class="h-display">An exhibition of deep space</h1></Reveal>
+      <Reveal delay={100}><p class="lede">{lede}</p></Reveal>
+    </div>
+
+    <div class="extools-dock" data-extools-dock>
+      <div class="extools" data-extools data-reveal style="--reveal-delay:130ms">
+        <div class="exsearch">
+          <label for="exhibition-search">Search the exhibition</label>
+          <div class="exsearch__field">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4 4" /></svg>
+            <input id="exhibition-search" type="search" placeholder="Search by object or catalogue name" autocomplete="off" data-exhibition-search />
+          </div>
+        </div>
+        <nav class="exfilter" aria-label="Filter by object type">
+          <button class="chip" data-filter="all" aria-pressed="true" aria-controls="exhibition-grid">All</button>
+          {cats.map((category) => (
+            <button class="chip" data-filter={category} aria-pressed="false" aria-controls="exhibition-grid">{category}</button>
+          ))}
+        </nav>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <p class="exresult mono" aria-live="polite" aria-atomic="true">
+        <span data-result-count>{exhibits.length}</span> <span data-result-label>objects shown</span>
+      </p>
+
+      <ul class="exgrid" id="exhibition-grid">
+        {objects.map(({ entry, payload }, index) => (
+          <li data-cat={objectTypeOf(entry)} data-search={`${entry.data.title} ${entry.data.catalog ?? ""}`.toLowerCase()}>
+            <button
+              class="plate explate"
+              type="button"
+              aria-haspopup="dialog"
+              aria-label={`Open ${entry.data.title}`}
+              data-object-open={entry.id}
+              data-object={JSON.stringify(payload)}
+              data-reveal
+              style={`--reveal-delay:${Math.min(index, 12) * 25}ms`}
+            >
+              <span class="plate__media" data-image-error={unavailableImageIds.has(entry.id) ? "" : undefined}>
+                <Image src={entry.data.image} alt={entry.data.imageAlt ?? entry.data.title} widths={[300, 480, 640]} sizes="(max-width:560px) 50vw, (max-width:980px) 33vw, 270px" loading="lazy" data-fallback-image />
+                <span class="plate__fallback" aria-hidden="true">Image unavailable</span>
+                <span class="explate__open" aria-hidden="true">View object</span>
+              </span>
+              <span class="plate__label">
+                <span class="plate__cat"><span class="plate__type">{objectTypeOf(entry)}</span></span>
+                <span class="plate__name">{entry.data.title}</span>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <Reveal delay={100}>
+        <p class="exlicense">
+          <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">
+            All Durbin images are licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license.
+          </a>
+        </p>
+      </Reveal>
+    </div>
+  </section>
+
+  <dialog class="exmodal" aria-labelledby="exmodal-title" data-exmodal>
+    <div class="exmodal__shell">
+      <button class="exmodal__close" type="button" aria-label="Close object viewer" data-exmodal-close>&times;</button>
+
+      <div class="exmodal__media" data-exmodal-media>
+        <button class="exmodal__object-nav exmodal__object-nav--prev" type="button" aria-label="Previous object" data-exmodal-prev>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+        </button>
+        <button class="exmodal__object-nav exmodal__object-nav--next" type="button" aria-label="Next object" data-exmodal-next>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+        </button>
+        <div class="exmodal__viewport" data-exmodal-viewport>
+          <img class="exmodal__image" alt="" draggable="false" data-exmodal-image />
+        </div>
+        <button class="exmodal__fullscreen" type="button" aria-label="Enter full screen" title="Full screen" aria-pressed="false" data-exmodal-fullscreen>
+          <svg class="exmodal__icon exmodal__icon--enter" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7"/></svg>
+          <svg class="exmodal__icon exmodal__icon--exit" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10h-6V4M14 10l7-7M4 14h6v6M10 14l-7 7"/></svg>
+        </button>
+        <p class="exmodal__loading" hidden data-exmodal-loading>Loading image</p>
+        <p class="exmodal__fallback" hidden data-exmodal-fallback>Image unavailable</p>
+        <div class="exmodal__dots" role="group" aria-label="Choose an image" data-exmodal-dots></div>
+      </div>
+
+      <article class="exmodal__details">
+        <p class="exmodal__eyebrow" data-exmodal-eyebrow></p>
+        <h2 id="exmodal-title" data-exmodal-title></h2>
+        <p class="exmodal__description" data-exmodal-description></p>
+        <p class="exmodal__credit" data-exmodal-credit></p>
+        <div class="exmodal__information" data-exmodal-information></div>
+        <p class="exmodal__license">Durbin exhibition image, CC BY-NC-SA 4.0</p>
+      </article>
+    </div>
+    <p class="visually-hidden" aria-live="polite" aria-atomic="true" data-exmodal-status></p>
+  </dialog>
+</BaseLayout>
+
+  <style>
+  .exhead { padding-top: clamp(7rem, 12vw, 9rem); }
+  .exhead .h-display { max-width: 18ch; font-size: clamp(2.35rem, 4.8vw, 3.55rem); line-height: 1; }
+  .extools {
+    position: relative; z-index: 1; display: grid;
+    grid-template-columns: minmax(14rem, 20rem) minmax(0, 1fr);
+    align-items: center; gap: 0.65rem;
+    margin-top: 2rem; padding: 0.65rem;
+    border: 1px solid var(--line); border-radius: var(--radius-card-compact); background: var(--panel);
+    box-shadow: var(--shadow-low);
+    transition:
+      opacity 0.7s ease var(--reveal-delay, 0ms),
+      translate 0.7s ease var(--reveal-delay, 0ms),
+      transform .66s cubic-bezier(.22,1,.36,1),
+      border-radius .66s cubic-bezier(.22,1,.36,1),
+      background-color .36s ease;
+  }
+  .extools-dock {
+    --extools-gutter: clamp(.45rem, 2vw, 1.25rem);
+    position:relative;
+    width:min(calc(100vw - var(--extools-gutter) - var(--extools-gutter)),67rem);
+    margin:2rem auto 0;
+  }
+  .extools-dock .extools { margin-top:0; }
+  .extools[data-docked] {
+    position:fixed; z-index:49; top:.7rem; left:50%; right:auto;
+    width:min(calc(100vw - var(--extools-gutter) - var(--extools-gutter)),67rem);
+    margin:0; opacity:1; translate:0 0; transform:translate3d(-50%,0,0);
+    background:color-mix(in srgb,var(--panel) 92%,transparent);
+    box-shadow:none;
+    backdrop-filter:blur(14px) saturate(125%);
+    -webkit-backdrop-filter:blur(14px) saturate(125%);
+    will-change:transform;
+  }
+  .extools[data-docked][data-nav-visible] {
+    transform:translate3d(-50%,calc(var(--extools-nav-top,4.5rem) - .7rem),0);
+    border-radius:.55rem .55rem 1.25rem 1.25rem;
+  }
+  .extools[data-docked][data-dock-entering] { transform:translate3d(-50%,calc(var(--extools-nav-top,4.5rem) - .7rem),0); }
+  .exsearch {
+    min-width: 0; width: 100%;
+  }
+  .exsearch label {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .exsearch__field {
+    display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 0.65rem;
+    min-height: 44px; padding: 0.6rem 0.8rem;
+    border: 1px solid var(--line); border-radius: var(--radius-pill); background: var(--panel);
+    transition: border-color 0.2s, background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .exsearch__field:focus-within { border-color: rgba(255, 255, 255, 0.3); box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.07); }
+  .exsearch__field svg { width: 18px; height: 18px; fill: none; stroke: var(--ink-faint); stroke-width: 1.6; }
+  .exsearch__field input { width: 100%; border: 0; outline: 0; color: var(--ink); background: transparent; font: inherit; }
+  .exsearch__field input::placeholder { color: var(--ink-faint); }
+  .exfilter {
+    display: flex; flex-wrap: nowrap; min-width: 0; max-width: 100%; gap: 0.5rem;
+    overflow-x: auto; scrollbar-width: none; overscroll-behavior-inline: contain;
+    scroll-padding-inline: 0.25rem;
+  }
+  .exfilter::-webkit-scrollbar { display: none; }
+  .exfilter .chip { flex: none; min-height: 42px; white-space: nowrap; }
+  .exresult { margin-top: 1rem; min-height: 1.5em; color: var(--ink-faint); font-size: 0.75rem; }
+  .exgrid { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-top: 1.2rem; }
+  .exgrid > li { min-width: 0; content-visibility: auto; contain-intrinsic-size: auto 22rem; }
+  .explate { width: 100%; text-align: left; }
+  .explate__open {
+    position: absolute; right: 0.65rem; bottom: 0.65rem; padding: 0.38rem 0.55rem;
+    border: 1px solid rgba(255, 255, 255, 0.2); border-radius: var(--radius-md);
+    color: var(--photo-ink); background: rgba(0, 0, 0, 0.58); backdrop-filter: blur(8px);
+    font-family: var(--font-mono); font-size: 0.64rem; opacity: 0; translate: 0 5px;
+    transition: opacity 0.2s, translate 0.2s;
+  }
+  .explate:hover .explate__open, .explate:focus-visible .explate__open { opacity: 1; translate: 0 0; }
+  .exlicense { margin-top: 2.6rem; max-width: 70ch; color: var(--ink-faint); font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.7; }
+  .exlicense a:hover { color: var(--brass-bright); }
+
+  .exmodal {
+    width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0;
+    border: 0; color: var(--photo-ink); background: #050606; overflow: hidden;
+  }
+  .exmodal::backdrop { background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(8px); }
+  .exmodal__shell { position: relative; display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(21rem, 0.85fr); width: 100%; height: 100%; }
+  .exmodal__media { position: relative; display: grid; place-items: center; min-width: 0; overflow: hidden; background: #000; }
+  .exmodal__media::after { content: ""; position: absolute; inset: auto 0 0; height: 22%; pointer-events: none; background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent); }
+  .exmodal__viewport { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; overscroll-behavior: contain; }
+  .exmodal__image { width: 100%; height: 100%; max-width: none; object-fit: contain; background: #000; cursor: zoom-in; user-select:none; -webkit-user-drag:none; transform:translate3d(0,0,0); will-change:width,height,transform; }
+  .exmodal__media[data-zoomed] .exmodal__viewport { cursor: grab; touch-action: none; }
+  .exmodal__media[data-zoomed] .exmodal__image { cursor: inherit; }
+  .exmodal__viewport[data-panning] { cursor: grabbing; }
+  .exmodal__loading, .exmodal__fallback { position: absolute; color: var(--photo-ink-faint); font-family: var(--font-body); font-size: 0.78rem; font-weight: 600; letter-spacing: 0; text-transform: uppercase; }
+  .exmodal__loading::after { content: ""; display: inline-block; width: 1.2em; animation: loading-dots 1.2s steps(4, end) infinite; }
+  @keyframes loading-dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75%, 100% { content: "..."; } }
+  .exmodal__details { overflow-y: auto; padding: clamp(5rem, 8vh, 6.5rem) clamp(1.5rem, 3.5vw, 3rem) 3rem; border-left: 1px solid rgba(255, 255, 255, 0.1); background: linear-gradient(145deg, #17191a, #0b0c0d 72%); }
+  .exmodal__eyebrow { color: var(--brand-green-mid); font-family: var(--font-body); font-size: 0.72rem; font-weight: 600; letter-spacing: 0; text-transform: uppercase; }
+  .exmodal__details h2 { margin-top: 0.65rem; color: var(--photo-ink); font-size: clamp(2rem, 4vw, 3.35rem); line-height: 0.98; letter-spacing: -0.04em; }
+  .exmodal__description { margin-top: 1.2rem; color: var(--photo-ink-soft); font-size: 0.94rem; line-height: 1.65; }
+  .exmodal__credit { margin-top: 0.8rem; color: var(--brand-green-mid); font-family: var(--font-mono); font-size: 0.71rem; line-height: 1.5; }
+  .exmodal__information { display: grid; gap: 0.75rem; margin-top: 1.6rem; }
+  .exmodal__information :global(.exmodal__info) { border-top: 1px solid rgba(255, 255, 255, 0.12); padding-top: 0.8rem; }
+  .exmodal__information :global(.exmodal__info h3) { color: var(--photo-ink-faint); font-family: var(--font-body); font-size: 0.68rem; font-weight: 600; letter-spacing: 0; text-transform: uppercase; }
+  .exmodal__information :global(.exmodal__info dl) { margin-top: 0.55rem; }
+  .exmodal__information :global(.exmodal__info-row) { display: grid; grid-template-columns: minmax(7.5rem, 0.8fr) 1.2fr; gap: 0.85rem; padding-block: 0.35rem; font-size: 0.76rem; line-height: 1.45; }
+  .exmodal__information :global(.exmodal__info-row dt) { color: var(--photo-ink-faint); }
+  .exmodal__information :global(.exmodal__info-row dd) { color: var(--photo-ink-soft); overflow-wrap: anywhere; }
+  .exmodal__license { margin-top: 1.8rem; color: var(--photo-ink-faint); font-family: var(--font-mono); font-size: 0.65rem; }
+  .exmodal__fullscreen { position: absolute; z-index: 6; right: 1rem; bottom: 1rem; display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; color: var(--photo-ink); background: rgba(0,0,0,.64); backdrop-filter: blur(12px); transition: border-color .2s, background-color .2s, transform .2s; }
+  .exmodal__fullscreen:hover { border-color: var(--brand-green-mid); background: rgba(0,0,0,.84); transform: translateY(-1px); }
+  .exmodal__fullscreen svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .exmodal__icon--exit { display: none; }
+  .exmodal__fullscreen[aria-pressed="true"] .exmodal__icon--enter { display: none; }
+  .exmodal__fullscreen[aria-pressed="true"] .exmodal__icon--exit { display: block; }
+  .exmodal[data-media-fullscreen] .exmodal__shell { grid-template-columns: 1fr; }
+  .exmodal[data-media-fullscreen] .exmodal__details { display: none; }
+  .exmodal[data-media-fullscreen] .exmodal__media { height: 100dvh; }
+  .exmodal__close, .exmodal__object-nav {
+    position: absolute; z-index: 5; display: grid; place-items: center; border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-circle); color: var(--photo-ink); background: rgba(0, 0, 0, 0.64);
+    backdrop-filter: blur(12px); transition: border-color 0.2s, background-color 0.2s, transform 0.2s;
+  }
+  .exmodal__close:hover, .exmodal__object-nav:hover { border-color: var(--brand-green-mid); background: rgba(0, 0, 0, 0.84); }
+  .exmodal__close { top: 1rem; right: 1rem; width: 46px; height: 46px; font-size: 2rem; line-height: 1; }
+  .exmodal__object-nav { top: 50%; width: 48px; height: 48px; translate: 0 -50%; }
+  .exmodal__object-nav svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; }
+  .exmodal__object-nav--prev { left: 1rem; }
+  .exmodal__object-nav--next { right: 1rem; }
+  .exmodal__dots { position: absolute; z-index: 3; left: 50%; bottom: 1rem; translate: -50% 0; display: flex; align-items: center; gap: 0.2rem; }
+  .exmodal__dots :global(.exmodal__dot) { width: 38px; height: 38px; display: grid; place-items: center; }
+  .exmodal__dots :global(.exmodal__dot::before) { content: ""; width: 8px; height: 8px; border-radius: var(--radius-circle); background: rgba(255, 255, 255, 0.4); transition: background 0.2s, transform 0.2s; }
+  .exmodal__dots :global(.exmodal__dot[aria-pressed="true"]::before) { background: var(--brand-green-mid); transform: scale(1.3); }
+  @media (max-width: 980px) { .exgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 900px) {
+    .extools { grid-template-columns: minmax(0, 1fr); align-items: stretch; gap: 0.5rem; }
+  }
+  @media (max-width: 860px) {
+    .exmodal { overflow-y: auto; }
+    .exmodal__shell { display: block; height: auto; min-height: 100%; }
+    .exmodal__media { height: min(58vh, 32rem); }
+    .exmodal__details { overflow: visible; min-height: 42vh; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); border-left: 0; }
+    .exmodal__object-nav { top: 50%; }
+  }
+  @media (max-width: 700px) { .exgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; } }
+  @media (max-width: 480px) {
+    .exmodal__media { height: 46vh; }
+    .exmodal__object-nav { width: 44px; height: 44px; }
+    .exmodal__fullscreen { right: .65rem; bottom: .65rem; width: 44px; height: 44px; }
+    .exmodal__information :global(.exmodal__info-row) { grid-template-columns: 1fr; gap: 0.08rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .extools, .exsearch__field,
+    .explate__open, .exmodal__image, .exmodal__dots :global(.exmodal__dot::before), .exmodal__close, .exmodal__object-nav { transition: none; }
+    .exmodal__loading::after { animation: none; content: "..."; }
+  }
+</style>
+
+<script>
+  type ObjectSlide = { src: string; alt: string; credit: string; capture: [string, string][] };
+  type ObjectPayload = {
+    id: string;
+    title: string;
+    type: string;
+    catalog: string;
+    description: string;
+    slides: ObjectSlide[];
+    physics: [string, string][];
+    imageAvailable: boolean;
+    imagePosition: string;
+  };
+
+  const toolsDock = document.querySelector<HTMLElement>("[data-extools-dock]");
+  const exhibitionTools = document.querySelector<HTMLElement>("[data-extools]");
+  const siteNav = document.querySelector<HTMLElement>("[data-nav]");
+  if (toolsDock && exhibitionTools && siteNav) {
+    const dockController = new AbortController();
+    let dockTop = 0;
+    let stackTop = 70;
+    let dockFrame = 0;
+    let dockEnterFrame = 0;
+    let wasDocked = false;
+    const navBar = siteNav.querySelector<HTMLElement>(".nav__bar");
+    const syncStackTop = () => {
+      const navTop = Number.parseFloat(getComputedStyle(siteNav).paddingTop) || 11;
+      stackTop = Math.max(0, navTop + (navBar?.offsetHeight ?? 59) - 1);
+      exhibitionTools.style.setProperty("--extools-nav-top", `${stackTop}px`);
+    };
+    const measureDock = () => {
+      toolsDock.style.minHeight = `${exhibitionTools.offsetHeight}px`;
+      dockTop = toolsDock.getBoundingClientRect().top + scrollY;
+      syncStackTop();
+    };
+    const syncDock = () => {
+      dockFrame = 0;
+      const currentScrollY = scrollY;
+      const docked = currentScrollY >= dockTop - stackTop;
+      if (docked && !wasDocked) syncStackTop();
+      exhibitionTools.toggleAttribute("data-docked", docked);
+      const navHidden = siteNav.hasAttribute("data-scroll-hidden");
+      if (docked && !wasDocked && navHidden) {
+        exhibitionTools.setAttribute("data-dock-entering", "");
+        cancelAnimationFrame(dockEnterFrame);
+        dockEnterFrame = requestAnimationFrame(() => {
+          dockEnterFrame = requestAnimationFrame(() => exhibitionTools.removeAttribute("data-dock-entering"));
+        });
+      } else if (!docked) {
+        exhibitionTools.removeAttribute("data-dock-entering");
+      }
+      if (docked && navHidden) {
+        siteNav.removeAttribute("data-exhibition-stack");
+        exhibitionTools.removeAttribute("data-nav-visible");
+      } else {
+        exhibitionTools.toggleAttribute("data-nav-visible", docked);
+        siteNav.toggleAttribute("data-exhibition-stack", docked);
+      }
+      if (!docked) toolsDock.style.minHeight = `${exhibitionTools.offsetHeight}px`;
+      wasDocked = docked;
+    };
+    const requestDockSync = () => {
+      if (!dockFrame) dockFrame = requestAnimationFrame(syncDock);
+    };
+    measureDock();
+    syncDock();
+    addEventListener("scroll", requestDockSync, { passive:true, signal:dockController.signal });
+    addEventListener("resize", () => { measureDock(); requestDockSync(); }, { passive:true, signal:dockController.signal });
+    siteNav.addEventListener("durbin:nav-visibility", () => {
+      syncStackTop();
+      requestDockSync();
+    }, { signal:dockController.signal });
+    document.addEventListener("astro:before-swap", () => {
+      dockController.abort();
+      cancelAnimationFrame(dockEnterFrame);
+      siteNav.removeAttribute("data-exhibition-stack");
+    }, { once:true });
+  }
+
+  const chips = Array.from(document.querySelectorAll<HTMLButtonElement>(".exfilter .chip"));
+  const tiles = Array.from(document.querySelectorAll<HTMLElement>(".exgrid li[data-cat]"));
+  const triggers = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-object-open]"));
+  const search = document.querySelector<HTMLInputElement>("[data-exhibition-search]");
+  const count = document.querySelector<HTMLElement>("[data-result-count]");
+  const label = document.querySelector<HTMLElement>("[data-result-label]");
+  let activeFilter = "all";
+
+  const syncGrid = () => {
+    const query = search?.value.trim().toLowerCase() ?? "";
+    tiles.forEach((tile) => {
+      const categoryMatches = activeFilter === "all" || tile.dataset.cat === activeFilter;
+      const searchMatches = !query || tile.dataset.search?.includes(query);
+      tile.hidden = !(categoryMatches && searchMatches);
+    });
+    const visible = tiles.filter((tile) => !tile.hidden).length;
+    if (count) count.textContent = String(visible);
+    if (label) label.textContent = visible === 1 ? "object shown" : "objects shown";
+  };
+  chips.forEach((chip) => chip.addEventListener("click", () => {
+    activeFilter = chip.dataset.filter ?? "all";
+    chips.forEach((item) => item.setAttribute("aria-pressed", String(item === chip)));
+    syncGrid();
+  }));
+  search?.addEventListener("input", syncGrid);
+
+  const modal = document.querySelector<HTMLDialogElement>("[data-exmodal]");
+  const closeButton = modal?.querySelector<HTMLButtonElement>("[data-exmodal-close]");
+  const previousButton = modal?.querySelector<HTMLButtonElement>("[data-exmodal-prev]");
+  const nextButton = modal?.querySelector<HTMLButtonElement>("[data-exmodal-next]");
+  const image = modal?.querySelector<HTMLImageElement>("[data-exmodal-image]");
+  const media = modal?.querySelector<HTMLElement>("[data-exmodal-media]");
+  const viewport = modal?.querySelector<HTMLElement>("[data-exmodal-viewport]");
+  const fullscreenButton = modal?.querySelector<HTMLButtonElement>("[data-exmodal-fullscreen]");
+  const loading = modal?.querySelector<HTMLElement>("[data-exmodal-loading]");
+  const fallback = modal?.querySelector<HTMLElement>("[data-exmodal-fallback]");
+  const title = modal?.querySelector<HTMLElement>("[data-exmodal-title]");
+  const eyebrow = modal?.querySelector<HTMLElement>("[data-exmodal-eyebrow]");
+  const description = modal?.querySelector<HTMLElement>("[data-exmodal-description]");
+  const credit = modal?.querySelector<HTMLElement>("[data-exmodal-credit]");
+  const information = modal?.querySelector<HTMLElement>("[data-exmodal-information]");
+  const dots = modal?.querySelector<HTMLElement>("[data-exmodal-dots]");
+  const status = modal?.querySelector<HTMLElement>("[data-exmodal-status]");
+  let activeTrigger: HTMLButtonElement | null = null;
+  let activePayload: ObjectPayload | null = null;
+  let slideIndex = 0;
+  let imageRequest = 0;
+  let zoom = 1;
+  let mediaFullscreen = false;
+  let panX = 0;
+  let panY = 0;
+  let panState: { pointerId:number; x:number; y:number; panX:number; panY:number } | null = null;
+  const imageCache = new Map<string, Promise<HTMLImageElement>>();
+
+  const renderImage = () => {
+    if (!image || !viewport || !image.naturalWidth || !image.naturalHeight) return;
+    const viewportWidth = viewport.clientWidth;
+    const viewportHeight = viewport.clientHeight;
+    if (!viewportWidth || !viewportHeight) return;
+    const imageRatio = image.naturalWidth / image.naturalHeight;
+    const viewportRatio = viewportWidth / viewportHeight;
+    const fitWidth = imageRatio >= viewportRatio ? viewportWidth : viewportHeight * imageRatio;
+    const fitHeight = imageRatio >= viewportRatio ? viewportWidth / imageRatio : viewportHeight;
+    // Never stretch a capture past its own resolution to fill the frame: several
+    // exhibition sources are only 200-800px wide, and blowing those up to ~950px
+    // magnifies their compression artefacts instead of showing detail. Explicit
+    // zoom still overrides this, so the control remains available.
+    const fitScale = Math.min(1, image.naturalWidth / fitWidth || 1);
+    const renderedWidth = fitWidth * fitScale * zoom;
+    const renderedHeight = fitHeight * fitScale * zoom;
+    const maxX = Math.max(0, (renderedWidth - viewportWidth) / 2);
+    const maxY = Math.max(0, (renderedHeight - viewportHeight) / 2);
+    panX = Math.min(maxX, Math.max(-maxX, panX));
+    panY = Math.min(maxY, Math.max(-maxY, panY));
+    image.style.width = `${renderedWidth}px`;
+    image.style.height = `${renderedHeight}px`;
+    image.style.transform = `translate3d(${panX}px,${panY}px,0)`;
+  };
+  const setZoom = (next: number, anchor?: { x: number; y: number }) => {
+    if (!image || !viewport) return;
+    const previousZoom = zoom;
+    const focalX = (anchor?.x ?? viewport.clientWidth / 2) - viewport.clientWidth / 2;
+    const focalY = (anchor?.y ?? viewport.clientHeight / 2) - viewport.clientHeight / 2;
+    zoom = Math.min(4, Math.max(1, Math.round(next * 4) / 4));
+    const ratio = zoom / previousZoom;
+    panX = focalX - (focalX - panX) * ratio;
+    panY = focalY - (focalY - panY) * ratio;
+    if (zoom === 1) { panX = 0; panY = 0; }
+    media?.toggleAttribute("data-zoomed", zoom > 1);
+    renderImage();
+  };
+  const setMediaFullscreen = (expanded: boolean) => {
+    if (!modal || !fullscreenButton) return;
+    mediaFullscreen = expanded;
+    modal.toggleAttribute("data-media-fullscreen", expanded);
+    fullscreenButton.setAttribute("aria-pressed", String(expanded));
+    fullscreenButton.setAttribute("aria-label", expanded ? "Exit full screen" : "Enter full screen");
+    fullscreenButton.title = expanded ? "Exit full screen" : "Full screen";
+    requestAnimationFrame(renderImage);
+  };
+
+  const preloadImage = (src: string) => {
+    const cached = imageCache.get(src);
+    if (cached) return cached;
+    const pending = new Promise<HTMLImageElement>((resolve, reject) => {
+      const candidate = new Image();
+      candidate.decoding = "async";
+      candidate.onload = () => resolve(candidate);
+      candidate.onerror = () => reject(new Error(`Unable to load ${src}`));
+      candidate.src = src;
+      if (candidate.complete) {
+        if (candidate.naturalWidth) resolve(candidate);
+        else reject(new Error(`Unable to load ${src}`));
+      }
+    });
+    imageCache.set(src, pending);
+    pending.catch(() => imageCache.delete(src));
+    return pending;
+  };
+
+  const visibleTriggers = () => triggers.filter((trigger) => !trigger.closest("li")?.hidden);
+  const renderRows = (heading: string, rows: [string, string][]) => {
+    if (!rows.length) return null;
+    const section = document.createElement("section");
+    section.className = "exmodal__info";
+    const headingElement = document.createElement("h3");
+    headingElement.textContent = heading;
+    const list = document.createElement("dl");
+    rows.forEach(([term, value]) => {
+      const row = document.createElement("div");
+      row.className = "exmodal__info-row";
+      const dt = document.createElement("dt");
+      const dd = document.createElement("dd");
+      dt.textContent = term;
+      dd.textContent = value;
+      row.append(dt, dd);
+      list.append(row);
+    });
+    section.append(headingElement, list);
+    return section;
+  };
+
+  const showSlide = async (index: number) => {
+    if (!activePayload || !image || !fallback || !credit || !dots) return;
+    const payload = activePayload;
+    const total = payload.slides.length;
+    slideIndex = ((index % total) + total) % total;
+    const slide = payload.slides[slideIndex];
+    const request = ++imageRequest;
+    setZoom(1);
+    image.alt = slide.alt;
+    image.style.objectPosition = payload.imagePosition;
+    credit.textContent = slide.credit;
+    dots.querySelectorAll<HTMLButtonElement>("button").forEach((dot, dotIndex) => dot.setAttribute("aria-pressed", String(dotIndex === slideIndex)));
+    if (information) {
+      information.replaceChildren();
+      const captureSection = renderRows("Astrophotographic information", slide.capture);
+      const physicsSection = renderRows("Astrophysical information", payload.physics);
+      if (captureSection) information.append(captureSection);
+      if (physicsSection) information.append(physicsSection);
+    }
+    if (status) status.textContent = `Loading ${payload.title}, image ${slideIndex + 1} of ${total}`;
+
+    fallback.hidden = true;
+    if (!payload.imageAvailable) {
+      image.hidden = true;
+      loading?.setAttribute("hidden", "");
+      media?.removeAttribute("data-loading");
+      fallback.hidden = false;
+      if (status) status.textContent = `${payload.title}, image unavailable`;
+      return;
+    }
+
+    media?.setAttribute("data-loading", "");
+    loading?.removeAttribute("hidden");
+    try {
+      const pending = await preloadImage(slide.src);
+      if (request !== imageRequest || activePayload !== payload) return;
+      image.src = pending.src;
+      image.alt = slide.alt;
+      image.style.objectPosition = payload.imagePosition;
+      image.hidden = false;
+      try {
+        await image.decode();
+      } catch {
+        /* The preloaded image is already complete; decode support can vary by format. */
+      }
+      if (request !== imageRequest || activePayload !== payload) return;
+      setZoom(1);
+      if (status) status.textContent = `${payload.title}, image ${slideIndex + 1} of ${total}`;
+    } catch {
+      if (request !== imageRequest || activePayload !== payload) return;
+      image.hidden = true;
+      fallback.hidden = false;
+      if (status) status.textContent = `${payload.title}, image unavailable`;
+    } finally {
+      if (request === imageRequest && activePayload === payload) {
+        loading?.setAttribute("hidden", "");
+        media?.removeAttribute("data-loading");
+      }
+    }
+  };
+
+  const showObject = (trigger: HTMLButtonElement, updateHistory = true) => {
+    if (!modal || !title || !eyebrow || !description || !dots) return;
+    const raw = trigger.dataset.object;
+    if (!raw) return;
+    activeTrigger = trigger;
+    activePayload = JSON.parse(raw) as ObjectPayload;
+    title.textContent = activePayload.title;
+    eyebrow.textContent = [activePayload.type, activePayload.catalog].filter(Boolean).join(" · ");
+    description.textContent = activePayload.description;
+    dots.replaceChildren();
+    activePayload.slides.forEach((slide, index) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "exmodal__dot";
+      dot.setAttribute("aria-label", `Show image ${index + 1} of ${activePayload?.slides.length}${slide.credit ? `, ${slide.credit}` : ""}`);
+      dot.setAttribute("aria-pressed", String(index === 0));
+      dot.addEventListener("click", () => showSlide(index));
+      dots.append(dot);
+    });
+    dots.hidden = activePayload.slides.length <= 1;
+    showSlide(0);
+    if (!modal.open) modal.showModal();
+    document.body.style.overflow = "hidden";
+    closeButton?.focus();
+    if (updateHistory) history.replaceState(null, "", `${location.pathname}?object=${encodeURIComponent(activePayload.id)}`);
+  };
+
+  const stepObject = (direction: number) => {
+    const visible = visibleTriggers();
+    if (!visible.length || !activeTrigger) return;
+    const currentIndex = Math.max(0, visible.indexOf(activeTrigger));
+    showObject(visible[(currentIndex + direction + visible.length) % visible.length]);
+  };
+
+  triggers.forEach((trigger) => trigger.addEventListener("click", () => showObject(trigger)));
+  previousButton?.addEventListener("click", () => stepObject(-1));
+  nextButton?.addEventListener("click", () => stepObject(1));
+  fullscreenButton?.addEventListener("click", () => setMediaFullscreen(!mediaFullscreen));
+  image?.addEventListener("dblclick", (event) => {
+    if (!viewport) return;
+    const rect = viewport.getBoundingClientRect();
+    setZoom(zoom > 1 ? 1 : 2, { x: event.clientX - rect.left, y: event.clientY - rect.top });
+  });
+  viewport?.addEventListener("wheel", (event) => {
+    if (!modal?.open || event.deltaY === 0) return;
+    event.preventDefault();
+    const rect = viewport.getBoundingClientRect();
+    setZoom(zoom + (event.deltaY < 0 ? .25 : -.25), {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    });
+  }, { passive: false });
+  viewport?.addEventListener("pointerdown", (event) => {
+    if (zoom <= 1 || event.button !== 0) return;
+    panState = { pointerId:event.pointerId, x:event.clientX, y:event.clientY, panX, panY };
+    viewport.setPointerCapture(event.pointerId);
+    viewport.toggleAttribute("data-panning", true);
+    event.preventDefault();
+  });
+  viewport?.addEventListener("pointermove", (event) => {
+    if (!panState || event.pointerId !== panState.pointerId) return;
+    panX = panState.panX + event.clientX - panState.x;
+    panY = panState.panY + event.clientY - panState.y;
+    renderImage();
+    event.preventDefault();
+  });
+  const stopPanning = (event:PointerEvent) => {
+    if (!panState || event.pointerId !== panState.pointerId || !viewport) return;
+    if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
+    panState = null;
+    viewport.removeAttribute("data-panning");
+  };
+  viewport?.addEventListener("pointerup", stopPanning);
+  viewport?.addEventListener("pointercancel", stopPanning);
+  addEventListener("resize", () => { if (modal?.open) requestAnimationFrame(renderImage); }, { passive: true });
+  closeButton?.addEventListener("click", () => modal?.close());
+  modal?.addEventListener("click", (event) => { if (event.target === modal) modal.close(); });
+  modal?.addEventListener("keydown", (event) => {
+    if ((event.key === "+" || event.key === "=") && !(event.target as Element).closest("button")) { event.preventDefault(); setZoom(zoom + .25); }
+    else if (event.key === "-" && !(event.target as Element).closest("button")) { event.preventDefault(); setZoom(zoom - .25); }
+    else if (event.key === "0" && !(event.target as Element).closest("button")) { event.preventDefault(); setZoom(1); }
+    else if (event.key.toLowerCase() === "f" && !(event.target as Element).closest("button")) { event.preventDefault(); setMediaFullscreen(!mediaFullscreen); }
+    else if (event.key === "ArrowRight" && !(event.target as Element).closest("button")) { event.preventDefault(); stepObject(1); }
+    else if (event.key === "ArrowLeft" && !(event.target as Element).closest("button")) { event.preventDefault(); stepObject(-1); }
+  });
+  modal?.addEventListener("close", () => {
+    document.body.style.overflow = "";
+    setMediaFullscreen(false);
+    setZoom(1);
+    history.replaceState(null, "", location.pathname);
+    activeTrigger?.focus();
+  });
+
+  const requestedObject = new URLSearchParams(location.search).get("object");
+  if (requestedObject) {
+    const requestedTrigger = triggers.find((trigger) => trigger.dataset.objectOpen === requestedObject);
+    if (requestedTrigger) requestAnimationFrame(() => showObject(requestedTrigger, false));
+  }
+</script>

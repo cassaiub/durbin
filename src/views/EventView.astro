@@ -1,0 +1,117 @@
+---
+/* An event page: hero (when the event has one), a when/where placard, the
+   body, and any register/info links. */
+import { Image } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+import Placard from "../components/Placard.astro";
+import { render, type CollectionEntry } from "astro:content";
+import { fmtDate, fmtDateLong, fmtTime } from "../lib/format";
+
+interface Props {
+  entry: CollectionEntry<"events">;
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+
+// The "when" line. daily = same window repeated across the date span;
+// timeNote = free-text override; allDay = no times.
+const sameDay = d.end && fmtDate(d.start) === fmtDate(d.end);
+const dateLine =
+  d.end && !sameDay ? `${fmtDate(d.start)} – ${fmtDate(d.end)}` : fmtDateLong(d.start);
+const timeLine = d.timeNote
+  ? d.timeNote
+  : d.allDay
+    ? "All day"
+    : d.end
+      ? `${fmtTime(d.start)} – ${fmtTime(d.end)}${d.daily && !sameDay ? " (daily)" : ""}`
+      : fmtTime(d.start);
+
+const rows: [string, string][] = (
+  [
+    ["When", `${dateLine} · ${timeLine}`],
+    ["Venue", d.venue],
+    ["Organizer", d.organizer],
+    ["Type", d.hideType ? undefined : d.category],
+  ] as [string, string | undefined][]
+).filter((r): r is [string, string] => Boolean(r[1]));
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Event",
+  name: d.title,
+  startDate: d.start.toISOString(),
+  ...(d.end ? { endDate: d.end.toISOString() } : {}),
+  ...(d.venue ? { location: { "@type": "Place", name: d.venue } } : {}),
+  organizer: { "@type": "Organization", name: d.organizer ?? "Durbin, CASSA" },
+};
+---
+
+<BaseLayout
+  path={`/events/${entry.id}`}
+  title={`${d.title} | Durbin`}
+  description={d.summary}
+  current="/events"
+  ogImage={d.hero?.src}
+  ogImageAlt={d.heroAlt}
+  ogType="article"
+  jsonLd={jsonLd}
+>
+  {d.hero ? (
+    <header class="hero hero--short">
+      <div class="hero__media">
+        <Image src={d.hero} alt={d.heroAlt ?? ""} widths={[768, 1280, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" />
+      </div>
+      <div class="hero__scrim"></div>
+      <div class="wrap hero__inner">
+        <p class="section-label">{d.category ?? "Event"} <em class="mono"><time datetime={d.start.toISOString()}>{fmtDate(d.start)}</time></em></p>
+        <h1 class="hero__title evt-title">{d.title}</h1>
+      </div>
+    </header>
+  ) : (
+    <header class="section evthead">
+      <div class="wrap wrap--narrow">
+        <p class="section-label">{d.category ?? "Event"} <em class="mono"><time datetime={d.start.toISOString()}>{fmtDate(d.start)}</time></em></p>
+        <h1 class="h-display">{d.title}</h1>
+      </div>
+    </header>
+  )}
+
+  <article class="section section--tight">
+    <div class="wrap evtgrid">
+      <div class="evtmain">
+        <Reveal>
+          <div class="prose">
+            <Content />
+          </div>
+        </Reveal>
+        <p class="evtback"><a class="btn" href="/events">← All events</a></p>
+      </div>
+      <aside class="evtside">
+        <Reveal delay={80}>
+          <Placard caption="Event" rows={rows} />
+        </Reveal>
+        {(d.register || d.link) && (
+          <Reveal delay={120}>
+            <div class="evtlinks">
+              {d.register && <a class="btn btn--solid" href={d.register} target="_blank" rel="noopener">Register ↗</a>}
+              {d.link && <a class="btn" href={d.link} target="_blank" rel="noopener">More information ↗</a>}
+            </div>
+          </Reveal>
+        )}
+      </aside>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .evthead { padding-top: clamp(7rem, 14vw, 10rem); padding-bottom: 0; }
+  .evt-title { font-size: clamp(2rem, 4.5vw, 2.8rem); max-width: 26ch; }
+  .evtgrid { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 3.5rem); align-items: start; }
+  @media (max-width: 820px) { .evtgrid { grid-template-columns: 1fr; } .evtside { order: -1; } }
+  .evtside { position: sticky; top: 5.5rem; display: flex; flex-direction: column; gap: 1.1rem; }
+  @media (max-width: 820px) { .evtside { position: static; } }
+  .evtlinks { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+  .evtback { margin-top: 3rem; }
+</style>

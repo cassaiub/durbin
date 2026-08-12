@@ -1,0 +1,240 @@
+---
+/* The exhibit's full-bleed hero. One component for both cases: a single
+   capture renders a still photograph; 2+ captures of the same object become
+   a manually controlled, swipeable carousel whose credit follows the active slide. On
+   slide change it dispatches a document-level `durbin-slide` CustomEvent so
+   the page can swap the matching capture placard. */
+import { Image } from "astro:assets";
+
+interface Slide {
+  image: ImageMetadata;
+  alt: string;
+  name?: string;
+  attribution?: string;
+}
+interface Neighbor {
+  href: string;
+  label: string;
+}
+interface Props {
+  slides: Slide[];
+  label: string;
+  title: string;
+  imageAvailable?: boolean;
+  imagePosition?: string;
+  previous?: Neighbor;
+  next?: Neighbor;
+}
+const {
+  slides,
+  label,
+  title,
+  imageAvailable = true,
+  imagePosition = "center",
+  previous,
+  next,
+} = Astro.props;
+const n = slides.length;
+const multi = n > 1;
+---
+
+<header
+  class="hero xhero"
+  data-xslider={multi ? "" : undefined}
+  role={multi ? "region" : undefined}
+  aria-roledescription={multi ? "carousel" : undefined}
+  aria-label={multi ? "Multiple captures of this object" : undefined}
+  tabindex={multi ? 0 : undefined}
+>
+  <div class="xhero__stage">
+    {slides.map((s, i) => (
+      <figure
+        class:list={["xslide", { "is-active": i === 0 }]}
+        data-xslide={i}
+        data-image-error={!imageAvailable && i === 0 ? "" : undefined}
+        data-credit={s.attribution ?? ""}
+        role={multi ? "group" : undefined}
+        aria-roledescription={multi ? "slide" : undefined}
+        aria-label={multi ? `${i + 1} of ${n}` : undefined}
+        aria-hidden={i !== 0}
+      >
+        <Image
+          src={s.image}
+          alt={s.alt}
+          widths={[768, 1280, 1920, 2560]}
+          sizes="100vw"
+          loading={i === 0 ? "eager" : "lazy"}
+          fetchpriority={i === 0 ? "high" : undefined}
+          style={`object-position: ${imagePosition}`}
+          data-exhibit-image
+        />
+        <span class="xslide__fallback" aria-hidden="true">Image unavailable</span>
+      </figure>
+    ))}
+  </div>
+  <div class="hero__scrim"></div>
+
+  {previous && (
+    <a
+      class="xobject-nav xobject-nav--prev"
+      href={previous.href}
+      aria-label={`Previous object: ${previous.label}`}
+      title={`Previous: ${previous.label}`}
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+    </a>
+  )}
+  {next && (
+    <a
+      class="xobject-nav xobject-nav--next"
+      href={next.href}
+      aria-label={`Next object: ${next.label}`}
+      title={`Next: ${next.label}`}
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg>
+    </a>
+  )}
+
+  <div class="wrap hero__inner">
+    <p class="section-label">{label}</p>
+    <h1 class="hero__title">{title}</h1>
+    <p class="xhero__credit">
+      <span data-xcredit>{slides[0]?.attribution ?? ""}</span>
+      {multi && <span class="xhero__count mono"><span data-xcur>1</span> / {n}</span>}
+    </p>
+  </div>
+
+  {multi && (
+    <div class="xhero__controls">
+      <div class="xhero__dots" role="group" aria-label="Choose an image">
+        {slides.map((s, i) => (
+          <button class="xdot" type="button" aria-pressed={i === 0} aria-label={`Show image ${i + 1} of ${n}${s.name ? `: ${s.name}` : ""}`} data-xdot={i}></button>
+        ))}
+      </div>
+      <p class="visually-hidden" aria-live="polite" aria-atomic="true" data-xstatus></p>
+    </div>
+  )}
+</header>
+
+<style>
+  .xhero :global(.hero__inner) { padding-bottom: clamp(4.4rem, 8vw, 5.6rem); }
+  .xhero__stage { position: absolute; inset: 0; }
+  .xhero[data-xslider] { touch-action: pan-y; }
+  .xslide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.8s ease; }
+  .xslide.is-active { opacity: 1; }
+  .xslide :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .xslide__fallback {
+    position: absolute; inset: 0; display: none; place-items: center;
+    background: var(--night); color: var(--ink-faint);
+    font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0;
+    text-transform: uppercase;
+  }
+  .xslide[data-image-error] :global(img) { display: none; }
+  .xslide[data-image-error] .xslide__fallback { display: grid; }
+
+  .xhero__credit {
+    margin-top: 1.2rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.45rem 1rem;
+    font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0; color: var(--photo-ink-soft);
+  }
+  .xhero__count { color: var(--photo-ink-faint); font-variant-numeric: tabular-nums; }
+
+  .xobject-nav {
+    position: absolute; top: 48%; translate: 0 -50%; z-index: 3;
+    display: grid; place-items: center; width: 52px; height: 52px; border-radius: var(--radius-circle);
+    border: 1px solid color-mix(in srgb, var(--manila) 30%, transparent);
+    background: color-mix(in srgb, var(--charcoal) 66%, transparent); color: var(--manila);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 28px color-mix(in srgb, #000 36%, transparent);
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .xobject-nav:hover { background: var(--charcoal); border-color: var(--brass); transform: scale(1.06); }
+  .xobject-nav:focus-visible { outline: 2px solid var(--brass-bright); outline-offset: 3px; }
+  .xobject-nav--prev { left: clamp(0.65rem, 2.4vw, 2rem); }
+  .xobject-nav--next { right: clamp(0.65rem, 2.4vw, 2rem); }
+
+  .xhero__controls {
+    position: absolute; left: 50%; bottom: 0.55rem; translate: -50% 0; z-index: 3;
+    display: flex; align-items: center; padding-inline: 0.35rem; border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--charcoal) 62%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }
+  .xhero__dots { display: flex; align-items: center; }
+  .xdot { position: relative; width: 42px; height: 42px; display: grid; place-items: center; }
+  .xdot::before { content: ""; width: 9px; height: 9px; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--manila) 45%, transparent); transition: background 0.2s, transform 0.2s; }
+  .xdot[aria-pressed="true"]::before { background: var(--brass-bright); transform: scale(1.35); }
+
+  @media (max-width: 640px) {
+    .xobject-nav { width: 46px; height: 46px; top: 42%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) { .xslide { transition: none; } }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLImageElement>("[data-exhibit-image]").forEach((image) => {
+    const slide = image.closest<HTMLElement>("[data-xslide]");
+    const showFallback = () => slide?.setAttribute("data-image-error", "");
+    if (image.complete && image.naturalWidth === 0) showFallback();
+    else image.addEventListener("error", showFallback, { once: true });
+  });
+
+  document.querySelectorAll<HTMLElement>("[data-xslider]").forEach((root) => {
+    const slides = Array.from(root.querySelectorAll<HTMLElement>("[data-xslide]"));
+    const dots = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-xdot]"));
+    const creditEl = root.querySelector<HTMLElement>("[data-xcredit]");
+    const curEl = root.querySelector<HTMLElement>("[data-xcur]");
+    const statusEl = root.querySelector<HTMLElement>("[data-xstatus]");
+    const n = slides.length;
+    if (n <= 1) return;
+
+    let index = 0;
+
+    const show = (i: number) => {
+      index = ((i % n) + n) % n;
+      slides.forEach((s, k) => {
+        const on = k === index;
+        s.classList.toggle("is-active", on);
+        s.setAttribute("aria-hidden", String(!on));
+      });
+      dots.forEach((d, k) => d.setAttribute("aria-pressed", String(k === index)));
+      if (creditEl) creditEl.textContent = slides[index].dataset.credit || "";
+      if (curEl) curEl.textContent = String(index + 1);
+      document.dispatchEvent(new CustomEvent("durbin-slide", { detail: { index } }));
+    };
+    const go = (i: number) => {
+      show(i);
+      const name = dots[index]?.getAttribute("aria-label")?.replace(/^Show /, "") ?? `image ${index + 1} of ${n}`;
+      if (statusEl) statusEl.textContent = `Showing ${name}`;
+    };
+
+    dots.forEach((d, k) => d.addEventListener("click", () => go(k)));
+
+    let pointerStart: { x: number; y: number } | null = null;
+    root.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0 || (e.target as Element).closest("a, button")) return;
+      pointerStart = { x: e.clientX, y: e.clientY };
+    });
+    root.addEventListener("pointerup", (e) => {
+      if (!pointerStart) return;
+      const dx = e.clientX - pointerStart.x;
+      const dy = e.clientY - pointerStart.y;
+      pointerStart = null;
+      if (Math.abs(dx) >= 45 && Math.abs(dx) > Math.abs(dy) * 1.2) go(index + (dx < 0 ? 1 : -1));
+    });
+    root.addEventListener("pointercancel", () => { pointerStart = null; });
+
+    let wheelLocked = false;
+    root.addEventListener("wheel", (e) => {
+      if (wheelLocked || Math.abs(e.deltaX) < 24 || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      wheelLocked = true;
+      go(index + (e.deltaX > 0 ? 1 : -1));
+      window.setTimeout(() => { wheelLocked = false; }, 450);
+    }, { passive: false });
+
+    root.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") { e.preventDefault(); go(index + 1); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); go(index - 1); }
+    });
+  });
+</script>

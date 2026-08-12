@@ -1,0 +1,604 @@
+---
+/* The hub's front page. A full-height ambient video opens the site; everything
+   below is quiet: about, the numbers, an exhibition preview, latest
+   dispatches, and the join band. */
+import { Image } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+import { SITE, isFeatured, objectTypeOf } from "../data/site";
+import { getExhibits, unavailableImageIds } from "../lib/exhibits";
+import { getUpdates } from "../lib/updates";
+import { current, past } from "../data/durbin-volunteers";
+import { fmtDate } from "../lib/format";
+import britishCouncilLogo from "../assets/partners/british-council.webp";
+import cassaLogo from "../assets/partners/cassa-white.svg";
+import iubLogo from "../assets/partners/iub.png";
+import dunlapLogo from "../assets/partners/dunlap-white.png";
+import whitinLogo from "../assets/partners/whitin-observatory.png";
+
+const exhibits = await getExhibits();
+
+// The first featured object remains the social-sharing image.
+const featured = [...exhibits.filter(isFeatured), ...exhibits.filter((e) => !isFeatured(e))].slice(0, 5);
+// Pexels video 31541369 by Tony Flanagan.
+const heroVideo = "https://videos.pexels.com/video-files/31541369/13442834_1920_1080_60fps.mp4";
+const heroPoster = "https://images.pexels.com/videos/31541369/asteroids-astonomy-astronomy-backdrop-31541369.jpeg?auto=compress&cs=tinysrgb&w=1920";
+
+// A deliberate six-object sampler for the home page exhibition section.
+const previewIds = [
+  "milky-way",
+  "bodes-and-cigar-galaxies",
+  "ngc2023",
+  "ngc2024",
+  "ngc6618",
+  "moon",
+];
+const exhibitsById = new Map(exhibits.map((exhibit) => [exhibit.id, exhibit]));
+const preview = previewIds
+  .map((id) => exhibitsById.get(id))
+  .filter((exhibit): exhibit is NonNullable<typeof exhibit> => Boolean(exhibit));
+
+const updates = (await getUpdates()).slice(0, 3);
+
+const stats = [
+  { value: String(exhibits.length), label: "Objects on display" },
+  { value: String(current.length), label: "Current volunteers" },
+  { value: String(past.length), label: "Volunteer alumni" },
+  { value: "9 Mar 2023", label: "Founded" },
+];
+
+const partners = [
+  {
+    slug: "host",
+    href: "https://cassa.bd/",
+    title: "CASSA at Independent University, Bangladesh",
+    alt: "CASSA at Independent University, Bangladesh",
+    logo: cassaLogo,
+  },
+  {
+    slug: "dunlap",
+    href: "https://www.dunlap.utoronto.ca/",
+    title: "Dunlap Institute for Astronomy and Astrophysics",
+    alt: "University of Toronto Dunlap Institute for Astronomy and Astrophysics",
+    logo: dunlapLogo,
+  },
+  {
+    slug: "british",
+    href: "https://www.britishcouncil.org.bd/",
+    title: "British Council Bangladesh",
+    alt: "British Council Bangladesh",
+    logo: britishCouncilLogo,
+  },
+  {
+    slug: "whitin",
+    href: "https://www.wellesley.edu/whitin-observatory",
+    title: "Whitin Observatory at Wellesley College",
+    alt: "Whitin Observatory at Wellesley College",
+    logo: whitinLogo,
+  },
+];
+
+const ogImage = featured[0]?.data.image.src;
+---
+
+<BaseLayout path="/" title="Durbin | Citizen of distant world" current="/" ogImage={ogImage}>
+  <!-- ambient hero -->
+  <header class="hh hero" data-hh>
+    <div class="hh__stage" aria-hidden="true">
+      <video
+        class="hh__video"
+        muted
+        loop
+        playsinline
+        preload="metadata"
+        poster={heroPoster}
+        data-hero-video
+      >
+        <source src={heroVideo} type="video/mp4" />
+      </video>
+    </div>
+    <div class="hero__scrim"></div>
+
+    <div class="wrap hero__inner">
+      <p class="section-label chip hh__eyebrow">An astronomical programme</p>
+      <h1 class="hh__title">Durbin</h1>
+      <p class="hero__lede">
+        Citizen of distant world. The cosmos through the eyes of student volunteers across
+        Bangladesh. A national programme of astrophotography and science communication.
+      </p>
+      <div class="hh__cta">
+        <a class="btn btn--solid" href="/exhibition">Enter the exhibition</a>
+        <a class="btn" href="#about">About Durbin</a>
+      </div>
+      <div class="hh__support" aria-label="Durbin host and supporting institutions">
+        <div class="hh__marquee">
+          <div class="hh__marquee-track">
+            <div class="hh__partners">
+              {partners.map((partner) => (
+                <a
+                  class={`hh__partner hh__partner--${partner.slug}`}
+                  href={partner.href}
+                  target="_blank"
+                  rel="noopener"
+                  title={partner.title}
+                >
+                  {partner.slug === "host" ? (
+                    <span class="hh__host-lockup">
+                      <img src={iubLogo.src} alt="Independent University, Bangladesh" loading="eager" decoding="async" />
+                      <i aria-hidden="true"></i>
+                      <img src={cassaLogo.src} alt="CASSA" loading="eager" decoding="async" />
+                    </span>
+                  ) : (
+                    <span class="hh__partner-mark" style={`--partner-mark: url("${partner.logo.src}")`}>
+                      <img src={partner.logo.src} alt={partner.alt} loading="eager" decoding="async" />
+                    </span>
+                  )}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- about -->
+  <section class="section" id="about" data-home-flow>
+    <div class="wrap about">
+      <Reveal class="about__label"><p class="section-label">About Durbin</p></Reveal>
+      <div class="about__text">
+        <Reveal delay={60}><h2 class="h-display">Astronomy that brings people closer</h2></Reveal>
+        <Reveal delay={110}>
+          <div class="prose">
+            <p>
+              Durbin, Bangla for a telescope, the instrument that makes the distant visible, is
+              CASSA's outreach programme built on astrophotography and science communication. Its
+              student volunteers from across Bangladesh bring the wonders of the universe to the
+              public, using astronomy to foster a universal fraternity that transcends the
+              boundaries of language, nation, religion, gender, and class.
+            </p>
+            <p>
+              Durbin was founded on 9 March 2023 by Dr. Lamiya Mowla, with initial support from the
+              University of Toronto's Dunlap Institute for Astronomy &amp; Astrophysics. That
+              partnership brought two Unistellar telescopes to IUB, establishing a permanent hub for
+              astronomy outreach in the region. From May 2026, Durbin is supported by a British
+              Council Bangladesh grant through Women of the World.
+            </p>
+            <p>
+              <strong>Contact:</strong>{" "}
+              <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+              <span class="about__pm">, Farzana Akter Lima, Project Manager</span>
+            </p>
+          </div>
+        </Reveal>
+        <Reveal delay={140}>
+          <p class="about__more"><a class="btn" href="/about">See more →</a></p>
+        </Reveal>
+      </div>
+      <Reveal class="about__aside" delay={150}>
+        <section class="glance-card" aria-labelledby="glance-title">
+          <div class="glance-card__surface">
+            <header class="glance-card__header">
+              <h3 id="glance-title">AT A GLANCE</h3>
+            </header>
+
+            <dl class="glance-table">
+              {stats.map((s) => (
+                <div class="glance-table__row">
+                  <dt>{s.label}</dt>
+                  <dd>{s.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
+      </Reveal>
+    </div>
+  </section>
+
+  <!-- exhibition preview -->
+  <section class="section section--line" data-home-flow>
+    <div class="wrap">
+      <Reveal><p class="section-label">The exhibition</p></Reveal>
+      <Reveal delay={60}><h2 class="h-display">Light carried down from the sky</h2></Reveal>
+      <Reveal delay={100}>
+        <p class="lede">
+          Galaxies, nebulae, star clusters, comets, planets, the full collection imaged through
+          Durbin's telescopes by its volunteers. Open any image to explore its story and capture details.
+        </p>
+      </Reveal>
+
+      <ul class="hgrid hgrid--featured-six">
+        {preview.map((e, i) => (
+          <li>
+            <a class="plate" href={`/exhibition?object=${encodeURIComponent(e.id)}`} data-astro-reload data-reveal style={`--reveal-delay:${Math.min(i, 8) * 40}ms`}>
+              <span class="plate__media" data-image-error={unavailableImageIds.has(e.id) ? "" : undefined}>
+                <Image src={e.data.image} alt={e.data.imageAlt ?? e.data.title} widths={[300, 480, 640]} sizes="(max-width:560px) 50vw, (max-width:980px) 33vw, 270px" loading="lazy" data-fallback-image />
+                <span class="plate__fallback" aria-hidden="true">Image unavailable</span>
+              </span>
+              <span class="plate__label">
+                <span class="plate__cat">
+                  <span class="plate__type">{objectTypeOf(e)}</span>
+                </span>
+                <span class="plate__name">{e.data.title}</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <Reveal delay={120}>
+        <p class="more"><a class="btn" href="/exhibition">View the full exhibition → </a></p>
+      </Reveal>
+    </div>
+  </section>
+
+  <!-- latest news and events -->
+  {updates.length > 0 && (
+    <section class="section section--line" data-home-flow>
+      <div class="wrap">
+        <Reveal><p class="section-label">News &amp; Events</p></Reveal>
+        <Reveal delay={60}><h2 class="h-display">Latest from Durbin</h2></Reveal>
+        <ol class="ulist">
+          {updates.map((u, i) => (
+            <li>
+              <a class="urow" href={u.path} data-reveal style={`--reveal-delay:${i * 60}ms`}>
+                {u.hero && (
+                  <span class="urow__thumb">
+                    <Image src={u.hero} alt={u.heroAlt ?? ""} width={240} loading="lazy" />
+                  </span>
+                )}
+                <span class="urow__body">
+                  <span class="urow__meta">
+                    <span class="urow__tag">{u.kind === "event" ? "Event" : "News"}</span>
+                    <time class="urow__date" datetime={u.date.toISOString()}>{fmtDate(u.date)}</time>
+                  </span>
+                  <span class="urow__title">{u.title}</span>
+                  {u.summary && <span class="urow__sum">{u.summary}</span>}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ol>
+        <Reveal delay={100}>
+          <p class="more"><a class="btn" href="/news-and-events">All news &amp; events →</a></p>
+        </Reveal>
+      </div>
+    </section>
+  )}
+
+  <!-- join -->
+  <section class="section section--line" data-home-flow>
+    <div class="wrap join">
+      <Reveal><p class="section-label">Take part</p></Reveal>
+      <Reveal delay={60}><h2 class="h-display">Want to show people the sky?</h2></Reveal>
+      <Reveal delay={100}>
+        <p class="lede">
+          Durbin runs on volunteers, operating telescopes, processing images, writing, school
+          visits, astronomy nights. New cycles are announced on our Facebook page and CASSA's
+          opportunities page.
+        </p>
+      </Reveal>
+      <Reveal delay={130}>
+        <div class="join__cta">
+          <a class="btn btn--solid" href={`mailto:${SITE.email}`}>Email Durbin</a>
+          <a class="btn" href={SITE.facebook} target="_blank" rel="noopener">Facebook ↗</a>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* hero */
+  .hh.hero {
+    min-height: 100vh;
+    min-height: 100svh;
+    height: 100vh;
+    height: 100svh;
+  }
+  .hh__stage { position: absolute; inset: 0; }
+  .hh__video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+  .hh .hero__scrim {
+    background:
+      linear-gradient(to top, #0a0a0a 0%, rgba(10, 10, 10, 0.92) 12%, rgba(10, 10, 10, 0.42) 32%, rgba(10, 10, 10, 0) 58%),
+      linear-gradient(to bottom, rgba(10, 10, 10, 0.58) 0%, rgba(10, 10, 10, 0) 24%);
+  }
+  .hh__title {
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 8.5vw, 5rem); font-weight: 700; line-height: 0.95;
+    letter-spacing: -0.05em;
+    margin-top: 0.8rem;
+  }
+  .hh .section-label { font-size: 0.95rem; }
+  .hh__eyebrow {
+    width: fit-content; min-height: 0; padding: 0.42rem 0.78rem;
+    border: 0; border-radius: var(--radius-pill);
+    color: #ffffff;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.16); pointer-events: none;
+    backdrop-filter: blur(12px) saturate(160%); -webkit-backdrop-filter: blur(12px) saturate(160%);
+  }
+  .hh .hero__lede { max-width: 66ch; font-size: clamp(1.02rem, 1.5vw, 1.08rem); color: rgba(255, 255, 255, 0.92); }
+  .hh .btn { font-size: 0.98rem; }
+  .hh__cta { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-md); }
+  .hh__cta .btn {
+    width: min(100%, 13rem); height: 52px; justify-content: center;
+    padding-inline: 1.75rem; border: 0;
+    color: #ffffff; background: rgba(255, 255, 255, 0.14);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(10px) saturate(130%);
+    -webkit-backdrop-filter: blur(10px) saturate(130%);
+  }
+  .hh__cta .btn:hover {
+    color: #ffffff; background: rgba(255, 255, 255, 0.22);
+  }
+  .hh__cta .btn:active { transform: translateY(0); background: rgba(255, 255, 255, 0.1); }
+  .hh__cta .btn--solid {
+    color: #0a0a0a; background: #ffffff;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
+  }
+  .hh__cta .btn--solid:hover { color: #0a0a0a; background: #e5e5e5; }
+  .hh__cta .btn--solid:active { color: #0a0a0a; background: #cfcfcf; }
+  .hh__support {
+    margin-top: clamp(1.5rem, 4vh, 2.5rem); width: 100%;
+  }
+  .hh__marquee {
+    padding-block: 0.8rem;
+  }
+  .hh__marquee-track {
+    width: 100%;
+  }
+  .hh__partners {
+    display: grid; grid-template-columns: 1.45fr 1.7fr 0.9fr 1.3fr;
+    align-items: center; gap: clamp(0.8rem, 2.4vw, 2.3rem); width: 100%;
+  }
+  .hh__partner {
+    width: 100%; height: 40px; display: grid; place-items: center;
+    padding: 0.42rem 0.5rem;
+  }
+  .hh__partner-mark {
+    display: block; width: 100%; height: 100%; opacity: 0.55;
+    transition: opacity 0.2s;
+  }
+  .hh__partner-mark :global(img) {
+    display: block; width: 100%; height: 100%; object-fit: contain;
+    filter: grayscale(1) brightness(0) invert(1);
+  }
+  @supports ((mask-image: url("")) or (-webkit-mask-image: url(""))) {
+    .hh__partner-mark {
+      background: #ffffff;
+      -webkit-mask: var(--partner-mark) center / contain no-repeat;
+      mask: var(--partner-mark) center / contain no-repeat;
+    }
+    .hh__partner-mark :global(img) { opacity: 0; filter: none; }
+  }
+  .hh__partner:hover .hh__partner-mark { opacity: 0.82; }
+  .hh__host-lockup { display: grid; grid-template-columns: 3.52rem 1px 5.61rem; align-items: center; justify-content: center; gap: .66rem; width: fit-content; max-width: 100%; height: 37.4px; margin-inline: auto; opacity: .55; transition: opacity .2s; }
+  .hh__host-lockup img { width: 100%; height: 34.1px; object-fit: contain; object-position: center; filter: grayscale(1) brightness(0) invert(1); }
+  .hh__host-lockup img:first-child { transform: scale(1.1); }
+  .hh__host-lockup img:last-child { transform: scale(1.05); }
+  .hh__host-lockup i { align-self: center; width: 1px; height: 27.5px; background: rgba(255,255,255,.42); }
+  .hh__partner:hover .hh__host-lockup { opacity: .82; }
+  .hh__partner--dunlap .hh__partner-mark { max-width: 12.75rem; transform: scale(1.3); transform-origin: center; }
+  .hh__partner--british .hh__partner-mark { max-width: 7rem; }
+  .hh__partner--whitin .hh__partner-mark { max-width: 8.25rem; }
+  @media (max-height: 620px) {
+    .hh .hero__inner { padding-top: 5.25rem; padding-bottom: 1.25rem; }
+    .hh__title { font-size: clamp(3.2rem, 16vw, 4.25rem); }
+    .hh .section-label { font-size: 0.9rem; }
+    .hh .hero__lede { margin-top: 0.75rem; font-size: 1rem; line-height: 1.4; }
+    .hh__cta { margin-top: 0.85rem; }
+    .hh__support { margin-top: 0.7rem; }
+    .hh__marquee { padding-block: 0.35rem; }
+    .hh__partner { height: 31px; padding-block: 0.2rem; }
+  }
+  @media (max-width: 520px) {
+    .hh__partners { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem 1.2rem; }
+    .hh__partner { height: 30px; padding-inline: 0.4rem; }
+    .hh__host-lockup { grid-template-columns: 2.65rem 1px 4.3rem; gap: .42rem; height: 29px; }
+    .hh__host-lockup img { height: 27px; }
+    .hh__host-lockup i { height: 22px; }
+    .hh__partner--british .hh__partner-mark { max-width: 5.7rem; }
+  }
+  @media (max-width: 520px) and (max-height: 700px) {
+    .hh__partners { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.4rem; }
+    .hh__partner { height: 26px; padding-inline: 0.15rem; }
+  }
+  /* about */
+  .about {
+    display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    grid-template-areas: "label label" "text aside";
+    column-gap: var(--space-section-gap); row-gap: 0.6rem; align-items: start;
+  }
+  :global(.about__label) { grid-area: label; }
+  .about__text { grid-area: text; }
+  :global(.about__aside) { grid-area: aside; }
+  @media (max-width: 820px) {
+    .about { grid-template-columns: 1fr; grid-template-areas: "label" "text" "aside"; row-gap: 0.6rem; }
+  }
+  .about__text .prose { margin-top: 1.6rem; }
+  .about__pm { color: var(--ink-faint); }
+  :global(.about__aside) { position: sticky; top: 5.5rem; }
+  .about__more { margin-top: 1.35rem; }
+
+  :global(html) { scroll-behavior: smooth; scroll-padding-top: 5.25rem; }
+  :global(html.home-flow-ready) [data-home-flow] {
+    opacity: 0.46; transform: translateY(26px) scale(0.995); filter: blur(1.5px);
+    transition:
+      opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+      filter 0.75s ease;
+  }
+  :global(html.home-flow-ready) [data-home-flow].is-flow-in {
+    opacity: 1; transform: none; filter: none;
+  }
+  @media (max-width: 700px) {
+    :global(html.home-flow-ready) [data-home-flow] {
+      transform: translateY(18px); filter: blur(1px);
+      transition-duration: 0.72s;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(html) { scroll-behavior: auto; }
+    :global(html.home-flow-ready) [data-home-flow] {
+      opacity: 1; transform: none; filter: none; transition: none;
+    }
+  }
+
+  /* At a Glance card */
+  .glance-card {
+    --glance-radius: var(--radius-card);
+    position: relative; isolation: isolate; overflow: hidden;
+    padding: 1px; border-radius: var(--glance-radius);
+    background: var(--line);
+    box-shadow: var(--shadow-low-deep), var(--shadow-inset);
+  }
+  .glance-card::before {
+    content: ""; position: absolute; z-index: -1; inset: -65%;
+    background: conic-gradient(
+      from 20deg,
+      transparent 0 68%,
+      color-mix(in srgb, var(--brass) 8%, transparent) 74%,
+      color-mix(in srgb, var(--brass-bright) 60%, transparent) 81%,
+      color-mix(in srgb, var(--brass) 18%, transparent) 87%,
+      transparent 94% 100%
+    );
+    animation: glance-orbit 13s linear infinite;
+  }
+  .glance-card__surface {
+    position: relative; z-index: 1; overflow: hidden;
+    padding: 1.35rem;
+    border-radius: var(--glance-radius);
+    background: var(--panel);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 7%, transparent), inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  }
+  .glance-card__header { position: relative; z-index: 2; padding: 0.1rem 0 1rem; }
+  .glance-card__header h3 {
+    font-family: var(--font-body); font-size: 0.76rem; font-weight: 600;
+    line-height: 1.2; letter-spacing: 0; color: var(--ink-faint);
+  }
+  .glance-table { position: relative; z-index: 2; margin: 0; }
+  .glance-table__row {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline; column-gap: 1.25rem; min-height: 3.2rem; padding-block: 0.85rem;
+    border-top: 1px solid var(--line-soft);
+  }
+  .glance-table__row:first-child { border-top-color: var(--line); }
+  .glance-table dt {
+    min-width: 0; font-size: 0.84rem; line-height: 1.45; color: var(--ink-soft);
+  }
+  .glance-table dd {
+    font-family: var(--font-mono); font-size: 0.94rem; font-weight: 500;
+    line-height: 1.35; letter-spacing: -0.02em; color: var(--ink);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  @keyframes glance-orbit { to { transform: rotate(1turn); } }
+  @media (max-width: 420px) {
+    .glance-card__surface { padding-inline: 1rem; }
+    .glance-table__row { column-gap: 0.75rem; }
+    .glance-table dt { font-size: 0.78rem; }
+    .glance-table dd { font-size: 0.84rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .glance-card::before { animation: none; }
+  }
+
+  /* grids + lists */
+  .hgrid { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-top: 2.4rem; }
+  .hgrid--featured-six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .hgrid > li { min-width: 0; }
+  @media (max-width: 980px) { .hgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 700px) { .hgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; } }
+  .ulist { list-style: none; display: flex; flex-direction: column; gap: 0.9rem; margin-top: 2.4rem; }
+  .more { margin-top: 2.2rem; }
+
+  .join__cta { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-md); }
+  .join__cta .btn {
+    width: min(100%, 13rem); height: 52px; justify-content: center;
+    padding-inline: 1.75rem; border: 0; border-radius: var(--radius-button);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px) saturate(130%);
+    -webkit-backdrop-filter: blur(10px) saturate(130%);
+  }
+  .join__cta .btn--solid {
+    color: #0a0a0a; background: #ffffff; box-shadow: none;
+  }
+  .join__cta .btn--solid:hover {
+    color: #0a0a0a; background: #e5e5e5;
+  }
+  .join__cta .btn--solid:active {
+    color: #0a0a0a; background: #cfcfcf;
+  }
+</style>
+
+<script>
+  let homeController: AbortController | undefined;
+  let homeFlowObserver: IntersectionObserver | undefined;
+
+  const setupHome = () => {
+    homeController?.abort();
+    homeFlowObserver?.disconnect();
+    homeController = new AbortController();
+    const { signal } = homeController;
+
+    const heroVideo = document.querySelector<HTMLVideoElement>("[data-hero-video]");
+    const flowSections = Array.from(document.querySelectorAll<HTMLElement>("[data-home-flow]"));
+    if (!heroVideo && !flowSections.length) {
+      document.documentElement.classList.remove("home-flow-ready");
+      return;
+    }
+
+    if (heroVideo) {
+      const motion = matchMedia("(prefers-reduced-motion: reduce)");
+      // The hero is 1080p60. Left running it keeps decoding the whole way down
+      // the page, competing with scrolling for the same frame budget, so it is
+      // paused as soon as it leaves the viewport and resumed when it returns.
+      let heroVisible = true;
+      const syncPlayback = () => {
+        if (motion.matches || !heroVisible) heroVideo.pause();
+        else void heroVideo.play().catch(() => {
+          /* The poster remains visible if autoplay is unavailable. */
+        });
+      };
+      if ("IntersectionObserver" in window) {
+        const heroObserver = new IntersectionObserver(([entry]) => {
+          heroVisible = entry?.isIntersecting ?? true;
+          syncPlayback();
+        }, { rootMargin: "120px 0px" });
+        heroObserver.observe(heroVideo);
+        signal.addEventListener("abort", () => heroObserver.disconnect(), { once: true });
+      }
+      syncPlayback();
+      motion.addEventListener("change", syncPlayback, { signal });
+    }
+
+    const flowMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    if (flowMotion.matches || !("IntersectionObserver" in window)) {
+      document.documentElement.classList.remove("home-flow-ready");
+      flowSections.forEach((section) => section.classList.add("is-flow-in"));
+      return;
+    }
+
+    flowSections.forEach((section) => {
+      const rect = section.getBoundingClientRect();
+      if (rect.top < innerHeight * 0.9 && rect.bottom > 0) section.classList.add("is-flow-in");
+    });
+    document.documentElement.classList.add("home-flow-ready");
+    homeFlowObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-flow-in");
+          homeFlowObserver?.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: "0px 0px -10% 0px" });
+    flowSections.forEach((section) => {
+      if (!section.classList.contains("is-flow-in")) homeFlowObserver?.observe(section);
+    });
+  };
+
+  setupHome();
+  document.addEventListener("astro:page-load", setupHome);
+</script>

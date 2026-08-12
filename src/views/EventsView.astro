@@ -1,0 +1,131 @@
+---
+import { Image, getImage } from "astro:assets";
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+import HeroVideo from "../components/HeroVideo.astro";
+import EventsCalendar from "../components/EventsCalendar";
+
+const events = await getCollection("events", ({ data }) => data.status !== "draft");
+const heroThumb = new Map<string, string>();
+for (const event of events) {
+  if (event.data.hero) heroThumb.set(event.id, (await getImage({ src: event.data.hero, width: 400 })).src);
+}
+
+const calendarEvents = events.map((event) => ({
+  slug: event.id,
+  title: event.data.title,
+  start: event.data.start.toISOString(),
+  end: event.data.end?.toISOString() ?? null,
+  allDay: event.data.allDay,
+  venue: event.data.venue ?? null,
+  organizer: event.data.organizer ?? null,
+  series: event.data.series,
+  category: event.data.category ?? null,
+  summary: event.data.summary ?? null,
+  hero: heroThumb.get(event.id) ?? null,
+  href: `/events/${event.id}`,
+  link: event.data.link ?? null,
+  source: "durbin" as const,
+}));
+
+const googleCalendarId = import.meta.env.PUBLIC_GOOGLE_CALENDAR_ID?.trim();
+const googleCalendarApiKey = import.meta.env.PUBLIC_GOOGLE_CALENDAR_API_KEY?.trim();
+const google = googleCalendarId && googleCalendarApiKey
+  ? { calendarId: googleCalendarId, apiKey: googleCalendarApiKey }
+  : null;
+
+const now = new Date();
+const endOf = (event: (typeof events)[number]) => event.data.end ?? event.data.start;
+const upcoming = events.filter((event) => endOf(event) >= now).sort((a, b) => +a.data.start - +b.data.start);
+const past = events.filter((event) => endOf(event) < now).sort((a, b) => +b.data.start - +a.data.start);
+const TZ = "Asia/Dhaka";
+const format = (date: Date, options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("en-GB", { timeZone: TZ, ...options }).format(date);
+const yearGroups = new Map<string, typeof past>();
+for (const event of past) {
+  const year = format(event.data.start, { year: "numeric" });
+  if (!yearGroups.has(year)) yearGroups.set(year, []);
+  yearGroups.get(year)!.push(event);
+}
+---
+
+<BaseLayout path="/events" title="Events & Calendar | Durbin" current="/events" description="Durbin workshops, public astronomy nights, talks and outreach events—browse the live calendar and archive.">
+  <header class="editorial-hero editorial-hero--events">
+    <HeroVideo src="/videos/pexels-stargazing-5155396.mp4" poster="/videos/pexels-stargazing-5155396.jpg" />
+    <div class="wrap editorial-hero__inner">
+      <Reveal>
+        <p class="section-label">Events</p>
+        <h1>Events &amp; Calendar</h1>
+        <p>Workshops, public astronomy nights and outreach across Bangladesh—browse the interactive calendar and the complete Durbin archive.</p>
+      </Reveal>
+    </div>
+  </header>
+
+  <section class="section section--line events-calendar">
+    <div class="wrap">
+      <Reveal><p class="section-label">What’s on</p></Reveal>
+      <Reveal delay={60}><h2>Calendar</h2></Reveal>
+      <Reveal delay={100}>
+        <EventsCalendar events={calendarEvents} google={google} client:load />
+      </Reveal>
+    </div>
+  </section>
+
+  <div class="events-fallback">
+    <section class="section section--line event-listing">
+      <div class="wrap">
+        <Reveal><p class="section-label">What’s on</p><h2>Upcoming</h2></Reveal>
+        {upcoming.length ? (
+          <ol class="event-rows" aria-label="Upcoming events">
+            {upcoming.map((event, index) => (
+              <li data-reveal style={`--reveal-delay:${Math.min(index, 6) * 45}ms`}>
+                <a href={`/events/${event.id}`}>
+                  <time datetime={event.data.start.toISOString()}>
+                    <strong>{format(event.data.start, { day: "2-digit" })}</strong>
+                    <span>{format(event.data.start, { month: "short" })}</span>
+                    <small>{format(event.data.start, { year: "numeric" })}</small>
+                  </time>
+                  {event.data.hero && <span class="event-rows__thumb"><Image src={event.data.hero} alt={event.data.heroAlt ?? ""} width={180} height={120} loading="lazy" /></span>}
+                  <span class="event-rows__body">
+                    <span class="event-rows__meta"><em>{event.data.category ?? event.data.series}</em><small>{event.data.allDay ? "All day" : format(event.data.start, { hour: "numeric", minute: "2-digit", hour12: true })}</small></span>
+                    <strong>{event.data.title}</strong>
+                    {event.data.venue && <span>{event.data.venue}</span>}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        ) : <p class="events-empty">No upcoming events are scheduled right now—explore the archive below and check back soon.</p>}
+      </div>
+    </section>
+
+    <section class="section section--line event-listing">
+      <div class="wrap">
+        <Reveal><p class="section-label">Archive</p><h2>Past events</h2></Reveal>
+        {[...yearGroups.entries()].map(([year, entries]) => (
+          <section class="event-year">
+            <h3>{year}</h3>
+            <ol class="event-rows">
+              {entries.map((event) => (
+                <li>
+                  <a href={`/events/${event.id}`}>
+                    <time datetime={event.data.start.toISOString()}><strong>{format(event.data.start, { day: "2-digit" })}</strong><span>{format(event.data.start, { month: "short" })}</span></time>
+                    {event.data.hero && <span class="event-rows__thumb"><Image src={event.data.hero} alt={event.data.heroAlt ?? ""} width={180} height={120} loading="lazy" /></span>}
+                    <span class="event-rows__body"><span class="event-rows__meta"><em>{event.data.category ?? event.data.series}</em><small>{event.data.allDay ? "All day" : format(event.data.start, { hour: "numeric", minute: "2-digit", hour12: true })}</small></span><strong>{event.data.title}</strong>{event.data.venue && <span>{event.data.venue}</span>}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))}
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .editorial-hero{--ink:var(--photo-ink);--ink-soft:var(--photo-ink-soft);--ink-faint:var(--photo-ink-faint);position:relative;isolation:isolate;min-height:min(58svh,34rem);display:flex;align-items:end;overflow:hidden;padding:clamp(8rem,14vw,10rem) 0 clamp(3.5rem,7vw,5.5rem);color:var(--photo-ink);background:#080b0c}.editorial-hero::before{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(circle at 76% 55%,rgba(62,217,188,.2),transparent 25%),radial-gradient(circle at 18% 18%,rgba(95,123,213,.12),transparent 30%),linear-gradient(145deg,#080b0c,#101616)}.editorial-hero__inner{width:100%}.editorial-hero :global(.is-in){max-width:58rem}.editorial-hero h1{margin-top:.8rem;max-width:13ch;color:var(--photo-ink);font-size:clamp(2.8rem,7vw,5.5rem);line-height:.94;letter-spacing:-.06em;text-wrap:balance}.editorial-hero h1+p{margin-top:1.25rem;max-width:60ch;color:var(--photo-ink-soft);font-size:clamp(1rem,1.5vw,1.12rem);line-height:1.65}
+  .events-calendar h2,.event-listing h2{margin-top:.45rem;font-size:clamp(2.3rem,5vw,4rem);line-height:.95;letter-spacing:-.055em}.events-fallback{display:block}:global(html[data-cal-ready]) .events-fallback{display:none}.events-empty{margin-top:1.5rem;padding:1.25rem;border:1px solid var(--line);border-radius:var(--radius-md);color:var(--ink-soft);background:var(--panel)}
+  .event-year{margin-top:2.75rem}.event-year h3{padding-bottom:.55rem;border-bottom:1px solid var(--line);color:var(--brass);font-family:var(--font-mono);font-size:1rem}.event-rows{list-style:none;display:flex;flex-direction:column;gap:.7rem;margin-top:1.25rem}.event-rows li a{display:flex;gap:1rem;align-items:flex-start;padding:1rem 1.15rem;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--panel);transition:border-color .2s,transform .2s}.event-rows li a:hover{border-color:var(--brass);transform:translateY(-2px)}.event-rows time{width:3.2rem;display:flex;flex:0 0 auto;flex-direction:column;align-items:center}.event-rows time strong{font-size:1.4rem}.event-rows time span{color:var(--brass);font-size:.68rem;font-weight:800;text-transform:uppercase}.event-rows time small{color:var(--ink-faint);font-size:.62rem}.event-rows__thumb{width:7.5rem;height:5rem;flex:0 0 auto;overflow:hidden;border-radius:.65rem}.event-rows__thumb :global(img){width:100%;height:100%;object-fit:cover}.event-rows__body{display:flex;min-width:0;flex-direction:column;gap:.3rem}.event-rows__meta{display:flex;gap:.65rem;align-items:center;flex-wrap:wrap}.event-rows__meta em{color:var(--brass);font-size:.62rem;font-style:normal;font-weight:800;text-transform:uppercase}.event-rows__meta small,.event-rows__body>span:last-child{color:var(--ink-faint);font-size:.72rem}.event-rows__body>strong{font-size:1rem;line-height:1.35}
+  @media(max-width:620px){.editorial-hero{min-height:30rem}.editorial-hero h1{font-size:clamp(2.65rem,13vw,4rem)}.event-rows__thumb{display:none}.event-rows li a{padding:.85rem}.event-rows time{width:2.7rem}}
+</style>

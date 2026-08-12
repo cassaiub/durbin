@@ -1,0 +1,110 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+import HeroVideo from "../components/HeroVideo.astro";
+
+const posts = (await getCollection("news", ({ data }) => data.status !== "draft")).sort((a, b) => +b.data.date - +a.data.date);
+const TZ = "Asia/Dhaka";
+const format = (date: Date, options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("en-GB", { timeZone: TZ, ...options }).format(date);
+const groups = new Map<string, typeof posts>();
+for (const post of posts) {
+  const year = format(post.data.date, { year: "numeric" });
+  if (!groups.has(year)) groups.set(year, []);
+  groups.get(year)!.push(post);
+}
+const categories = [...new Set(posts.map((post) => post.data.category ?? "News"))].sort();
+const hasFeatured = posts.some((post) => post.data.featured);
+---
+
+<BaseLayout path="/news" title="News | Durbin" current="/news" description="Announcements, programme updates, outreach stories and research highlights from Durbin.">
+  <header class="editorial-hero editorial-hero--news">
+    <HeroVideo src="/videos/pexels-star-trails-852354.mp4" poster="/videos/pexels-star-trails-852354.jpg" />
+    <div class="wrap editorial-hero__inner">
+      <Reveal>
+        <p class="section-label">News</p>
+        <h1>News &amp; Updates</h1>
+        <p>Programme announcements, observing highlights, outreach dispatches and stories from Durbin’s shared sky.</p>
+        <a class="news-all" href="#all-stories">View all stories <span aria-hidden="true">↓</span></a>
+      </Reveal>
+    </div>
+  </header>
+
+  <section class="section section--line news-feed" id="all-stories" data-news-feed>
+    <div class="wrap">
+      <Reveal><p class="section-label">The feed</p></Reveal>
+      <Reveal delay={60}><h2>Latest from Durbin</h2></Reveal>
+      <Reveal delay={100}>
+        <nav class="news-filter" aria-label="Filter news by category">
+          <button data-news-filter="all" aria-pressed="true">All <span>{posts.length}</span></button>
+          {hasFeatured && <button class="news-filter__feature" data-news-filter="__featured" aria-pressed="false">Feature <span>{posts.filter((post) => post.data.featured).length}</span></button>}
+          {categories.map((category) => <button data-news-filter={category} aria-pressed="false">{category} <span>{posts.filter((post) => (post.data.category ?? "News") === category).length}</span></button>)}
+        </nav>
+      </Reveal>
+
+      {posts.length ? [...groups.entries()].map(([year, entries]) => (
+        <section class="news-year" data-news-year>
+          <h3>{year}</h3>
+          <ol>
+            {entries.map((post, index) => (
+              <li data-news-category={post.data.category ?? "News"} data-news-featured={post.data.featured ? "" : undefined}>
+                <a href={`/news/${post.id}`} data-reveal style={`--reveal-delay:${Math.min(index, 6) * 40}ms`} class:list={["news-row", { "news-row--media": post.data.hero }] }>
+                  {post.data.hero && <span class="news-row__thumb"><Image src={post.data.hero} alt={post.data.heroAlt ?? ""} width={280} height={180} loading="lazy" /></span>}
+                  <span class="news-row__body">
+                    <span class="news-row__meta">
+                      {post.data.featured && <span class="news-tag news-tag--feature">Feature</span>}
+                      <span class="news-tag">{post.data.category ?? "News"}</span>
+                      <time datetime={post.data.date.toISOString()}>{format(post.data.date, { day: "numeric", month: "short", year: "numeric" })}</time>
+                    </span>
+                    <strong>{post.data.title}</strong>
+                    {post.data.summary && <span class="news-row__summary">{post.data.summary}</span>}
+                    <span class="news-row__more">Read <span aria-hidden="true">→</span></span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )) : <p class="news-empty">News will appear here once stories are published.</p>}
+    </div>
+  </section>
+
+  <section class="news-crosslink section--line">
+    <div class="wrap news-crosslink__inner">
+      <Reveal><p class="section-label">Across the programme</p><h2>Keep looking up.</h2></Reveal>
+      <Reveal delay={70}><a class="btn" href="/events">Events &amp; calendar →</a></Reveal>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const setupNewsFeed = () => {
+    const feed = document.querySelector<HTMLElement>("[data-news-feed]");
+    if (!feed || feed.dataset.ready === "true") return;
+    feed.dataset.ready = "true";
+    const buttons = Array.from(feed.querySelectorAll<HTMLButtonElement>("[data-news-filter]"));
+    const rows = Array.from(feed.querySelectorAll<HTMLElement>("li[data-news-category]"));
+    const years = Array.from(feed.querySelectorAll<HTMLElement>("[data-news-year]"));
+    buttons.forEach((button) => button.addEventListener("click", () => {
+      const filter = button.dataset.newsFilter;
+      buttons.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+      rows.forEach((row) => {
+        const show = filter === "all" || (filter === "__featured" ? row.hasAttribute("data-news-featured") : row.dataset.newsCategory === filter);
+        row.hidden = !show;
+      });
+      years.forEach((year) => { year.hidden = !Array.from(year.querySelectorAll<HTMLElement>("li[data-news-category]")).some((row) => !row.hidden); });
+    }));
+  };
+  setupNewsFeed();
+  document.addEventListener("astro:page-load", setupNewsFeed);
+</script>
+
+<style>
+  .editorial-hero{--ink:var(--photo-ink);--ink-soft:var(--photo-ink-soft);--ink-faint:var(--photo-ink-faint);--line:rgba(255,255,255,.18);position:relative;isolation:isolate;min-height:min(58svh,34rem);display:flex;align-items:end;overflow:hidden;padding:clamp(8rem,14vw,10rem) 0 clamp(3.5rem,7vw,5.5rem);color:var(--photo-ink);background:#080b0c}.editorial-hero::before{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(circle at 72% 35%,rgba(91,126,225,.19),transparent 24%),radial-gradient(circle at 20% 75%,rgba(55,215,186,.11),transparent 28%),linear-gradient(145deg,#080b0c,#0e1215)}.editorial-hero :global(.is-in){max-width:58rem}.editorial-hero h1{margin-top:.8rem;max-width:13ch;color:var(--photo-ink);font-size:clamp(2.8rem,7vw,5.5rem);line-height:.94;letter-spacing:-.06em;text-wrap:balance}.editorial-hero h1+p{margin-top:1.25rem;max-width:60ch;color:var(--photo-ink-soft);font-size:clamp(1rem,1.5vw,1.12rem);line-height:1.65}.news-all{display:inline-flex;align-items:center;gap:.6rem;min-height:44px;margin-top:1.5rem;padding:.7rem 1rem;border:1px solid rgba(255,255,255,.2);border-radius:999px;color:#0a0a0a;background:#fff;font-size:.78rem;font-weight:800}.news-all:hover{border-color:var(--brand-green-mid);color:#0a0a0a;background:#eefaf7}
+  .news-feed h2{margin-top:.45rem;font-size:clamp(2.3rem,5vw,4rem);line-height:.95;letter-spacing:-.055em}.news-filter{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.5rem}.news-filter button{display:inline-flex;align-items:center;gap:.45rem;padding:.52rem .8rem;border:1px solid var(--line);border-radius:999px;color:var(--ink-soft);background:var(--panel);font-size:.72rem;font-weight:700;cursor:pointer}.news-filter button:hover{border-color:var(--brass);color:var(--ink)}.news-filter button[aria-pressed="true"]{border-color:var(--brass);color:var(--on-brass);background:var(--brass)}.news-filter button span{font-size:.62rem;opacity:.72}.news-filter__feature{--brass:#7aa8ff}
+  .news-year{margin-top:3rem}.news-year h3{padding-bottom:.55rem;border-bottom:1px solid var(--line);color:var(--ink-faint);font-family:var(--font-mono);font-size:1rem}.news-year ol{list-style:none;display:flex;flex-direction:column;gap:.7rem;margin-top:1rem}.news-row{display:flex;gap:1rem;align-items:stretch;padding:1rem 1.15rem;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--panel);transition:border-color .2s,transform .2s}.news-row:hover{border-color:var(--brass);transform:translateY(-2px)}.news-row__thumb{width:12rem;min-height:8rem;flex:0 0 auto;overflow:hidden;border-radius:.7rem;background:var(--panel-2)}.news-row__thumb :global(img){width:100%;height:100%;object-fit:cover}.news-row__body{display:flex;min-width:0;flex:1;flex-direction:column;align-items:flex-start}.news-row__meta{display:flex;width:100%;align-items:center;gap:.6rem;flex-wrap:wrap}.news-row__meta time{margin-left:auto;color:var(--ink-faint);font-size:.72rem;font-variant-numeric:tabular-nums}.news-tag{padding:.26rem .62rem;border:1px solid color-mix(in srgb,var(--brass) 45%,transparent);border-radius:999px;color:var(--brass);font-size:.57rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.news-tag--feature{color:#7aa8ff;border-color:rgba(122,168,255,.5)}.news-row__body>strong{margin-top:.6rem;font-size:clamp(1rem,2vw,1.25rem);line-height:1.25}.news-row__summary{display:-webkit-box;margin-top:.5rem;overflow:hidden;color:var(--ink-soft);font-size:.88rem;line-height:1.55;-webkit-box-orient:vertical;-webkit-line-clamp:2}.news-row__more{margin-top:auto;padding-top:.7rem;color:var(--brass);font-size:.75rem;font-weight:800}.news-empty{margin-top:1.5rem;color:var(--ink-soft)}
+  .news-crosslink{padding-block:clamp(3.5rem,7vw,6rem);background:radial-gradient(circle at 80% 50%,rgba(56,215,185,.14),transparent 28%),var(--panel)}.news-crosslink__inner{display:flex;align-items:end;justify-content:space-between;gap:2rem}.news-crosslink h2{margin-top:.45rem;font-size:clamp(2.2rem,5vw,4rem);letter-spacing:-.055em}
+  @media(max-width:700px){.editorial-hero{min-height:30rem}.editorial-hero h1{font-size:clamp(2.65rem,13vw,4rem)}.news-filter{flex-wrap:nowrap;overflow-x:auto;padding-bottom:.45rem}.news-filter button{flex:0 0 auto}.news-row__thumb{width:6.5rem;min-height:7rem}.news-row__meta time{width:100%;margin-left:0}.news-crosslink__inner{align-items:flex-start;flex-direction:column}}
+  @media(max-width:430px){.news-row{padding:.85rem}.news-row__thumb{display:none}}
+</style>

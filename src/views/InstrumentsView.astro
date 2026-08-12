@@ -1,0 +1,73 @@
+---
+import { Image } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+import eq6rPro from "../assets/instruments/eq6r-pro-mount.webp";
+import eq5Motor from "../assets/instruments/eq5-dual-axis-motor.webp";
+import polarscope from "../assets/instruments/eq-polarscope.webp";
+import miniCam8m from "../assets/instruments/qhy-minicam8m.webp";
+import g3m662m from "../assets/instruments/touptek-g3m662m.webp";
+import evoguide from "../assets/instruments/evoguide-50dx.webp";
+import sharpstarMpcc from "../assets/instruments/sharpstar-mpcc.webp";
+import touptekAaf from "../assets/instruments/touptek-aaf.webp";
+import stellaVita from "../assets/instruments/touptek-stellavita.webp";
+import eLux40 from "../assets/instruments/celestron-e-lux-40mm.webp";
+import unistellarEquinox from "../assets/instruments/unistellar-equinox.webp";
+import skywatcher200p from "../assets/instruments/skywatcher-200p.webp";
+
+interface Props { mode:"telescope"|"equipment" }
+const { mode }=Astro.props;
+const telescope=mode==="telescope";
+const items=telescope?[
+  {index:"01",name:"Unistellar eQuinox",kind:"Smart telescope",image:unistellarEquinox,alt:"Unistellar eVscope eQuinox smart telescope on its tripod",text:"A 114 mm f/4 reflector with no eyepiece at all: the sensor feeds an on-board computer, and the view arrives on a phone or tablet. Because it stacks frames live, faint galaxies and nebulae build up on screen in seconds rather than staying invisible. Several people can watch the same view at once, which is why it carries most public nights. Durbin began with two of these in 2023.",facts:["114 mm f/4 (450 mm)","Live stacked view","Shared to phones"]},
+  {index:"02",name:"Sky-Watcher Explorer 200P",kind:"Manual reflector",image:skywatcher200p,alt:"Sky-Watcher Explorer 200P 200mm Newtonian reflector optical tube",text:"An 8-inch parabolic Newtonian for looking through rather than at a screen. The aperture gathers roughly three times the light of the eQuinox, and on the Moon and planets a good eyepiece still beats a sensor. Its dual-fit Crayford focuser takes both 1.25-inch and 2-inch eyepieces.",facts:["200 mm parabolic","1000 mm f/5","Crayford focuser"]},
+  {index:"03",name:"Portable reflector",kind:"Outreach telescope",text:"A field-friendly telescope used in school outreach and practical demonstrations, helping students understand alignment, focus and the path of light.",facts:["Portable setup","Hands-on learning","Outreach fieldwork"]},
+]:[
+  {index:"01",name:"Sky-Watcher EQ6-R Pro",kind:"Equatorial mount",image:eq6rPro,alt:"Sky-Watcher EQ6-R Pro equatorial mount on its stainless steel tripod with SynScan hand controller",text:"The belt-driven GoTo mount the imaging rig is built on. It tracks the sky's rotation accurately enough to hold a target still through long exposures, and carries a substantial optical tube without complaint. The Wi-Fi version is driven from a phone or laptop instead of the handset.",facts:["GoTo tracking","Belt drive","Wi-Fi control"]},
+  {index:"02",name:"EQ5 dual-axis motor drive",kind:"Tracking upgrade",image:eq5Motor,alt:"Sky-Watcher enhanced dual-axis motor drive kit for the EQ5 mount with red hand controller",text:"Motorises both axes of an EQ5 mount so it can follow a target smoothly rather than being nudged by hand. The enhanced handset adds an ST4 autoguider port and selectable solar, lunar and sidereal rates.",facts:["Dual-axis tracking","ST4 autoguider port","Solar / lunar / sidereal"]},
+  {index:"03",name:"EQ5 / EQ6 / NEQ6 polarscope",kind:"Alignment",image:polarscope,alt:"Sky-Watcher polar alignment scope for EQ5, EQ6 and NEQ6 mounts",text:"A small reticled telescope that sights through the mount's polar axis. Getting this right is what separates a night of round stars from a night of trailed ones, so it is the first thing done after the tripod is levelled.",facts:["Polar alignment","Reticle pattern","Fits EQ5 / EQ6 / NEQ6"]},
+  {index:"04",name:"QHYCCD miniCAM8M",kind:"Imaging camera",image:miniCam8m,alt:"QHYCCD miniCAM8 monochrome cooled astronomy camera",text:"The main imaging camera: a cooled monochrome CMOS built around a Sony IMX585 sensor, with a filter wheel integrated into the body. Cooling suppresses the thermal noise that would otherwise swamp faint nebulosity. Supplied as a combo set with an off-axis guider.",facts:["IMX585 mono sensor","Thermoelectric cooling","Integrated filter wheel"]},
+  {index:"05",name:"ToupTek G3M662M",kind:"Guide camera",image:g3m662m,alt:"ToupTek Astro G3M662M monochrome guiding camera",text:"A small monochrome camera that watches a single star and reports any drift back to the mount, which corrects itself many times a minute. Guiding is what makes exposures of several minutes possible at all.",facts:["Autoguiding","Mono sensor","Compact body"]},
+  {index:"06",name:"Sky-Watcher Evoguide 50DX",kind:"Guide scope",image:evoguide,alt:"Sky-Watcher Evoguide 50DX APO guide scope with mounting bracket",text:"The 50 mm ED doublet the guide camera looks through. Short, light and sharp enough to double as a wide-field astrograph in its own right when a small target does not need the main optics.",facts:["50 mm ED doublet","242 mm f/4.8","Helical focuser"]},
+  {index:"07",name:"SharpStar 1× MPCC",kind:"Coma corrector",image:sharpstarMpcc,alt:"SharpStar 1x MPCC ED coma corrector for Newtonian telescopes",text:"Fast Newtonian mirrors flare stars into small comet shapes towards the edge of the frame. This four-element corrector flattens that away across a full-frame sensor without changing the focal length.",facts:["Full-frame coverage","For f/3–f/6 Newtonians","55 mm back focus"]},
+  {index:"08",name:"ToupTek Astro AAF",kind:"Automatic focuser",image:touptekAaf,alt:"ToupTek Astro AAF automatic electric focuser",text:"A motor on the focuser, so focus can be set from the software instead of by hand at the tube. Its temperature sensor matters more than it sounds: optics shift focus measurably as the night cools.",facts:["Motorised focus","ASCOM driver","Temperature sensor"]},
+  {index:"09",name:"ToupTek StellaVita",kind:"Session controller",image:stellaVita,alt:"ToupTek StellaVita wireless astrophotography controller showing USB and 12V ports",text:"The hub the rest of the rig plugs into. It carries the cameras, focuser and mount on powered USB, distributes 12 V, and puts the whole session on Wi-Fi, which keeps one cable run to the telescope instead of six.",facts:["Wi-Fi session control","Powered USB 3.0","12 V distribution"]},
+  {index:"10",name:"Celestron E-Lux 40 mm",kind:"Eyepiece",image:eLux40,alt:"Celestron E-Lux 40mm two-inch eyepiece",text:"A long-focal-length two-inch eyepiece giving a wide, low-power view. This is the one most often at the telescope during public nights: generous eye relief and a big exit pupil make it forgiving for someone looking through an eyepiece for the first time.",facts:["2-inch barrel","56° apparent field","Wide-field views"]},
+  {index:"11",name:"Newtonian collimator",kind:"Maintenance",text:"Newtonian and Dobsonian mirrors drift out of alignment with handling and transport, and a misaligned mirror cannot produce a sharp star however good the sky is. Collimation is the routine that starts a field session.",facts:["Newtonian collimation","Dobsonian collimation","Field maintenance"]},
+];
+const title=telescope?"Telescopes":"Equipment";
+const lede=telescope?"The instruments Durbin uses to turn distant light into a shared public experience.":"The imaging train, mount and field kit behind a Durbin observing night.";
+---
+
+<BaseLayout path={`/instruments/${mode}`} title={`${title} | Durbin`} current="/instruments" description={lede}>
+  <header class="instrument-head">
+    <div class="wrap instrument-head__grid">
+      <Reveal><p class="section-label">Instruments / {title}</p><h1>{telescope?<>Light, gathered<br/>in three ways.</>:<>The kit behind<br/>the view.</>}</h1></Reveal>
+      <Reveal delay={80}><p>{lede}</p><div class="instrument-switch"><a class:list={[{active:telescope}]} href="/instruments/telescope">Telescope</a><a class:list={[{active:!telescope}]} href="/instruments/equipment">Equipment</a></div></Reveal>
+    </div>
+  </header>
+  <section class="instrument-list section--line">
+    <div class="wrap">
+      {items.map((item,i)=><article class="instrument" data-reveal style={`--reveal-delay:${i*55}ms`}>
+        <div class="instrument__number mono">{item.index}</div>
+        {"image" in item && item.image
+          ? <div class="instrument__shot"><Image src={item.image} alt={item.alt} widths={[220,340,460]} sizes="(max-width:520px) 40vw, (max-width:760px) 6rem, 13vw" loading="lazy" /></div>
+          : <div class:list={["instrument__glyph",{ "instrument__glyph--gear":!telescope}]} aria-hidden="true"><span></span><i></i></div>}
+        <div class="instrument__copy"><p>{item.kind}</p><h2>{item.name}</h2><div><p>{item.text}</p><ul>{item.facts.map(fact=><li>{fact}</li>)}</ul></div></div>
+      </article>)}
+    </div>
+  </section>
+  <section class="section instrument-close"><div class="wrap"><Reveal><p class="section-label">See what the instruments make possible</p><h2>The light continues in the exhibition.</h2><a class="btn btn--solid" href="/exhibition" data-astro-reload>Enter the exhibition</a></Reveal></div></section>
+</BaseLayout>
+
+<style>
+  .instrument-head{padding:clamp(8rem,14vw,10rem) 0 clamp(3.5rem,7vw,5.5rem);background:radial-gradient(circle at 15% 80%,color-mix(in srgb,var(--brass) 18%,transparent),transparent 26%)}.instrument-head__grid{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(2rem,8vw,7rem);align-items:end}.instrument-head h1{margin-top:.8rem;max-width:13ch;font-size:clamp(2.75rem,6.5vw,5.25rem);line-height:.94;letter-spacing:-.06em;text-wrap:balance}.instrument-head__grid>div:last-child>p{color:var(--ink-soft);font-size:1.04rem;line-height:1.65}.instrument-switch{display:flex;gap:.4rem;margin-top:1.4rem}.instrument-switch a{padding:.55rem .85rem;border:1px solid var(--line);border-radius:999px;color:var(--ink-faint);font-size:.76rem;font-weight:600}.instrument-switch a.active{background:var(--brass);color:var(--on-brass);border-color:var(--brass)}
+  /* Manufacturer product shots are cut out on white, so they sit on a light
+     plate rather than floating on the black ground - keying the white out would
+     eat the white-painted mounts along with the background. */
+  .instrument__shot{position:relative;aspect-ratio:1;display:grid;place-items:center;padding:.6rem;border:1px solid var(--line);border-radius:var(--radius-card-compact);background:#f4f4f2;overflow:hidden}
+  .instrument__shot :global(img){width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
+  .instrument-list{padding:0 0 var(--space-section)}.instrument{display:grid;grid-template-columns:3rem clamp(8rem,18vw,13rem) minmax(0,1fr);gap:clamp(1rem,5vw,4rem);align-items:center;padding:clamp(2rem,5vw,4rem) 0;border-bottom:1px solid var(--line)}.instrument__number{align-self:start;color:var(--ink-faint);font-size:.72rem}.instrument__glyph{position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:50%;background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--brass) 20%,transparent),transparent 55%);transform:rotate(-18deg)}.instrument__glyph:before{content:"";position:absolute;left:14%;right:14%;top:43%;height:14%;border:2px solid var(--ink-soft);border-radius:999px;transform:skewX(-16deg)}.instrument__glyph span{position:absolute;left:24%;top:34%;width:17%;height:32%;border:2px solid var(--ink-soft);border-radius:50%}.instrument__glyph i{position:absolute;left:48%;bottom:13%;width:2px;height:32%;background:var(--ink-soft);box-shadow:-25px 24px 0 -1px var(--ink-soft),25px 24px 0 -1px var(--ink-soft)}.instrument__glyph--gear:before{left:28%;right:28%;top:28%;height:44%;border-radius:24%;transform:rotate(45deg)}.instrument__glyph--gear span{left:40%;top:40%;width:20%;height:20%;border-radius:50%}.instrument__glyph--gear i{display:none}.instrument__copy>p{color:var(--brass);font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.instrument__copy h2{margin-top:.45rem;font-size:clamp(2rem,5vw,4.2rem);line-height:.95;letter-spacing:-.055em}.instrument__copy>div{display:grid;grid-template-columns:1fr auto;gap:2rem;margin-top:1.2rem}.instrument__copy>div>p{color:var(--ink-soft);max-width:58ch;line-height:1.65}.instrument__copy ul{list-style:none;display:flex;flex-wrap:wrap;gap:.4rem;align-content:start}.instrument__copy li{padding:.35rem .6rem;border:1px solid var(--line);border-radius:999px;color:var(--ink-faint);font-size:.68rem}.instrument-close{text-align:center}.instrument-close h2{margin:.7rem auto 1.5rem;max-width:12ch;font-size:clamp(2.4rem,6vw,5rem);line-height:.95;letter-spacing:-.06em}.instrument-close .section-label{justify-content:center}
+  @media(max-width:760px){.instrument-head__grid{grid-template-columns:1fr}.instrument-head h1{font-size:clamp(2.65rem,12vw,3.8rem);line-height:.98}.instrument{grid-template-columns:2rem 6rem minmax(0,1fr)}.instrument__copy>div{grid-template-columns:1fr}.instrument__copy ul{grid-column:1/-1}}
+  @media(max-width:520px){.instrument{grid-template-columns:2rem 1fr}.instrument__glyph{display:none}.instrument__copy{grid-column:2}}
+</style>
