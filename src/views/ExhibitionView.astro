@@ -167,15 +167,15 @@ const ogImage = exhibits[0]?.data.image.src;
     position:fixed; z-index:49; top:.7rem; left:50%; right:auto;
     width:min(calc(100vw - var(--extools-gutter) - var(--extools-gutter)),67rem);
     margin:0; opacity:1; translate:0 0; transform:translate3d(-50%,0,0);
-    background:color-mix(in srgb,var(--panel) 92%,transparent);
+    background:var(--panel);
     box-shadow:none;
-    backdrop-filter:blur(14px) saturate(125%);
-    -webkit-backdrop-filter:blur(14px) saturate(125%);
-    will-change:transform;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    will-change:transform;backface-visibility:hidden;
   }
   .extools[data-docked][data-nav-visible] {
-    transform:translate3d(-50%,calc(var(--extools-nav-top,4.5rem) - .7rem),0);
-    border-radius:.55rem .55rem 1.25rem 1.25rem;
+    transform:translate3d(-50%,calc(var(--extools-nav-top,4.5rem) + .5rem - .7rem),0);
+    border-radius:var(--radius-card-compact);
   }
   .extools[data-docked][data-dock-entering] { transform:translate3d(-50%,calc(var(--extools-nav-top,4.5rem) - .7rem),0); }
   .exsearch {
@@ -226,10 +226,10 @@ const ogImage = exhibits[0]?.data.image.src;
   .exmodal__media { position: relative; display: grid; place-items: center; min-width: 0; overflow: hidden; background: #000; }
   .exmodal__media::after { content: ""; position: absolute; inset: auto 0 0; height: 22%; pointer-events: none; background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent); }
   .exmodal__viewport { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; overscroll-behavior: contain; }
-  .exmodal__image { width: 100%; height: 100%; max-width: none; object-fit: contain; background: #000; cursor: zoom-in; user-select:none; -webkit-user-drag:none; transform:translate3d(0,0,0); will-change:width,height,transform; }
-  .exmodal__media[data-zoomed] .exmodal__viewport { cursor: grab; touch-action: none; }
+  .exmodal__image { width: 100%; height: 100%; max-width: none; object-fit: contain; background: #000; cursor: default; user-select:none; -webkit-user-drag:none; transform:translate3d(0,0,0); will-change:width,height,transform; }
+  .exmodal__media[data-zoomed] .exmodal__viewport { cursor: default; touch-action: none; }
   .exmodal__media[data-zoomed] .exmodal__image { cursor: inherit; }
-  .exmodal__viewport[data-panning] { cursor: grabbing; }
+  .exmodal__viewport[data-panning] { cursor: default; }
   .exmodal__loading, .exmodal__fallback { position: absolute; color: var(--photo-ink-faint); font-family: var(--font-body); font-size: 0.78rem; font-weight: 600; letter-spacing: 0; text-transform: uppercase; }
   .exmodal__loading::after { content: ""; display: inline-block; width: 1.2em; animation: loading-dots 1.2s steps(4, end) infinite; }
   @keyframes loading-dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75%, 100% { content: "..."; } }
@@ -437,13 +437,11 @@ const ogImage = exhibits[0]?.data.image.src;
     const viewportRatio = viewportWidth / viewportHeight;
     const fitWidth = imageRatio >= viewportRatio ? viewportWidth : viewportHeight * imageRatio;
     const fitHeight = imageRatio >= viewportRatio ? viewportWidth / imageRatio : viewportHeight;
-    // Never stretch a capture past its own resolution to fill the frame: several
-    // exhibition sources are only 200-800px wide, and blowing those up to ~950px
-    // magnifies their compression artefacts instead of showing detail. Explicit
-    // zoom still overrides this, so the control remains available.
-    const fitScale = Math.min(1, image.naturalWidth / fitWidth || 1);
-    const renderedWidth = fitWidth * fitScale * zoom;
-    const renderedHeight = fitHeight * fitScale * zoom;
+    // Fit every source to the available frame, including the small archival
+    // captures. Keeping those at natural size made them appear as tiny islands;
+    // contain-fit preserves the whole photograph while wheel zoom stays active.
+    const renderedWidth = fitWidth * zoom;
+    const renderedHeight = fitHeight * zoom;
     const maxX = Math.max(0, (renderedWidth - viewportWidth) / 2);
     const maxY = Math.max(0, (renderedHeight - viewportHeight) / 2);
     panX = Math.min(maxX, Math.max(-maxX, panX));

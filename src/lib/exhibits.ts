@@ -7,7 +7,7 @@ import { catOrder, objectTypeOf } from "../data/site";
 export type Exhibit = CollectionEntry<"astrophotography">;
 
 /** Entries whose original source file is unavailable or cannot be decoded. */
-export const unavailableImageIds = new Set(["ngc4303", "ngc6420-2"]);
+export const unavailableImageIds = new Set(["ngc4303"]);
 
 /** The exhibition order: grouped by object type (taxonomy order), then by id
     (numeric-aware, so NGC 628 hangs before NGC 6888). This is also the order

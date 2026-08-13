@@ -180,10 +180,12 @@ export default function EventsCalendar({ events, google }: { events: CalendarEve
 
   const byDay = useMemo(() => {
     const map = new Map<string, EventVM[]>();
-    vms.forEach((event) => event.dayKeys.forEach((key) => {
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(event);
-    }));
+    // A multi-day event is one calendar entry, not a separate item for every
+    // date it spans. Its drawer still presents the full start/end range.
+    vms.forEach((event) => {
+      if (!map.has(event.dayKey)) map.set(event.dayKey, []);
+      map.get(event.dayKey)!.push(event);
+    });
     return map;
   }, [vms]);
 
@@ -282,7 +284,9 @@ function MonthView({ anchor, byDay, onOpen, onPickDay }: { anchor: Date; byDay: 
     <div className="cal__weekhead" role="row">{WEEKDAYS.map((day) => <div key={day} className="cal__wd" role="columnheader">{day}</div>)}</div>
     <div className="cal__grid">{cells.map((date) => {
       const key = civilKey(date.getFullYear(), date.getMonth(), date.getDate());
-      const events = byDay.get(key) ?? [];
+      // Out-of-month dates remain as navigation context, but their events are
+      // shown in their own month only so paging cannot appear to duplicate them.
+      const events = date.getMonth() === currentMonth ? (byDay.get(key) ?? []) : [];
       return <div key={key} className={`cal__cell${date.getMonth() !== currentMonth ? " cal__cell--out" : ""}${key === today ? " cal__cell--today" : ""}`} role="gridcell">
         <button className="cal__daynum" aria-current={key === today ? "date" : undefined} onClick={() => onPickDay(date)}>{date.getDate()}</button>
         <div className="cal__cellevents">{events.slice(0, 3).map((event) => <Chip key={`${event.slug}-${key}`} event={event} onOpen={onOpen} />)}{events.length > 3 && <button className="cal__more" onClick={() => onPickDay(date)}>+{events.length - 3} more</button>}</div>

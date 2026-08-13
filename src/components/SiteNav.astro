@@ -126,7 +126,10 @@ const isGroupActive = (key: string) =>
      duration of the hide; the bar is off-screen and non-interactive anyway, and
      an open menu is never in this state because opening one un-hides the bar. */
   .nav[data-scroll-hidden] { transform:translate3d(0,calc(-100% - 1rem),0); pointer-events:none; z-index:48; }
-  .nav[data-open] { transform:none; will-change:auto; }
+  /* Removing the transform changes the containing block for the fixed overlay.
+     It must happen without the normal .66s header transition, otherwise the
+     overlay stays trapped at the bar's height until that transition finishes. */
+  .nav[data-open] { transform:none; will-change:auto; transition:none; }
   /* The open overlay paints over the bar, so the bar's backdrop blur is blurring
      something nobody can see - and because the backdrop changes on every frame of
      the fade, it is re-blurred on every one of them. Blur is among the most
@@ -146,7 +149,7 @@ const isGroupActive = (key: string) =>
   .nav:not([data-scrolled]) .nav__bar { width: min(calc(100% - 1.5rem), var(--wrap)); padding: 0.7rem 0.9rem; }
   .nav[data-scrolled] { padding-inline: clamp(.45rem, 2vw, 1.25rem); }
   .nav[data-scrolled] .nav__bar { width: min(100%, 67rem); padding: .48rem .65rem; }
-  .nav[data-exhibition-stack] .nav__bar { border-radius: 1.25rem 1.25rem .55rem .55rem; }
+  .nav[data-exhibition-stack] .nav__bar { border-radius: var(--radius-circle); }
   .nav--home { --ink:#fff; --ink-soft:rgba(255,255,255,.84); --line:rgba(255,255,255,.12); --panel:#111722; }
   .nav--home:not([data-scrolled]) .nav__bar { background: transparent; border-color: transparent; box-shadow: none; backdrop-filter:none; -webkit-backdrop-filter:none; }
   .nav--home[data-scrolled] .nav__bar {
@@ -186,26 +189,18 @@ const isGroupActive = (key: string) =>
   .nav__burger-line { position:absolute; left:10px; right:10px; height:2px; background:currentColor; transition:rotate .25s,top .25s; }
   .nav__burger-line:nth-child(2){top:16px}.nav__burger-line:nth-child(3){top:25px}
   .nav[data-open] .nav__burger-line:nth-child(2){top:21px;rotate:45deg}.nav[data-open] .nav__burger-line:nth-child(3){top:21px;rotate:-45deg}
-  /* Closed with visibility, not display, so the overlay stays laid out and the
-     open transition can start on the very next frame. Toggling display meant the
-     first frame after the tap went on building the panel, which is what made the
-     menu feel like it hesitated before appearing. visibility is in the
-     transition list so it holds "visible" for the whole exit. */
+  /* The full-screen surface appears immediately. Fading a viewport-sized layer
+     over a decoding hero video caused a noticeable pause on mobile GPUs; only
+     the small menu groups animate now. */
   .nav__overlay{
     position:fixed;inset:0;z-index:2;overflow-y:auto;background:var(--night);padding:5.2rem 1.25rem 2rem;
-    contain:layout paint;visibility:hidden;pointer-events:none;opacity:0;transform:translate3d(0,-0.75rem,0);
-    /* visibility steps at 0s but only after the fade has run, so the panel stays
-       on screen for the whole exit. Transitioning visibility itself would hold
-       the start value at progress 0, leaving the overlay computed as hidden on
-       the frame we move focus into it - and focusing a hidden element is a
-       silent no-op. */
-    transition:opacity .26s cubic-bezier(.22,1,.36,1),transform .34s cubic-bezier(.22,1,.36,1),visibility 0s linear .34s;
+    contain:layout paint;visibility:hidden;pointer-events:none;opacity:0;
   }
-  .nav__overlay[data-open]{visibility:visible;pointer-events:auto;opacity:1;transform:none;transition:opacity .26s cubic-bezier(.22,1,.36,1),transform .34s cubic-bezier(.22,1,.36,1),visibility 0s}
+  .nav__overlay[data-open]{visibility:visible;pointer-events:auto;opacity:1}
   .nav__mobile-group,.nav__mobile-direct{
-    opacity:0;transform:translate3d(0,.6rem,0);
-    transition:opacity .34s cubic-bezier(.22,1,.36,1),transform .34s cubic-bezier(.22,1,.36,1);
-    transition-delay:calc(var(--stagger,0) * 40ms);
+    opacity:0;transform:translate3d(0,.35rem,0);
+    transition:opacity .2s cubic-bezier(.22,1,.36,1),transform .2s cubic-bezier(.22,1,.36,1);
+    transition-delay:calc(var(--stagger,0) * 24ms);
   }
   .nav__overlay[data-open] .nav__mobile-group,.nav__overlay[data-open] .nav__mobile-direct{opacity:1;transform:none}
   :global(:root[data-theme="light"]) .nav__overlay{
@@ -347,11 +342,21 @@ const isGroupActive = (key: string) =>
     const close = nav.querySelector<HTMLButtonElement>("[data-nav-close]");
     const label = toggle?.querySelector<HTMLElement>("[data-menu-label]");
     if (!toggle || !overlay || !bar || !close) return;
-    let restoreFocus: HTMLElement | null = null;
+    // Astro may finish its page-load lifecycle just after a fast tap. Preserve
+    // an already-open menu when the controller is rebound instead of leaving
+    // visible attributes attached to a controller that thinks it is closed.
+    let restoreFocus: HTMLElement | null = nav.hasAttribute("data-open") ? toggle : null;
     const background = Array.from(document.querySelectorAll<HTMLElement>("body > .skip, body > main, body > footer, body > .lightbox"));
     const previousInert = new Map<HTMLElement, boolean>();
     const focusable = () => Array.from(overlay.querySelectorAll<HTMLElement>('a[href],button:not([disabled])')).filter((item) => item.getClientRects().length > 0);
-    let menuOpen = false;
+    let menuOpen = nav.hasAttribute("data-open");
+    const pausedForMenu = new Set<HTMLVideoElement>();
+    // Visibility observers may try to resume a hero while the overlay is open.
+    // Capture the non-bubbling play event and keep that work suspended.
+    document.addEventListener("play",(event)=>{
+      if(!menuOpen||!(event.target instanceof HTMLVideoElement))return;
+      pausedForMenu.add(event.target);event.target.pause();
+    },{capture:true,signal});
     const setMenu = (open:boolean) => {
       if (menuOpen === open) return;
       menuOpen = open;
@@ -360,18 +365,17 @@ const isGroupActive = (key: string) =>
       toggle.setAttribute("aria-expanded", String(open)); if(label) label.textContent = open ? "Close menu" : "Open menu";
       if(open){
         restoreFocus=document.activeElement instanceof HTMLElement?document.activeElement:toggle;
-        // Flip the attribute synchronously so the transition starts on the next
-        // frame. Marking main/footer inert and locking body scroll each force a
-        // full-document layout, so they wait a frame: doing them inline pushed
-        // the first visible frame out to ~180ms on a throttled phone.
+        // Stop background decoding before painting the menu. The home hero is a
+        // high-frame-rate clip and otherwise competes for the same mobile frame.
+        document.querySelectorAll<HTMLVideoElement>("video").forEach((video)=>{
+          if(!video.paused){pausedForMenu.add(video);video.pause()}
+        });
+        // Paint the menu surface synchronously. Marking the rest of the document
+        // inert and moving focus can wait one frame because the surface is
+        // already visible to the user.
         overlay.setAttribute("data-open","");
         requestAnimationFrame(()=>{
           if(!menuOpen) return;
-          // Flush first: the data-open set above has not been committed yet, so
-          // the overlay can still compute as visibility:hidden here, and focusing
-          // a hidden element is a silent no-op. Move focus in before marking the
-          // page inert, so the inert focus-fixup cannot land on top of it.
-          void overlay.offsetHeight;
           overlay.querySelector<HTMLAnchorElement>("a")?.focus({ preventScroll:true });
           bar.inert = true;
           document.body.style.overflow = "hidden";
@@ -384,6 +388,8 @@ const isGroupActive = (key: string) =>
         background.forEach((item)=>item.inert=previousInert.get(item)??false);previousInert.clear();
         const focusTarget=restoreFocus;restoreFocus=null;
         focusTarget?.focus({ preventScroll:true });
+        pausedForMenu.forEach((video)=>{if(video.isConnected)void video.play().catch(()=>{})});
+        pausedForMenu.clear();
       }
     };
     toggle.addEventListener("click",()=>setMenu(true),{signal});close.addEventListener("click",()=>setMenu(false),{signal});

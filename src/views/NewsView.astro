@@ -16,11 +16,14 @@ for (const post of posts) {
 }
 const categories = [...new Set(posts.map((post) => post.data.category ?? "News"))].sort();
 const hasFeatured = posts.some((post) => post.data.featured);
+// Pixabay video 166239 by u_6mx7wegfcr, used under the Pixabay Content License.
+const newsHeroVideo = "/videos/pixabay-news-updates-166239.mp4";
+const newsHeroPoster = "/videos/pixabay-news-updates-166239.png";
 ---
 
 <BaseLayout path="/news" title="News | Durbin" current="/news" description="Announcements, programme updates, outreach stories and research highlights from Durbin.">
   <header class="editorial-hero editorial-hero--news">
-    <HeroVideo src="/videos/pexels-star-trails-852354.mp4" poster="/videos/pexels-star-trails-852354.jpg" />
+    <HeroVideo src={newsHeroVideo} poster={newsHeroPoster} />
     <div class="wrap editorial-hero__inner">
       <Reveal>
         <p class="section-label">News</p>

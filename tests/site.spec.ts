@@ -48,6 +48,9 @@ test("mobile menu contains focus, closes with Escape, and restores focus", async
   const toggle = page.locator("[data-nav-toggle]");
   await toggle.focus();
   await page.keyboard.press("Enter");
+  await expect(page.locator("#nav-overlay")).toHaveCSS("visibility", "visible");
+  await expect(page.locator("#nav-overlay")).toHaveCSS("opacity", "1");
+  await expect(page.locator("[data-hero-video]")).toHaveJSProperty("paused", true);
   await expect(page.locator("#nav-overlay")).toHaveCSS("background-color", "rgb(243, 242, 237)");
   await expect(page.locator(".nav__mobile a").first()).toHaveCSS("color", "rgb(17, 23, 22)");
   await expect.poll(() => page.locator("#nav-overlay").evaluate((overlay) => overlay.getBoundingClientRect().height >= innerHeight)).toBe(true);
@@ -112,7 +115,7 @@ test("exhibition controls replace the nav while scrolling down and coexist while
     const nav = document.querySelector<HTMLElement>(".nav__bar")?.getBoundingClientRect();
     const toolbar = document.querySelector<HTMLElement>(".extools")?.getBoundingClientRect();
     const gap = (toolbar?.top ?? 0) - (nav?.bottom ?? 0);
-    return Math.abs(gap) <= 2;
+    return gap >= 6 && gap <= 10;
   })).toBe(true);
   const mergedGeometry = await page.evaluate(() => {
     const nav = document.querySelector<HTMLElement>(".nav__bar")?.getBoundingClientRect();
@@ -178,6 +181,7 @@ test("exhibition popup supports images, object navigation, and focus restoration
   await expect(page.locator("[data-exmodal-title]")).toHaveText("Horsehead Nebula");
   await expect(page.locator(".exmodal__dot")).toHaveCount(2);
   await expect(image).toBeVisible();
+  await expect(image).toHaveCSS("cursor", "default");
   await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth > 0)).toBe(true);
   const modalGeometry = await dialog.evaluate((element) => {
     const media = element.querySelector<HTMLElement>("[data-exmodal-media]")?.getBoundingClientRect();
@@ -211,6 +215,7 @@ test("exhibition popup supports images, object navigation, and focus restoration
   await page.mouse.move((viewportBox?.x ?? 0) + (viewportBox?.width ?? 0) / 2, (viewportBox?.y ?? 0) + (viewportBox?.height ?? 0) / 2);
   await page.mouse.wheel(0, -300);
   await expect.poll(async () => (await image.boundingBox())?.width ?? 0).toBeGreaterThan(imageWidthBeforeZoom * 1.2);
+  await expect(image).toHaveCSS("cursor", "default");
   const panBefore = await image.evaluate((element) => getComputedStyle(element).transform);
   await page.mouse.move((viewportBox?.x ?? 0) + (viewportBox?.width ?? 0) / 2, (viewportBox?.y ?? 0) + (viewportBox?.height ?? 0) / 2);
   await page.mouse.down();
@@ -229,9 +234,7 @@ test("exhibition popup supports images, object navigation, and focus restoration
   const boundedImage = await image.boundingBox();
   expect(boundedImage).not.toBeNull();
   // Panning must never open a gap. An image larger than the viewport stays
-  // clamped to its edges; one smaller than the viewport (several exhibition
-  // captures are only a few hundred pixels wide, and are no longer stretched
-  // up to fill the frame) stays centred instead of drifting off.
+  // clamped to its edges; an image smaller on one axis stays centred there.
   const axis = (imageStart: number, imageSize: number, viewStart: number, viewSize: number) => {
     if (imageSize >= viewSize) {
       expect(imageStart).toBeLessThanOrEqual(viewStart + 1);
@@ -270,6 +273,26 @@ test("exhibition popup supports images, object navigation, and focus restoration
   await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth > 0)).toBe(true);
   await expect.poll(() => image.getAttribute("src")).toBe(objectSource);
   await expect(image).toHaveCSS("opacity", "1");
+});
+
+test("small exhibition sources fit the modal instead of rendering at tiny natural size", async ({ page }) => {
+  await page.setViewportSize({ width: 591, height: 805 });
+  await page.goto("/exhibition?object=ic405", { waitUntil: "domcontentloaded" });
+  const image = page.locator("[data-exmodal-image]");
+  const viewport = page.locator("[data-exmodal-viewport]");
+  await expect(image).toBeVisible();
+  await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth === 213)).toBe(true);
+  const fit = await image.evaluate((node) => {
+    const imageRect = node.getBoundingClientRect();
+    const viewportRect = node.parentElement?.getBoundingClientRect();
+    return {
+      widthDelta: Math.abs(imageRect.width - (viewportRect?.width ?? 0)),
+      heightDelta: Math.abs(imageRect.height - (viewportRect?.height ?? 0)),
+    };
+  });
+  expect(Math.min(fit.widthDelta, fit.heightDelta)).toBeLessThanOrEqual(1);
+  await expect(image).toHaveCSS("cursor", "default");
+  await expect(viewport).toBeVisible();
 });
 
 test("about content stays separated and the decorative orbit yields at tablet width", async ({ page }) => {
@@ -454,6 +477,10 @@ test("News and Events are separate editorial sections", async ({ page }) => {
   await expect(page.locator('[data-news-filter="all"]')).toHaveAttribute("aria-pressed", "true");
   await page.goto("/events", { waitUntil: "domcontentloaded" });
   await expect(page.locator("h1")).toHaveText("Events & Calendar");
+  await expect(page.locator("[data-ambient-video]")).toHaveAttribute("data-src", "/videos/pixabay-news-updates-166239.mp4");
+  await expect(page.locator("[data-ambient-video]")).toHaveCSS("object-fit", "cover");
+  await expect(page.locator("[data-ambient-video]")).toHaveCSS("object-position", "50% 50%");
+  await expect(page.locator("[data-ambient-video]")).toHaveCSS("transform", "none");
   await expect(page.locator("html")).toHaveAttribute("data-cal-ready", "");
   await expect(page.locator(".cal")).toBeVisible();
   await expect(page.locator(".cal")).toHaveAttribute("data-calendar-sync", "local");
@@ -485,6 +512,24 @@ test("events calendar changes views, filters the archive, and opens event detail
 
   await page.getByRole("tab", { name: "Year" }).click();
   await expect(page.locator(".cal__mini")).toHaveCount(12);
+});
+
+test("multi-day calendar entries render once and event images remain uncropped", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/events", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("html")).toHaveAttribute("data-cal-ready", "");
+  await page.locator('.cal__views [role="tab"]', { hasText: "Month" }).click();
+  await page.getByRole("button", { name: "Previous period" }).click();
+  await expect(page.locator(".cal__period")).toHaveText("July 2026");
+  const zine = page.locator(".cal__chip", { hasText: "Astrophotography Meets Zine Making" });
+  const camp = page.locator(".cal__chip", { hasText: "BDOAA Women's Astronomy Olympiad Preparation Camp" });
+  await expect(zine).toHaveCount(1);
+  await expect(camp).toHaveCount(1);
+  await zine.click();
+  await expect(page.locator(".cal__panelhero img")).toHaveCSS("object-fit", "contain");
+  await page.getByRole("link", { name: "View full page" }).click();
+  await expect(page).toHaveURL(/\/events\/zine\/?$/);
+  await expect(page.locator(".hero__media img")).toHaveCSS("object-fit", "contain");
 });
 
 test("the theme toggle persists light and dark mode while brand navigation uses a client transition", async ({ page }) => {
@@ -737,6 +782,14 @@ test("history timeline responds to scrolling and instrument sections are reachab
   await page.goto("/instruments/telescope", { waitUntil: "domcontentloaded" });
   await expect(page.locator(".instrument")).toHaveCount(3);
   await expect(page.locator("h1")).toContainText("Light, gathered");
+});
+
+test("telescope inventory includes the Celestron Inspire 100AZ as item three", async ({ page }) => {
+  await page.goto("/instruments/telescope", { waitUntil: "domcontentloaded" });
+  const third = page.locator(".instrument").nth(2);
+  await expect(third.locator(".instrument__number")).toHaveText("03");
+  await expect(third.locator("h2")).toHaveText("Celestron Inspire 100AZ");
+  await expect(third.locator("img")).toHaveAttribute("alt", /Celestron Inspire 100AZ/);
 });
 
 test("article lightbox traps and restores keyboard focus", async ({ page }) => {

@@ -107,6 +107,8 @@ const jsonLd = {
 
 <style>
   .evthead { padding-top: clamp(7rem, 14vw, 10rem); padding-bottom: 0; }
+  .hero__media { background: #080b0c; }
+  .hero__media :global(img) { object-fit: contain; }
   .evt-title { font-size: clamp(2rem, 4.5vw, 2.8rem); max-width: 26ch; }
   .evtgrid { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 3.5rem); align-items: start; }
   @media (max-width: 820px) { .evtgrid { grid-template-columns: 1fr; } .evtside { order: -1; } }
