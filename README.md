@@ -2,7 +2,7 @@
 
 The hub for **Durbin**, CASSA's volunteer astronomy-outreach programme, built
 around an immersive online exhibition of deep-sky images captured by student
-volunteers across Bangladesh. Deploys to **durbin.cassa.bd**.
+volunteers across Bangladesh. Deploys to **durbin.cc**.
 
 The site is English-only: one unprefixed route tree, one view per page, and no
 localization layer.
@@ -14,7 +14,7 @@ localization layer.
 | `/` | Ambient full-screen crossfade of featured plates + about, stats, previews |
 | `/exhibition` | The full exhibition, every object, filterable by object type |
 | `/exhibition/[slug]` | One object: capture carousel, the essay, the two information cards, prev/next walk |
-| `/updates` | Merged news + events feed by year |
+| `/news-and-events` | Merged news + events feed by year (`/updates` 301s here) |
 | `/news/[slug]`, `/events/[slug]` | Dispatch and event pages |
 | `/volunteers` | Current cohort + alumni |
 | `/manual` | The Durbin Manual (governance, volunteer model, safeguarding) |
@@ -49,10 +49,19 @@ npm test                   # complete content, build, HTML, and browser suite
 
 ## Deployment
 
-Not wired up yet, deploy `dist/` to the `durbin.cassa.bd` document root (e.g.
-an rsync GitHub Action like ast100's, pointed at the subdomain's folder).
-`site` is already set to `https://durbin.cassa.bd` in `astro.config.mjs`,
-and the build emits `sitemap-index.xml` + `robots.txt`.
+Every push to `main` builds the site and rsyncs `dist/` to Bluehost via
+`.github/workflows/deploy.yml`. There is no staging, so **a push to `main` is a
+live deploy of https://durbin.cc**. The same job can be re-run by hand from the
+Actions tab, and `npm run deploy` does it locally (build, dry-run, confirm,
+sync) over the `bluehost` host alias in `~/.ssh/config`.
+
+The destination is `~/durbin.cc/`, the document root of the `durbin.cc` addon
+domain, which sits outside `public_html` so that the cassa-site deploy —
+a `--delete` mirror onto `public_html/` — can never touch it.
+
+CI needs four repository secrets, shared with the sibling `cassa` and `ast100`
+repos: `BLUEHOST_SSH_KEY`, `BLUEHOST_KNOWN_HOSTS`, `BLUEHOST_USER`,
+`BLUEHOST_HOST`.
 
 ## Design
 

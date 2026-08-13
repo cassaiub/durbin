@@ -2,7 +2,7 @@
 
 export const SITE = {
   name: "Durbin",
-  url: "https://durbin.cassa.bd",
+  url: "https://durbin.cc",
   email: "durbin.cassa@iub.edu.bd",
   facebook: "https://www.facebook.com/durbin.cassa",
   founded: "2023-03-09",

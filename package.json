@@ -11,6 +11,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "deploy": "bash scripts/deploy.sh",
     "report:editorial": "node scripts/content-audit.mjs --write-report",
     "check:content": "node scripts/content-audit.mjs --check",
     "check:html": "node scripts/html-audit.mjs",

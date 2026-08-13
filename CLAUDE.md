@@ -6,8 +6,9 @@ Guidance for Claude Code when working in this repo (`durbin/`, durbin-site).
 
 The standalone hub for **Durbin**, CASSA's volunteer astronomy-outreach
 programme, an Astro 6 static site whose centrepiece is the exhibition: all
-astrophotography by Durbin volunteers, one page per image. Will deploy to
-**durbin.cassa.bd** (site root of the subdomain, `base: '/'`).
+astrophotography by Durbin volunteers, one page per image. Deploys to
+**durbin.cc**, its own domain, so the site is at that domain's root
+(`base: '/'`).
 
 ## Commands
 
@@ -15,21 +16,55 @@ astrophotography by Durbin volunteers, one page per image. Will deploy to
   cassa 2026 · ast100 2027 · durbin 2028; kriterion 3000/4000, inside 4317).
 - `npm run build`, static build to `dist/`. Build does NOT typecheck.
 - `npx astro check`, typecheck; keep it at 0 errors.
+- `npm run deploy`, manual deploy (build + dry-run + confirm + rsync).
 
 ## Deployment
 
-No CI workflow yet. When one is added it will mirror ast100's pattern (rsync
-`dist/` to the subdomain's document root on push to `main`), at that point a
-push to `main` becomes a live production deploy; never push without an
-explicit request.
+`.github/workflows/deploy.yml` runs on every push to `main`: `npm ci` →
+`check:content` → `astro build` → `rsync --delete dist/` to Bluehost. **There
+is no staging, so a push to `main` is a live production deploy** — never push
+without an explicit request. The Actions tab also allows a manual re-run
+(`workflow_dispatch`), and `npm run deploy` is the local escape hatch (uses the
+`bluehost` alias in `~/.ssh/config`; CI uses the shared `cassa-ci-deploy` key
+via the four `BLUEHOST_*` repo secrets).
 
-## English only
+The destination is `~/durbin.cc/` on the server — the document root of the
+`durbin.cc` addon domain (live since 2026-08-11), deliberately **outside
+`public_html`**. The sibling
+`cassa` repo mirrors its build onto `public_html/` with `--delete`, where
+anything not part of the cassa build survives only by being named in that
+repo's exclude list. Keeping this site out of `public_html` means neither
+deploy can reach the other's files; do not move it in there.
 
-The site is monolingual English. It was bilingual (Bangla-default with an
-`/en/` mirror) until 2026-08-01; that whole layer, the `/en/` route tree, the
-`t(locale, key)` dictionary in `src/lib/i18n.ts`, `essayBn`, the per-entry
-`lang` field, the Durer Kotha series and its Bangla posts, was deleted. Do
-not reintroduce it without an explicit request.
+Note that `cassa.bd/durbin` is a **different** site — a section of cassa-site,
+built and owned by the `cassa` repo. This repo does not deploy there.
+
+`public/.htaccess` ships with the build and is **not** excluded from the rsync,
+so server URL behaviour is version controlled: canonical origin
+(https, no www), no-trailing-slash pages, the 404 document, and the cache
+opt-out. Edit it in the repo, never on the server.
+
+Bluehost fronts Apache with an nginx proxy cache. This site opts out
+(`X-Endurance-Cache-Level: 0`), but entries cached before that opt-out, or on
+any URL that still advertises a level, live for 8 hours and make a good deploy
+look broken. Purge one with `curl -X PURGE <url>` (204 = done); scheme and
+`www.` variants are separate keys. Verify on the **plain** URL — a
+cache-busting query string bypasses the poisoned entry and hides the problem.
+
+## No localization layer (but content may be Bangla)
+
+The site **chrome** is monolingual English. It was bilingual (Bangla-default
+with an `/en/` mirror) until 2026-08-01; that whole layer, the `/en/` route
+tree, the `t(locale, key)` dictionary in `src/lib/i18n.ts`, `essayBn`, the
+per-entry `lang` field, and the Durer Kotha series, was deleted. Do not
+reintroduce it without an explicit request.
+
+**Content is a separate question.** On 2026-08-11 the user confirmed that news
+posts may be written in Bangla — the site carries both, with no per-entry
+`lang` field and no route-level split. Do not translate or delete a Bangla
+entry; leave the prose in the language it was written in. `Noto Sans Bengali`
+trails Inter in the font tokens in `src/styles/global.css` (and is loaded in
+`BaseLayout`) so Bengali codepoints resolve to real glyphs; keep it there.
 
 - One unprefixed route tree under `src/pages/`. Every route file is a thin
   wrapper around a shared view in `src/views/`, page logic lives in the view,
@@ -57,12 +92,14 @@ without frontmatter edits. Conventions:
 - Run `npm run report:editorial` after exhibition changes and commit the
   generated `reports/editorial-review.md`; `npm run check:content` fails if it
   is stale or if taxonomy/hero-alternative validation fails.
-- `news/`: every non-draft post lands in /updates and /news/[slug].
-- `events/`: all non-draft events land in /updates and /events/[slug].
+- `news/`: every non-draft post lands in /news-and-events and /news/[slug].
+- `events/`: all non-draft events land in /news-and-events and /events/[slug].
+  (`/updates` is only a 301 stub to /news-and-events, kept for old links.)
 - Assets referenced by news/events live in `src/assets/news|events/<slug>/`
   and are referenced relatively (`../../assets/…`), keep that layout.
-- Content is English. A migrated entry carrying a stray `lang:` key is
-  harmless (the schema drops it), but its prose must be English.
+- Content may be English or Bangla; both live in the same feed. A migrated
+  entry carrying a stray `lang:` key is harmless (the schema drops it). Do not
+  translate an entry into the other language on your own initiative.
 
 ## Design system
 

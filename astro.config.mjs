@@ -143,9 +143,9 @@ function rehypeArticleFigure() {
 }
 
 // durbin-site — the hub for Durbin, CASSA's volunteer astronomy-outreach
-// programme, deployed at the subdomain root durbin.cassa.bd (so base is '/').
+// programme, deployed at the root of its own domain durbin.cc (so base is '/').
 export default defineConfig({
-  site: "https://durbin.cassa.bd",
+  site: "https://durbin.cc",
   base: "/",
   trailingSlash: "never",
 

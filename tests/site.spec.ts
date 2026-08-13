@@ -750,8 +750,8 @@ test("the About page begins with the programme story and clear next steps", asyn
   await expect.poll(() => scrollVideo.evaluate((video: HTMLVideoElement) => video.currentSrc)).toContain("pexels-night-sky-12336940.mp4");
   await expect.poll(() => scrollVideo.evaluate((video: HTMLVideoElement) => video.readyState)).toBeGreaterThanOrEqual(1);
   const horizontal = page.locator("[data-about-horizontal]");
-  await expect.poll(() => horizontal.evaluate((node) => (node as HTMLElement).offsetHeight > innerHeight * 2)).toBe(true);
-  await horizontal.evaluate((node) => scrollTo(0, node.getBoundingClientRect().top + scrollY + ((node as HTMLElement).offsetHeight - innerHeight) * .45));
+  await expect.poll(() => horizontal.evaluate((node: HTMLElement) => node.offsetHeight > innerHeight * 2)).toBe(true);
+  await horizontal.evaluate((node: HTMLElement) => scrollTo(0, node.getBoundingClientRect().top + scrollY + (node.offsetHeight - innerHeight) * .45));
   await expect.poll(() => page.locator("[data-about-track]").evaluate((node) => getComputedStyle(node).transform)).not.toBe("none");
   // The track transform is the whole contract now. The --about-progress custom
   // property it used to also publish was dropped: nothing consumed it once the
