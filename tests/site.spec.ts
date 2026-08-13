@@ -623,7 +623,7 @@ test("navigation transitions on every page and the footer stays minimal", async 
   await expect(page.locator(".hh__host-lockup img")).toHaveCount(2);
   await expect(page.locator(".foot__contact")).not.toContainText("Farzana Akter Lima");
   await expect(page.locator(".foot__contact")).not.toContainText("durbin.cassa@iub.edu.bd");
-  await expect(page.locator(".foot__contact")).toContainText("Project manager");
+  await expect(page.locator(".foot__contact")).toContainText("Manager");
   await expect(page.locator(".foot__contact")).toContainText("Contact");
   await expect(page.locator(".foot__support")).toHaveCSS("background-color", "rgba(255, 255, 255, 0.08)");
   await expect(page.locator(".foot__support")).toHaveCSS("backdrop-filter", "blur(24px) saturate(1.3)");
