@@ -581,10 +581,12 @@ const ogImage = featured[0]?.data.image.src;
       return;
     }
 
-    flowSections.forEach((section) => {
+    const syncVisibleFlowSections = () => flowSections.forEach((section) => {
       const rect = section.getBoundingClientRect();
       if (rect.top < innerHeight * 0.9 && rect.bottom > 0) section.classList.add("is-flow-in");
     });
+    syncVisibleFlowSections();
+    addEventListener("scroll", syncVisibleFlowSections, { passive: true, signal });
     document.documentElement.classList.add("home-flow-ready");
     homeFlowObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
