@@ -15,6 +15,10 @@ jobs:
   deploy:
     name: Build & Sync to Bluehost
     runs-on: ubuntu-latest
+    # Deploys wait in the "production" environment for kmbasad's approval.
+    # Its BLUEHOST_SSH_KEY is a per-repo key locked server-side by rrsync to
+    # THIS site's document root only, so the rsync destination is ":/".
+    environment: production
     timeout-minutes: 10
 
     steps:
@@ -73,4 +77,4 @@ jobs:
             --exclude '.user.ini' \
             --exclude '.ftpquota' \
             dist/ \
-            "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}:durbin.cc/"
+            "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}:/"
