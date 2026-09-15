@@ -1,12 +1,13 @@
 ---
 /* The hub's front page. A full-height ambient video opens the site; everything
-   below is quiet: about, the numbers, an exhibition preview, latest
-   dispatches, and the join band. */
+   below is quiet: about, the numbers, an exhibition preview grouped by
+   instrument, latest dispatches, and the join band. */
 import { Image } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Reveal from "../components/Reveal.astro";
 import { SITE, isFeatured, objectTypeOf } from "../data/site";
 import { getExhibits, unavailableImageIds } from "../lib/exhibits";
+import { INSTRUMENTS, PLACES, hasCapture, sourceLine, sourcesOf } from "../lib/capture-sources.mjs";
 import { getUpdates } from "../lib/updates";
 import { current, past } from "../data/durbin-volunteers";
 import { fmtDate } from "../lib/format";
@@ -24,19 +25,44 @@ const featured = [...exhibits.filter(isFeatured), ...exhibits.filter((e) => !isF
 const heroVideo = "https://videos.pexels.com/video-files/31541369/13442834_1920_1080_60fps.mp4";
 const heroPoster = "https://images.pexels.com/videos/31541369/asteroids-astonomy-astronomy-backdrop-31541369.jpeg?auto=compress&cs=tinysrgb&w=1920";
 
-// A deliberate six-object sampler for the home page exhibition section.
-const previewIds = [
-  "milky-way",
-  "bodes-and-cigar-galaxies",
-  "ngc2023",
-  "ngc2024",
-  "ngc6618",
-  "moon",
-];
+// The exhibition preview: one band per instrument, each a deliberate
+// five-object sampler (the first is the large tile), its place tags, and a
+// link to the filtered exhibition.
+const bandCopy: Record<string, { title: string; text: string; sampleIds: string[] }> = {
+  unistellar: {
+    title: "Through Unistellar telescopes",
+    text: "Imaged from across Bangladesh on Durbin's Unistellar eQuinox smart telescopes, from the hills of Bandarban to Saint Martin's Island.",
+    sampleIds: ["ngc2024", "ngc6618", "ngc7293-2", "ngc6853", "ngc-6205"],
+  },
+  itelescope: {
+    title: "Through iTelescope",
+    text: "Research-grade telescopes operated remotely from Bangladesh, at iTelescope's Utah Desert Remote Observatory in the United States.",
+    sampleIds: ["ngc2023", "orion-nebula", "ngc5457", "bodes-and-cigar-galaxies", "ngc4258"],
+  },
+  camera: {
+    title: "Through digital cameras",
+    text: "The wide sky and our nearest neighbours, captured on volunteers' own digital cameras through wide-field lenses or mounted on telescopes.",
+    sampleIds: ["milky-way", "lunar-eclipse-2025", "moon", "jupiter", "ngc2632"],
+  },
+};
 const exhibitsById = new Map(exhibits.map((exhibit) => [exhibit.id, exhibit]));
-const preview = previewIds
-  .map((id) => exhibitsById.get(id))
-  .filter((exhibit): exhibit is NonNullable<typeof exhibit> => Boolean(exhibit));
+const sources = new Map(exhibits.map((exhibit) => [exhibit.id, sourcesOf(exhibit.data)]));
+const bands = INSTRUMENTS.map((instrument) => {
+  const copy = bandCopy[instrument.slug];
+  const members = exhibits.filter((e) => hasCapture(sources.get(e.id)!, instrument.slug));
+  return {
+    ...instrument,
+    ...copy,
+    count: members.length,
+    places: PLACES.map((place) => ({
+      ...place,
+      count: members.filter((e) => hasCapture(sources.get(e.id)!, instrument.slug, place.slug)).length,
+    })).filter((place) => place.count > 0),
+    samples: copy.sampleIds
+      .map((id) => exhibitsById.get(id))
+      .filter((exhibit): exhibit is NonNullable<typeof exhibit> => Boolean(exhibit)),
+  };
+}).filter((band) => band.count > 0);
 
 const updates = (await getUpdates()).slice(0, 3);
 
@@ -81,7 +107,7 @@ const partners = [
 const ogImage = featured[0]?.data.image.src;
 ---
 
-<BaseLayout path="/" title="Durbin | Citizen of distant world" current="/" ogImage={ogImage}>
+<BaseLayout path="/" title="Durbin | Citizens of distant worlds" current="/" ogImage={ogImage}>
   <!-- ambient hero -->
   <header class="hh hero" data-hh>
     <div class="hh__stage" aria-hidden="true">
@@ -100,10 +126,10 @@ const ogImage = featured[0]?.data.image.src;
     <div class="hero__scrim"></div>
 
     <div class="wrap hero__inner">
-      <p class="section-label chip hh__eyebrow">An astronomical programme</p>
+      <p class="section-label chip hh__eyebrow">An astronomy outreach programme</p>
       <h1 class="hh__title">Durbin</h1>
       <p class="hero__lede">
-        Citizen of distant world. The cosmos through the eyes of student volunteers across
+        Citizens of distant worlds. The cosmos through the eyes of student volunteers across
         Bangladesh. A national programme of astrophotography and science communication.
       </p>
       <div class="hh__cta">
@@ -203,29 +229,68 @@ const ogImage = featured[0]?.data.image.src;
       <Reveal delay={60}><h2 class="h-display">Light carried down from the sky</h2></Reveal>
       <Reveal delay={100}>
         <p class="lede">
-          Galaxies, nebulae, star clusters, comets, planets, the full collection imaged through
-          Durbin's telescopes by its volunteers. Open any image to explore its story and capture details.
+          Galaxies, nebulae, star clusters, comets, planets, imaged by Durbin's volunteers three
+          ways: on Durbin's Unistellar telescopes across Bangladesh, remotely through iTelescope, and
+          with digital cameras. Open any image to explore its story and capture details.
         </p>
       </Reveal>
 
-      <ul class="hgrid hgrid--featured-six">
-        {preview.map((e, i) => (
-          <li>
-            <a class="plate" href={`/exhibition?object=${encodeURIComponent(e.id)}`} data-astro-reload data-reveal style={`--reveal-delay:${Math.min(i, 8) * 40}ms`}>
-              <span class="plate__media" data-image-error={unavailableImageIds.has(e.id) ? "" : undefined}>
-                <Image src={e.data.image} alt={e.data.imageAlt ?? e.data.title} widths={[300, 480, 640]} sizes="(max-width:560px) 50vw, (max-width:980px) 33vw, 270px" loading="lazy" data-fallback-image />
-                <span class="plate__fallback" aria-hidden="true">Image unavailable</span>
-              </span>
-              <span class="plate__label">
-                <span class="plate__cat">
-                  <span class="plate__type">{objectTypeOf(e)}</span>
-                </span>
-                <span class="plate__name">{e.data.title}</span>
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
+      {bands.map((band) => (
+        <div class="hsource" data-home-source={band.slug}>
+          <Reveal>
+            <div class="hsource__head">
+              <div>
+                <h3 class="hsource__title">{band.title} <em class="mono">{band.count} {band.count === 1 ? "image" : "images"}</em></h3>
+                <p class="hsource__text">{band.text}</p>
+              </div>
+              <a class="btn hsource__all" href={`/exhibition?instrument=${band.slug}`} aria-label={`All ${band.count} ${band.label} images`} data-astro-reload>All {band.count} images →</a>
+            </div>
+            <ul class="hsource__places" aria-label={`Where the ${band.label} images were taken`}>
+              {band.places.map((place) => (
+                <li>
+                  <a
+                    class="chip hsource__place"
+                    href={`/exhibition?instrument=${band.slug}&place=${place.slug}`}
+                    aria-label={`${place.label}, ${place.count} ${place.count === 1 ? "image" : "images"}`}
+                    data-astro-reload
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z" /><circle cx="12" cy="10" r="2.3" /></svg>
+                    {place.label}
+                    <span class="hsource__count">{place.count}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+
+          <ul class="hmosaic">
+            {band.samples.map((e, i) => (
+              <li class={i === 0 ? "hmosaic__lead" : undefined}>
+                <a class="plate" href={`/exhibition?object=${encodeURIComponent(e.id)}`} data-astro-reload data-reveal style={`--reveal-delay:${i * 40}ms`}>
+                  <span class="plate__media" data-image-error={unavailableImageIds.has(e.id) ? "" : undefined}>
+                    <Image
+                      src={e.data.image}
+                      alt={e.data.imageAlt ?? e.data.title}
+                      widths={i === 0 ? [480, 800, 1200] : [300, 480, 640]}
+                      sizes={i === 0 ? "(max-width:980px) 100vw, 560px" : "(max-width:980px) 50vw, 270px"}
+                      loading="lazy"
+                      data-fallback-image
+                    />
+                    <span class="plate__fallback" aria-hidden="true">Image unavailable</span>
+                  </span>
+                  <span class="plate__label">
+                    <span class="plate__cat">
+                      <span class="plate__type">{objectTypeOf(e)}</span>
+                    </span>
+                    <span class="plate__name">{e.data.title}</span>
+                    <span class="plate__where">{sourceLine(sources.get(e.id)!.slides[0])}</span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
 
       <Reveal delay={120}>
         <p class="more"><a class="btn" href="/exhibition">View the full exhibition → </a></p>
@@ -504,12 +569,41 @@ const ogImage = featured[0]?.data.image.src;
     .glance-card::before { animation: none; }
   }
 
-  /* grids + lists */
-  .hgrid { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-top: 2.4rem; }
-  .hgrid--featured-six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .hgrid > li { min-width: 0; }
-  @media (max-width: 980px) { .hgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  @media (max-width: 700px) { .hgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; } }
+  /* exhibition bands, one per instrument */
+  .hsource { margin-top: 3rem; }
+  .hsource + .hsource { padding-top: 3rem; border-top: 1px solid var(--line-soft); }
+  .hsource__head {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+    gap: 1rem 2rem;
+  }
+  .hsource__title {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.35rem 0.7rem;
+    font-family: var(--font-display); font-size: clamp(1.35rem, 2.4vw, 1.65rem); font-weight: 700;
+    line-height: 1.2; letter-spacing: -0.02em;
+  }
+  .hsource__title em { color: var(--ink-faint); font-size: 0.75rem; font-style: normal; font-weight: 500; letter-spacing: 0; }
+  .hsource__text { max-width: 62ch; margin-top: 0.5rem; color: var(--ink-soft); font-size: 0.95rem; line-height: 1.55; }
+  .hsource__all { flex: none; }
+  .hsource__places { list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.1rem; }
+  .hsource__place { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .hsource__place svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; opacity: 0.7; }
+  .hsource__count { margin-left: 0.15rem; color: var(--ink-faint); font-family: var(--font-mono); font-weight: 500; }
+  .hsource__place:hover .hsource__count { color: inherit; }
+
+  /* Five tiles: a large lead spanning two columns and rows, then four. */
+  .hmosaic { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-top: 1.4rem; }
+  .hmosaic > li { display: flex; min-width: 0; }
+  .hmosaic .plate { display: flex; flex-direction: column; width: 100%; }
+  .hmosaic__lead { grid-column: span 2; grid-row: span 2; }
+  .hmosaic__lead .plate__media { flex: 1; min-height: 0; aspect-ratio: auto; }
+  .hmosaic__lead .plate__media :global(img) { position: absolute; inset: 0; }
+  .hmosaic__lead .plate__name { font-size: 1.1rem; }
+  @media (max-width: 980px) {
+    .hmosaic { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hmosaic__lead { grid-row: auto; }
+    .hmosaic__lead .plate__media { flex: none; aspect-ratio: 16 / 10; }
+  }
+  @media (max-width: 700px) { .hmosaic { gap: 0.7rem; } }
   .ulist { list-style: none; display: flex; flex-direction: column; gap: 0.9rem; margin-top: 2.4rem; }
   .more { margin-top: 2.2rem; }
 

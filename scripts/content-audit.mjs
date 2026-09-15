@@ -3,6 +3,7 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { parse } from "yaml";
+import { INSTRUMENTS, PLACES, capturesOf, hasCapture, instrumentOf, placesOf, sourcesOf } from "../src/lib/capture-sources.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const contentRoot = path.join(root, "src/content");
@@ -72,6 +73,15 @@ for (const entry of astro) {
   if (d.categories?.some((value) => value === "Featured" || value === "Durbin")) {
     errors.push(`${entry.file}: curation values must not appear in categories`);
   }
+  capturesOf(d).forEach((capture, index) => {
+    const where = index === 0 ? "astrophoto" : `slides[${index - 1}].astrophoto`;
+    if (!instrumentOf(capture)) {
+      errors.push(`${entry.file}: ${where} has no recognised instrument (Unistellar, iTelescope, or a digital camera); extend src/lib/capture-sources.mjs`);
+    }
+    for (const text of placesOf(capture).unmatched) {
+      errors.push(`${entry.file}: ${where} location "${text}" matches no place tag; add the place to src/lib/capture-sources.mjs`);
+    }
+  });
 }
 
 for (const entry of [...news, ...events]) {
@@ -116,6 +126,25 @@ for (const entry of all) {
 }
 const duplicates = [...titles.values()].filter((entries) => entries.length > 1);
 
+const sourced = astro.map((entry) => ({ ...entry, sources: sourcesOf(entry.data) }));
+const captureName = (index) => (index === 0 ? "primary" : `slide ${index}`);
+const unlocated = astro.flatMap((entry) =>
+  capturesOf(entry.data).flatMap((capture, index) =>
+    instrumentOf(capture) !== "itelescope" && !String(capture.location ?? "").trim() ? [`- \`${entry.id}\` (${captureName(index)})`] : [],
+  ),
+);
+// iTelescope places come from the telescope number; flag recorded coordinates
+// more than a quarter degree from that facility so editors can correct them.
+const facilityDrift = astro.flatMap((entry) =>
+  capturesOf(entry.data).flatMap((capture, index) => {
+    const place = instrumentOf(capture) === "itelescope" ? placesOf(capture).places[0] : undefined;
+    if (!place?.lat || !place.lon) return [];
+    const coords = String(capture.location ?? "").match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/);
+    const near = coords && Math.abs(Number(coords[1]) - place.lat) <= 0.25 && Math.abs(Number(coords[2]) - place.lon) <= 0.25;
+    return near ? [] : [`| ${escapeCell(entry.id)} | ${captureName(index)} | ${escapeCell(capture.telescope)} | ${escapeCell(capture.location)} | ${place.label} (${place.lat}, ${place.lon}) |`];
+  }),
+);
+
 const lines = [
   "# Durbin editorial review",
   "",
@@ -142,6 +171,32 @@ const lines = [
   ...(duplicates.length
     ? duplicates.map((entries) => `- **${entries[0].data.title}**: ${entries.map((entry) => `\`${entry.collection}/${entry.id}\``).join(", ")}`)
     : ["No duplicate content titles found."]),
+  "",
+  "## Instrument and place tags",
+  "",
+  "Derived from each capture's `telescope`, `camera`, and `location` by `src/lib/capture-sources.mjs`. An entry counts once per instrument or place any of its captures used.",
+  "",
+  ...INSTRUMENTS.map((instrument) => `- **${instrument.label}**: ${sourced.filter(({ sources }) => hasCapture(sources, instrument.slug)).length} entries`),
+  "",
+  "| Place | Region | Entries |",
+  "| --- | --- | --- |",
+  ...PLACES.map((place) => `| ${place.label} | ${place.region} | ${sourced.filter(({ sources }) => hasCapture(sources, undefined, place.slug)).length} |`),
+  "",
+  "### Captures without a recorded location",
+  "",
+  ...(unlocated.length ? unlocated : ["Every non-iTelescope capture records a location."]),
+  "",
+  "### iTelescope location records that disagree with the facility",
+  "",
+  ...(facilityDrift.length
+    ? [
+        "The place tag follows the telescope number, so these captures are tagged correctly; the recorded location text is what needs checking.",
+        "",
+        "| Entry | Capture | Telescope | Recorded location | Facility |",
+        "| --- | --- | --- | --- | --- |",
+        ...facilityDrift,
+      ]
+    : ["All iTelescope location records match their facility."]),
   "",
   "## Image alternatives",
   "",

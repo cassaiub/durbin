@@ -310,6 +310,11 @@ ul, ol { margin: 0; padding: 0; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .plate:hover .plate__name { color: var(--brass-bright); }
+/* Instrument and place tags of the tile's image, "Unistellar · Pabna". */
+.plate__where {
+  font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-faint);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
 /* ---------- reveal on scroll ---------- */
 [data-reveal] {

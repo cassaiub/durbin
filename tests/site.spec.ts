@@ -324,9 +324,53 @@ test("legacy exhibition pages open the requested object in the popup", async ({ 
   await expect(page.locator("[data-exmodal-title]")).toHaveText("Horsehead Nebula");
 });
 
+test("home page groups the exhibition by instrument, with place tags that filter it", async ({ page }) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const bands = page.locator("[data-home-source]");
+  expect(await bands.evaluateAll((nodes) => nodes.map((node) => (node as HTMLElement).dataset.homeSource))).toEqual(["unistellar", "itelescope", "camera"]);
+  for (const band of ["unistellar", "itelescope", "camera"]) {
+    await expect(page.locator(`[data-home-source="${band}"] .hmosaic .plate`)).toHaveCount(5);
+  }
+  await expect(page.locator('[data-home-source="itelescope"] .hsource__place')).toHaveText([/Utah Desert Remote Observatory/]);
+  await expect(page.locator('[data-home-source="unistellar"] .hsource__place', { hasText: "Saint Martin's Island" })).toHaveCount(1);
+
+  await page.locator('[data-home-source="itelescope"] .hsource__all').click();
+  await expect(page).toHaveURL(/\/exhibition\?instrument=itelescope$/);
+  await expect(page.locator('[data-instrument="itelescope"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("[data-result-count]")).toHaveText("5");
+});
+
+test("instrument and place filters match within a single capture", async ({ page }) => {
+  await page.goto("/exhibition?instrument=camera&place=dhaka", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("[data-place-filter]")).toHaveValue("dhaka");
+  await expect(page.locator('[data-instrument="camera"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("[data-result-count]")).toHaveText("3");
+  // Jupiter's Dhaka image is a camera capture; its Unistellar slide was taken elsewhere.
+  await page.locator('[data-instrument="unistellar"]').click();
+  await expect(page.locator("[data-result-count]")).toHaveText("0");
+  await expect(page).toHaveURL(/\/exhibition\?instrument=unistellar&place=dhaka$/);
+  await page.locator("[data-clear-filters]").click();
+  await expect(page.locator("[data-result-count]")).toHaveText(String(await page.locator(".exgrid li").count()));
+  await expect(page.locator("[data-clear-filters]")).toBeHidden();
+  await expect(page).toHaveURL(/\/exhibition$/);
+});
+
+test("tags in the object viewer filter the exhibition to that tag", async ({ page }) => {
+  await page.goto("/exhibition?object=ngc2023", { waitUntil: "domcontentloaded" });
+  const dialog = page.locator("[data-exmodal]");
+  await expect(dialog).toBeVisible();
+  await expect(page.locator(".exmodal__tag")).toHaveText(["iTelescope", "Utah Desert Remote Observatory"]);
+  await page.locator('.exmodal__tag[data-kind="place"]').click();
+  await expect(dialog).not.toBeVisible();
+  await expect(page.locator("[data-place-filter]")).toHaveValue("utah-desert-remote-observatory");
+  await expect(page.locator("[data-place-filter]")).toBeFocused();
+  await expect(page.locator("[data-result-count]")).toHaveText("5");
+  await expect(page).toHaveURL(/\/exhibition\?place=utah-desert-remote-observatory$/);
+});
+
 test("home exhibition previews open the selected object viewer", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  const preview = page.locator('.hgrid--featured-six .plate[href*="object="]').first();
+  const preview = page.locator('[data-home-source] .plate[href*="object="]').first();
   const expectedTitle = (await preview.locator(".plate__name").textContent())?.trim();
 
   await preview.click();
@@ -684,7 +728,7 @@ test("navigation transitions on every page and the footer stays minimal", async 
   await expect(page.locator(".hh__eyebrow")).toHaveCSS("backdrop-filter", "blur(12px) saturate(1.6)");
   await expect(page.locator(".hh__sub")).toHaveCount(0);
   await expect(page.locator(".hero__lede")).toContainText(
-    "Citizen of distant world. The cosmos through the eyes of student volunteers",
+    "Citizens of distant worlds. The cosmos through the eyes of student volunteers",
   );
   await expect(page.locator("a.urow .urow__thumb").first()).toBeVisible();
   await expect(page.locator('.about__text a[href="/about"]')).toHaveText(/See more/);

@@ -89,6 +89,16 @@ without frontmatter edits. Conventions:
   remains the detailed scientist-supplied description. Extra
   captures of the same object go in `slides` (per-slide `astrophoto` block).
   The markdown body is the essay.
+- Instrument tags (Unistellar · iTelescope · digital cameras) and place tags
+  (a Bangladesh district, or the iTelescope facility) are **derived**, not
+  stored: `src/lib/capture-sources.mjs` reads each capture's
+  `astrophoto.telescope` / `camera` / `location`. They drive the home page's
+  three instrument bands and the exhibition's instrument/location filters
+  (`?instrument=` / `?place=`). Do not add tag fields to frontmatter. A capture
+  it cannot classify fails `check:content`, so add a new observing site or
+  instrument there. iTelescope places follow the telescope number (T05, T68 →
+  Utah Desert Remote Observatory), because the recorded coordinates are
+  unreliable.
 - Run `npm run report:editorial` after exhibition changes and commit the
   generated `reports/editorial-review.md`; `npm run check:content` fails if it
   is stale or if taxonomy/hero-alternative validation fails.

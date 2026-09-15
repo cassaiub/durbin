@@ -4,24 +4,28 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Reveal from "../components/Reveal.astro";
 import { objectTypeOf, catOrder } from "../data/site";
 import { getExhibits, physicsRows, slidesOf, unavailableImageIds } from "../lib/exhibits";
+import { INSTRUMENTS, PLACES, capturePairs, hasCapture, sourceLine, sourcesOf, tagsOf } from "../lib/capture-sources.mjs";
 
 const exhibits = await getExhibits();
 const cats = [...new Set(exhibits.map(objectTypeOf))].sort((a, b) => catOrder(a) - catOrder(b));
 const objects = exhibits.map((entry) => {
   const data = entry.data;
+  const sources = sourcesOf(data);
   return {
     entry,
+    sources,
     payload: {
       id: entry.id,
       title: data.title,
       type: objectTypeOf(entry),
       catalog: data.catalog ?? "",
       description: data.caption ?? `${data.title}, imaged by Durbin volunteers.`,
-      slides: slidesOf(entry).map((slide) => ({
+      slides: slidesOf(entry).map((slide, index) => ({
         src: slide.image.src,
         alt: slide.alt,
         credit: slide.attribution ?? "",
         capture: slide.capture,
+        tags: tagsOf(sources.slides[index]),
       })),
       physics: physicsRows(entry),
       imageAvailable: !unavailableImageIds.has(entry.id),
@@ -29,6 +33,18 @@ const objects = exhibits.map((entry) => {
     },
   };
 });
+const instrumentFilters = INSTRUMENTS.map((instrument) => ({
+  ...instrument,
+  count: objects.filter(({ sources }) => hasCapture(sources, instrument.slug)).length,
+})).filter((instrument) => instrument.count > 0);
+const placeFilters = [...new Set(PLACES.map((place) => place.region))]
+  .map((region) => ({
+    region,
+    places: PLACES.filter((place) => place.region === region)
+      .map((place) => ({ ...place, count: objects.filter(({ sources }) => hasCapture(sources, undefined, place.slug)).length }))
+      .filter((place) => place.count > 0),
+  }))
+  .filter((group) => group.places.length > 0);
 
 const lede =
   "Explore deep-sky objects imaged by Durbin volunteers. Filter the collection, search by name, and open any object without leaving the exhibition.";
@@ -58,17 +74,48 @@ const ogImage = exhibits[0]?.data.image.src;
             <button class="chip" data-filter={category} aria-pressed="false" aria-controls="exhibition-grid">{category}</button>
           ))}
         </nav>
+        <div class="exsource">
+          <nav class="exsource__instruments" aria-label="Filter by instrument">
+            <button class="chip" data-instrument="all" aria-pressed="true" aria-controls="exhibition-grid">All instruments</button>
+            {instrumentFilters.map((instrument) => (
+              <button class="chip" data-instrument={instrument.slug} aria-pressed="false" aria-controls="exhibition-grid">
+                {instrument.label}<span class="exsource__count">{instrument.count}</span>
+              </button>
+            ))}
+          </nav>
+          <label class="explace">
+            <span class="visually-hidden">Filter by location</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z" /><circle cx="12" cy="10" r="2.3" /></svg>
+            <select data-place-filter aria-controls="exhibition-grid">
+              <option value="all">All locations</option>
+              {placeFilters.map((group) => (
+                <optgroup label={group.region}>
+                  {group.places.map((place) => (
+                    <option value={place.slug}>{place.label} ({place.count})</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </label>
+        </div>
       </div>
     </div>
 
     <div class="wrap">
-      <p class="exresult mono" aria-live="polite" aria-atomic="true">
-        <span data-result-count>{exhibits.length}</span> <span data-result-label>objects shown</span>
-      </p>
+      <div class="exresult-row">
+        <p class="exresult mono" aria-live="polite" aria-atomic="true">
+          <span data-result-count>{exhibits.length}</span> <span data-result-label>objects shown</span>
+        </p>
+        <button class="exclear" type="button" hidden data-clear-filters>Clear filters</button>
+      </div>
 
       <ul class="exgrid" id="exhibition-grid">
-        {objects.map(({ entry, payload }, index) => (
-          <li data-cat={objectTypeOf(entry)} data-search={`${entry.data.title} ${entry.data.catalog ?? ""}`.toLowerCase()}>
+        {objects.map(({ entry, sources, payload }, index) => (
+          <li
+            data-cat={objectTypeOf(entry)}
+            data-captures={capturePairs(sources).join(" ")}
+            data-search={[entry.data.title, entry.data.catalog, ...sources.instruments.map((i) => i.label), ...sources.places.map((p) => p.label)].filter(Boolean).join(" ").toLowerCase()}
+          >
             <button
               class="plate explate"
               type="button"
@@ -87,6 +134,7 @@ const ogImage = exhibits[0]?.data.image.src;
               <span class="plate__label">
                 <span class="plate__cat"><span class="plate__type">{objectTypeOf(entry)}</span></span>
                 <span class="plate__name">{entry.data.title}</span>
+                <span class="plate__where">{sourceLine(sources.slides[0])}</span>
               </span>
             </button>
           </li>
@@ -131,6 +179,7 @@ const ogImage = exhibits[0]?.data.image.src;
         <h2 id="exmodal-title" data-exmodal-title></h2>
         <p class="exmodal__description" data-exmodal-description></p>
         <p class="exmodal__credit" data-exmodal-credit></p>
+        <ul class="exmodal__tags" aria-label="Tags for this image" hidden data-exmodal-tags></ul>
         <div class="exmodal__information" data-exmodal-information></div>
         <p class="exmodal__license">Durbin exhibition image, CC BY-NC-SA 4.0</p>
       </article>
@@ -195,14 +244,46 @@ const ogImage = exhibits[0]?.data.image.src;
   .exsearch__field svg { width: 18px; height: 18px; fill: none; stroke: var(--ink-faint); stroke-width: 1.6; }
   .exsearch__field input { width: 100%; border: 0; outline: 0; color: var(--ink); background: transparent; font: inherit; }
   .exsearch__field input::placeholder { color: var(--ink-faint); }
-  .exfilter {
+  .exfilter, .exsource__instruments {
     display: flex; flex-wrap: nowrap; min-width: 0; max-width: 100%; gap: 0.5rem;
     overflow-x: auto; scrollbar-width: none; overscroll-behavior-inline: contain;
     scroll-padding-inline: 0.25rem;
   }
-  .exfilter::-webkit-scrollbar { display: none; }
-  .exfilter .chip { flex: none; min-height: 42px; white-space: nowrap; }
-  .exresult { margin-top: 1rem; min-height: 1.5em; color: var(--ink-faint); font-size: 0.75rem; }
+  .exfilter::-webkit-scrollbar, .exsource__instruments::-webkit-scrollbar { display: none; }
+  .exfilter .chip, .exsource__instruments .chip { flex: none; min-height: 42px; white-space: nowrap; }
+  /* Second toolbar row: instrument chips, then the location picker. */
+  .exsource { grid-column: 1 / -1; display: flex; align-items: center; gap: 0.65rem; min-width: 0; }
+  .exsource__instruments { flex: 1 1 auto; }
+  .exsource__count { margin-left: 0.45rem; font-family: var(--font-mono); font-weight: 500; opacity: 0.7; }
+  .explace { position: relative; flex: 0 1 17rem; min-width: 9rem; }
+  .explace svg {
+    position: absolute; left: 0.8rem; top: 50%; translate: 0 -50%; width: 16px; height: 16px;
+    fill: none; stroke: var(--ink-faint); stroke-width: 1.6; pointer-events: none;
+  }
+  .explace::after {
+    content: ""; position: absolute; right: 1rem; top: 50%; width: 6px; height: 6px;
+    border-right: 1.5px solid var(--ink-faint); border-bottom: 1.5px solid var(--ink-faint);
+    translate: 0 -70%; rotate: 45deg; pointer-events: none;
+  }
+  .explace select {
+    width: 100%; min-height: 42px; padding: 0.5rem 2.2rem 0.5rem 2.2rem;
+    appearance: none; -webkit-appearance: none; color-scheme: dark; cursor: pointer;
+    border: 1px solid var(--line); border-radius: var(--radius-pill);
+    color: var(--ink-soft); background: var(--panel);
+    font: inherit; font-size: 0.8rem; font-weight: 600; text-overflow: ellipsis;
+    transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+  }
+  .explace select:hover { border-color: var(--brass-dim); color: var(--ink); }
+  .explace select:focus-visible { outline: 0; border-color: rgba(255, 255, 255, 0.3); box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.07); }
+  .explace select[data-active] { border-color: var(--brass); color: var(--ink); }
+  .exresult-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; min-height: 2.75rem; }
+  .exresult { min-height: 1.5em; color: var(--ink-faint); font-size: 0.75rem; }
+  .exclear {
+    min-height: 44px; padding-inline: 0.25rem; border: 0; background: none; color: var(--ink-soft);
+    font-family: var(--font-body); font-size: 0.8rem; font-weight: 600;
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .exclear:hover { color: var(--brass-bright); }
   .exgrid { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-top: 1.2rem; }
   .exgrid > li { min-width: 0; content-visibility: auto; contain-intrinsic-size: auto 22rem; }
   .explate { width: 100%; text-align: left; }
@@ -238,6 +319,16 @@ const ogImage = exhibits[0]?.data.image.src;
   .exmodal__details h2 { margin-top: 0.65rem; color: var(--photo-ink); font-size: clamp(2rem, 4vw, 3.35rem); line-height: 0.98; letter-spacing: -0.04em; }
   .exmodal__description { margin-top: 1.2rem; color: var(--photo-ink-soft); font-size: 0.94rem; line-height: 1.65; }
   .exmodal__credit { margin-top: 0.8rem; color: var(--brand-green-mid); font-family: var(--font-mono); font-size: 0.71rem; line-height: 1.5; }
+  .exmodal__tags { list-style: none; display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 1rem; }
+  .exmodal__tags :global(.exmodal__tag) {
+    display: inline-flex; align-items: center; min-height: 40px; padding: 0.3rem 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.16); border-radius: var(--radius-pill);
+    color: var(--photo-ink-soft); background: rgba(255, 255, 255, 0.04);
+    font-family: var(--font-body); font-size: 0.74rem; font-weight: 600;
+    transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+  }
+  .exmodal__tags :global(.exmodal__tag[data-kind="instrument"]) { color: var(--brand-green-mid); }
+  .exmodal__tags :global(.exmodal__tag:hover) { border-color: var(--brand-green-mid); color: var(--photo-ink); background: rgba(255, 255, 255, 0.08); }
   .exmodal__information { display: grid; gap: 0.75rem; margin-top: 1.6rem; }
   .exmodal__information :global(.exmodal__info) { border-top: 1px solid rgba(255, 255, 255, 0.12); padding-top: 0.8rem; }
   .exmodal__information :global(.exmodal__info h3) { color: var(--photo-ink-faint); font-family: var(--font-body); font-size: 0.68rem; font-weight: 600; letter-spacing: 0; text-transform: uppercase; }
@@ -296,7 +387,8 @@ const ogImage = exhibits[0]?.data.image.src;
 </style>
 
 <script>
-  type ObjectSlide = { src: string; alt: string; credit: string; capture: [string, string][] };
+  type ObjectTag = { kind: string; slug: string; label: string };
+  type ObjectSlide = { src: string; alt: string; credit: string; capture: [string, string][]; tags: ObjectTag[] };
   type ObjectPayload = {
     id: string;
     title: string;
@@ -375,30 +467,87 @@ const ogImage = exhibits[0]?.data.image.src;
   }
 
   const chips = Array.from(document.querySelectorAll<HTMLButtonElement>(".exfilter .chip"));
+  const instrumentChips = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-instrument]"));
+  const placeSelect = document.querySelector<HTMLSelectElement>("[data-place-filter]");
+  const clearFilters = document.querySelector<HTMLButtonElement>("[data-clear-filters]");
   const tiles = Array.from(document.querySelectorAll<HTMLElement>(".exgrid li[data-cat]"));
   const triggers = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-object-open]"));
   const search = document.querySelector<HTMLInputElement>("[data-exhibition-search]");
   const count = document.querySelector<HTMLElement>("[data-result-count]");
   const label = document.querySelector<HTMLElement>("[data-result-label]");
   let activeFilter = "all";
+  let activeInstrument = "all";
+  let activePlace = "all";
 
+  // Instrument and place match within one capture ("instrument:place" pairs),
+  // so an entry mixing instruments only matches where one capture has both.
+  const sourceMatches = (tile: HTMLElement) =>
+    (activeInstrument === "all" && activePlace === "all") ||
+    (tile.dataset.captures ?? "").split(" ").some((pair) => {
+      const [instrument, place] = pair.split(":");
+      return (activeInstrument === "all" || instrument === activeInstrument) && (activePlace === "all" || place === activePlace);
+    });
+  const filterUrl = (objectId?: string) => {
+    const params = new URLSearchParams();
+    if (objectId) params.set("object", objectId);
+    if (activeFilter !== "all") params.set("type", activeFilter);
+    if (activeInstrument !== "all") params.set("instrument", activeInstrument);
+    if (activePlace !== "all") params.set("place", activePlace);
+    const query = params.toString();
+    return `${location.pathname}${query ? `?${query}` : ""}`;
+  };
+  const syncControls = () => {
+    chips.forEach((item) => item.setAttribute("aria-pressed", String((item.dataset.filter ?? "all") === activeFilter)));
+    instrumentChips.forEach((item) => item.setAttribute("aria-pressed", String((item.dataset.instrument ?? "all") === activeInstrument)));
+    if (placeSelect) {
+      placeSelect.value = activePlace;
+      placeSelect.toggleAttribute("data-active", activePlace !== "all");
+    }
+  };
   const syncGrid = () => {
     const query = search?.value.trim().toLowerCase() ?? "";
     tiles.forEach((tile) => {
       const categoryMatches = activeFilter === "all" || tile.dataset.cat === activeFilter;
       const searchMatches = !query || tile.dataset.search?.includes(query);
-      tile.hidden = !(categoryMatches && searchMatches);
+      tile.hidden = !(categoryMatches && searchMatches && sourceMatches(tile));
     });
     const visible = tiles.filter((tile) => !tile.hidden).length;
     if (count) count.textContent = String(visible);
     if (label) label.textContent = visible === 1 ? "object shown" : "objects shown";
+    if (clearFilters) clearFilters.hidden = activeFilter === "all" && activeInstrument === "all" && activePlace === "all" && !query;
+  };
+  const applyFilters = () => {
+    syncControls();
+    syncGrid();
+    history.replaceState(null, "", filterUrl());
   };
   chips.forEach((chip) => chip.addEventListener("click", () => {
     activeFilter = chip.dataset.filter ?? "all";
-    chips.forEach((item) => item.setAttribute("aria-pressed", String(item === chip)));
-    syncGrid();
+    applyFilters();
   }));
+  instrumentChips.forEach((chip) => chip.addEventListener("click", () => {
+    activeInstrument = chip.dataset.instrument ?? "all";
+    applyFilters();
+  }));
+  placeSelect?.addEventListener("change", () => {
+    activePlace = placeSelect.value;
+    applyFilters();
+  });
   search?.addEventListener("input", syncGrid);
+  clearFilters?.addEventListener("click", () => {
+    activeFilter = activeInstrument = activePlace = "all";
+    if (search) search.value = "";
+    applyFilters();
+  });
+
+  // Filters arrive as query params from the home page and shared links.
+  const initialParams = new URLSearchParams(location.search);
+  const known = (value: string | null, options: (string | undefined)[]) => (value && options.includes(value) ? value : "all");
+  activeFilter = known(initialParams.get("type"), chips.map((chip) => chip.dataset.filter));
+  activeInstrument = known(initialParams.get("instrument"), instrumentChips.map((chip) => chip.dataset.instrument));
+  activePlace = known(initialParams.get("place"), Array.from(placeSelect?.options ?? [], (option) => option.value));
+  syncControls();
+  syncGrid();
 
   const modal = document.querySelector<HTMLDialogElement>("[data-exmodal]");
   const closeButton = modal?.querySelector<HTMLButtonElement>("[data-exmodal-close]");
@@ -416,6 +565,7 @@ const ogImage = exhibits[0]?.data.image.src;
   const credit = modal?.querySelector<HTMLElement>("[data-exmodal-credit]");
   const information = modal?.querySelector<HTMLElement>("[data-exmodal-information]");
   const dots = modal?.querySelector<HTMLElement>("[data-exmodal-dots]");
+  const tagList = modal?.querySelector<HTMLElement>("[data-exmodal-tags]");
   const status = modal?.querySelector<HTMLElement>("[data-exmodal-status]");
   let activeTrigger: HTMLButtonElement | null = null;
   let activePayload: ObjectPayload | null = null;
@@ -525,6 +675,21 @@ const ogImage = exhibits[0]?.data.image.src;
     image.alt = slide.alt;
     image.style.objectPosition = payload.imagePosition;
     credit.textContent = slide.credit;
+    if (tagList) {
+      tagList.replaceChildren(...slide.tags.map((tag) => {
+        const item = document.createElement("li");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "exmodal__tag";
+        button.dataset.kind = tag.kind;
+        button.textContent = tag.label;
+        button.setAttribute("aria-label", `Show all images tagged ${tag.label}`);
+        button.addEventListener("click", () => applyTag(tag));
+        item.append(button);
+        return item;
+      }));
+      tagList.hidden = slide.tags.length === 0;
+    }
     dots.querySelectorAll<HTMLButtonElement>("button").forEach((dot, dotIndex) => dot.setAttribute("aria-pressed", String(dotIndex === slideIndex)));
     if (information) {
       information.replaceChildren();
@@ -599,7 +764,25 @@ const ogImage = exhibits[0]?.data.image.src;
     if (!modal.open) modal.showModal();
     document.body.style.overflow = "hidden";
     closeButton?.focus();
-    if (updateHistory) history.replaceState(null, "", `${location.pathname}?object=${encodeURIComponent(activePayload.id)}`);
+    if (updateHistory) history.replaceState(null, "", filterUrl(activePayload.id));
+  };
+
+  // A tag in the viewer shows every image carrying it: close the viewer,
+  // replace the filters with that one tag, and bring the results into view.
+  const applyTag = (tag: ObjectTag) => {
+    activeFilter = "all";
+    activeInstrument = tag.kind === "instrument" ? tag.slug : "all";
+    activePlace = tag.kind === "place" ? tag.slug : "all";
+    if (search) search.value = "";
+    syncControls();
+    syncGrid();
+    activeTrigger = null;
+    modal?.close();
+    document.body.style.overflow = "";
+    const dockTop = (toolsDock?.getBoundingClientRect().top ?? 0) + scrollY;
+    scrollTo({ top: Math.max(0, dockTop - 96), behavior: "instant" });
+    const control = tag.kind === "place" ? placeSelect : instrumentChips.find((chip) => chip.dataset.instrument === tag.slug);
+    control?.focus({ preventScroll: true });
   };
 
   const stepObject = (direction: number) => {
@@ -664,7 +847,7 @@ const ogImage = exhibits[0]?.data.image.src;
     document.body.style.overflow = "";
     setMediaFullscreen(false);
     setZoom(1);
-    history.replaceState(null, "", location.pathname);
+    history.replaceState(null, "", filterUrl());
     activeTrigger?.focus();
   });
 

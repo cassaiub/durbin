@@ -149,6 +149,43 @@ There are **109** exhibition entries whose essay body is still placeholder copy.
 - **Open Cluster**: `astrophotography/ngc-2548`, `astrophotography/ngc-6494`
 - **Globular Cluster**: `astrophotography/ngc-5024`, `astrophotography/ngc-6273`, `astrophotography/ngc-6779`, `astrophotography/ngc6333`, `astrophotography/ngc6402`, `astrophotography/ngc6420-2`
 
+## Instrument and place tags
+
+Derived from each capture's `telescope`, `camera`, and `location` by `src/lib/capture-sources.mjs`. An entry counts once per instrument or place any of its captures used.
+
+- **Unistellar**: 107 entries
+- **iTelescope**: 5 entries
+- **Digital cameras**: 5 entries
+
+| Place | Region | Entries |
+| --- | --- | --- |
+| Bandarban | Bangladesh | 12 |
+| Chapai Nawabganj | Bangladesh | 3 |
+| Chattogram | Bangladesh | 7 |
+| Dhaka | Bangladesh | 3 |
+| Jessore | Bangladesh | 9 |
+| Kishoreganj | Bangladesh | 18 |
+| Noakhali | Bangladesh | 19 |
+| Pabna | Bangladesh | 36 |
+| Saint Martin's Island | Bangladesh | 29 |
+| Utah Desert Remote Observatory | iTelescope, USA | 5 |
+
+### Captures without a recorded location
+
+- `ngc1960` (primary)
+
+### iTelescope location records that disagree with the facility
+
+The place tag follows the telescope number, so these captures are tagged correctly; the recorded location text is what needs checking.
+
+| Entry | Capture | Telescope | Recorded location | Facility |
+| --- | --- | --- | --- | --- |
+| bodes-and-cigar-galaxies | primary | Celestron RASA 11" (iTelescope, T68), 279 / 620 mm | USA, Utah (39.422519, -111.714358) | Utah Desert Remote Observatory (37.7378, -113.6975) |
+| ngc2023 | primary | Celestron RASA 11" (iTelescope, T68), 279 / 620 mm | USA, Utah (39.422519, -111.714358) | Utah Desert Remote Observatory (37.7378, -113.6975) |
+| ngc2023 | slide 1 | Celestron RASA 11" (iTelescope - T68), 279 / 620 mm | USA, Utah (39.422519,-111.714358) | Utah Desert Remote Observatory (37.7378, -113.6975) |
+| ngc4258 | primary | Takahashi Epsilon 250 (iTelescope - T05), 250/ 850 mm | USA, Nevada (37.978845,-114.856567) | Utah Desert Remote Observatory (37.7378, -113.6975) |
+| orion-nebula | primary | Celestron RASA 11" (iTelescope, T68), 279 / 620 mm | USA, Utah (39.422519, -111.714358) | Utah Desert Remote Observatory (37.7378, -113.6975) |
+
 ## Image alternatives
 
 All current news and event hero images have explicit alternatives. The eight alternatives added during Phase 0 were based on direct image inspection.
