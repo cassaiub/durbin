@@ -19,7 +19,7 @@ export type UpdateItem = {
 export const getUpdates = async (): Promise<UpdateItem[]> => {
   const news: UpdateItem[] = (await getCollection("news", ({ data }) => inUpdatesFeed(data))).map((p) => ({
     kind: "news",
-    path: `/news/${p.id}`,
+    path: p.data.href ?? `/news/${p.id}`, // a feature page stands in for the post
     date: p.data.date,
     title: p.data.title,
     summary: p.data.summary,

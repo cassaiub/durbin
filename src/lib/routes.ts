@@ -18,9 +18,9 @@ export const exhibitPaths = async () => {
   }));
 };
 
-/** News detail paths. */
+/** News detail paths (a post whose `href` names a feature page has none). */
 export const newsPaths = async () => {
-  const posts = await getCollection("news", ({ data }) => inUpdatesFeed(data));
+  const posts = await getCollection("news", ({ data }) => inUpdatesFeed(data) && !data.href);
   return posts.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
 };
 

@@ -52,7 +52,7 @@ const newsHeroPoster = "/videos/pixabay-news-updates-166239.png";
           <ol>
             {entries.map((post, index) => (
               <li data-news-category={post.data.category ?? "News"} data-news-featured={post.data.featured ? "" : undefined}>
-                <a href={`/news/${post.id}`} data-reveal style={`--reveal-delay:${Math.min(index, 6) * 40}ms`} class:list={["news-row", { "news-row--media": post.data.hero }] }>
+                <a href={post.data.href ?? `/news/${post.id}`} data-reveal style={`--reveal-delay:${Math.min(index, 6) * 40}ms`} class:list={["news-row", { "news-row--media": post.data.hero }] }>
                   {post.data.hero && <span class="news-row__thumb"><Image src={post.data.hero} alt={post.data.heroAlt ?? ""} width={280} height={180} loading="lazy" /></span>}
                   <span class="news-row__body">
                     <span class="news-row__meta">

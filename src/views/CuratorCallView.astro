@@ -1,0 +1,408 @@
+---
+/* The Cosmic HerStory exhibition curator call (Asad, 2026-11-01: "a public
+   page for announcing the form … an inspiring intro and the link given in an
+   immersive elegant way"). The text follows Farzana Akter Lima's call of
+   1 Nov 2026; the only route to apply is the Inside form. Static: no client
+   JS beyond the site's own reveal observer. The news entry
+   `cosmic-herstory-curator-call` points its feed rows here (`href`). */
+import { Image } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Reveal from "../components/Reveal.astro";
+import { SITE } from "../data/site";
+import pinwheel from "../content/astrophotography/ngc5457.webp";
+import orion from "../content/astrophotography/orion-nebula.webp";
+import campPhoto from "../assets/news/bdoaa-womens-camp/camp-group-photo.webp";
+import zinePhoto from "../assets/news/astrophotography-meets-zine-making/zine-making-session.webp";
+import storiesPhoto from "../assets/news/asman-jominer-golpo-1/some-moments-deserve-a-photograph.webp";
+
+// The Inside form's PUBLIC address (/forms/<category>/<slug>); the bare
+// /forms/2026-11-01-a is its admin page and sends visitors to a sign-in.
+const APPLY_URL = "https://inside.cassa.bd/forms/vacancy/2026-11-01-a";
+
+const facts = [
+  { k: "Exhibition", v: "26 November – 5 December 2026" },
+  { k: "Venue", v: "Independent University, Bangladesh" },
+  { k: "Organised by", v: "Durbin and CASSA" },
+  { k: "Honorarium", v: "BDT 20,000–30,000, negotiable" },
+  { k: "Applications", v: "Rolling; the call closes once a curator is selected" },
+  { k: "Start", v: "Immediately upon selection" },
+];
+
+const duties = [
+  "Developing a cohesive curatorial concept and narrative for the exhibition.",
+  "Advising on the selection, arrangement and presentation of exhibition materials.",
+  "Supporting the layout and spatial planning of the exhibition.",
+  "Ensuring that the scientific and historical content is presented in an engaging, accessible and visually coherent manner.",
+  "Collaborating with the project team, designers and other contributors throughout the preparation process.",
+  "Providing guidance during the installation and final presentation of the exhibition.",
+];
+
+const backgrounds = [
+  { t: "Exhibition curation", d: "and exhibition design" },
+  { t: "Fine and visual arts", d: "architecture or spatial design" },
+  { t: "Museums and galleries", d: "or cultural project management" },
+  { t: "Visual storytelling", d: "science communication or interdisciplinary creative projects" },
+];
+
+const stories = [
+  { href: "/news/bdoaa-womens-camp", img: campPhoto, alt: "Participants of the BDOAA Women's Astronomy Olympiad Preparation Camp with an instructor", title: "Two Days, One Sky", note: "The Women's Astronomy Olympiad Prep Camp, July 2026" },
+  { href: "/news/astrophotography-meets-zine-making", img: zinePhoto, alt: "Workshop participants folding paper into zines", title: "When Astrophotography Met Zine Making", note: "With the HerStory Foundation, July 2026" },
+  { href: "/news/asman-jominer-golpo-1", img: storiesPhoto, alt: "Participants and Durbin volunteers on the TSC lawn at night holding framed astrophotographs", title: "Even Without Stars, the Sky Had Stories to Tell", note: "An evening of stories with Bhoirobee, July 2026" },
+];
+---
+
+<BaseLayout
+  path="/cosmic-herstory-curator"
+  title="Open Call: Exhibition Curator, Cosmic HerStory | Durbin"
+  current="/news"
+  description="Curate Cosmic HerStory, an exhibition on women in astronomy organised by Durbin and CASSA at IUB, 26 Nov – 5 Dec 2026. Rolling call: apply early."
+  ogImage={pinwheel.src}
+  parentOrganization={false}
+  jsonLd={{
+    "@context": "https://schema.org",
+    "@type": "ExhibitionEvent",
+    name: "Cosmic HerStory",
+    startDate: "2026-11-26",
+    endDate: "2026-12-05",
+    location: { "@type": "Place", name: "Independent University, Bangladesh" },
+    organizer: [
+      { "@type": "Organization", name: "Durbin", url: "https://durbin.cc" },
+      { "@type": "Organization", name: "CASSA", url: "https://cassa.bd" },
+    ],
+  }}
+>
+  <!-- hero: a galaxy from the exhibition -->
+  <header class="hero cc-hero">
+    <div class="hero__media">
+      <Image src={pinwheel} alt="" widths={[900, 1400, 2048]} sizes="100vw" loading="eager" fetchpriority="high" />
+    </div>
+    <div class="hero__scrim"></div>
+    <div class="wrap hero__inner">
+      <p class="section-label chip cc-hero__chip">Open call · Exhibition curator</p>
+      <h1 class="cc-hero__title">Curate <span>Cosmic HerStory</span></h1>
+      <p class="hero__lede cc-hero__lede">
+        An exhibition celebrating the contributions, journeys and achievements of women in astronomy,
+        at Independent University, Bangladesh, from <strong>26 November to 5 December 2026</strong>.
+        Organised by Durbin and CASSA.
+      </p>
+      <div class="cc-hero__cta">
+        <a class="btn btn--solid" href={APPLY_URL} target="_blank" rel="noopener">Apply now <span aria-hidden="true">↗</span></a>
+        <a class="btn" href="#call">Read the call <span aria-hidden="true">↓</span></a>
+      </div>
+      <p class="cc-credit mono">
+        <a href="/exhibition/ngc5457">Pinwheel Galaxy (M101) · Ashratul Zannati Purnota · Celestron RASA 11 (iTelescope T68)</a>
+      </p>
+    </div>
+  </header>
+
+  <!-- the intro -->
+  <section class="section cc-intro" id="call">
+    <div class="wrap cc-intro__grid">
+      <Reveal>
+        <p class="section-label">About the exhibition</p>
+        <h2 class="cc-h2">The stories of women, told under the same sky.</h2>
+      </Reveal>
+      <Reveal delay={80} class="cc-intro__copy">
+        <p class="cc-intro__lead">
+          Cosmic HerStory celebrates the contributions, journeys and achievements of women in astronomy.
+          Through astrophotography, visual storytelling, educational displays and interactive
+          experiences, it aims to make the stories of women accessible and inspiring to a wider audience.
+        </p>
+        <p>
+          The exhibition will bring together scientific content, creative interpretation and public
+          engagement to explore the relationship between women and the universe. Durbin and CASSA invite
+          creative and experienced individuals to give it shape, as its curator.
+        </p>
+      </Reveal>
+    </div>
+
+    <div class="wrap">
+      <Reveal delay={60}>
+        <dl class="cc-facts" aria-label="The call at a glance">
+          {facts.map((f) => (
+            <div class="cc-fact"><dt>{f.k}</dt><dd>{f.v}</dd></div>
+          ))}
+        </dl>
+      </Reveal>
+    </div>
+  </section>
+
+  <!-- the role -->
+  <section class="section section--line">
+    <div class="wrap">
+      <Reveal><p class="section-label">About the role</p></Reveal>
+      <Reveal delay={60}><h2 class="cc-h2 cc-h2--wide">Shape the exhibition, from its first idea to its opening.</h2></Reveal>
+      <Reveal delay={100}>
+        <p class="lede">
+          The selected curator will work closely with the Durbin project team to develop the exhibition's
+          overall curatorial direction and visitor experience.
+        </p>
+      </Reveal>
+      <ol class="cc-duties">
+        {duties.map((d, i) => (
+          <li data-reveal style={`--reveal-delay:${Math.min(i, 5) * 50}ms`}>
+            <span class="cc-duties__n mono">{String(i + 1).padStart(2, "0")}</span>
+            <p>{d}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- who can apply -->
+  <section class="section section--line">
+    <div class="wrap cc-who">
+      <div>
+        <Reveal><p class="section-label">Who can apply?</p></Reveal>
+        <Reveal delay={60}><h2 class="cc-h2">Curators, artists, designers and storytellers.</h2></Reveal>
+        <Reveal delay={100}>
+          <p class="lede">
+            Previous experience in curating exhibitions or developing public-facing creative projects will
+            be considered an advantage. An interest in astronomy, women's stories, science and inclusive
+            public engagement is highly encouraged.
+          </p>
+        </Reveal>
+      </div>
+      <ul class="cc-who__list">
+        {backgrounds.map((b, i) => (
+          <li data-reveal style={`--reveal-delay:${i * 60}ms`}><strong>{b.t}</strong><span>{b.d}</span></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- the project so far -->
+  <section class="section section--line">
+    <div class="wrap">
+      <Reveal><p class="section-label">Cosmic HerStory so far</p></Reveal>
+      <Reveal delay={60}>
+        <h2 class="cc-h2 cc-h2--wide">A year of women and girls under the sky.</h2>
+      </Reveal>
+      <Reveal delay={100}>
+        <p class="lede">
+          Cosmic HerStory is supported by the British Council's Women of the World (WOW) Bangladesh 2026
+          programme. A few of its moments, from Durbin's news:
+        </p>
+      </Reveal>
+      <ul class="cc-stories">
+        {stories.map((s, i) => (
+          <li>
+            <a class="plate cc-story" href={s.href} data-reveal style={`--reveal-delay:${i * 60}ms`}>
+              <span class="plate__media cc-story__media"><Image src={s.img} alt={s.alt} widths={[480, 720, 960]} sizes="(max-width:720px) 100vw, 33vw" loading="lazy" /></span>
+              <span class="plate__label">
+                <span class="plate__name cc-story__title">{s.title}</span>
+                <span class="plate__where">{s.note}</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- the call to apply: the one immersive moment -->
+  <section class="cc-apply" aria-labelledby="cc-apply-title">
+    <div class="cc-apply__media" aria-hidden="true">
+      <Image src={orion} alt="" widths={[900, 1600, 2400, 3000]} sizes="100vw" loading="lazy" />
+    </div>
+    <div class="cc-apply__scrim" aria-hidden="true"></div>
+    <div class="wrap cc-apply__inner">
+      <Reveal><p class="section-label">How to apply</p></Reveal>
+      <Reveal delay={60}>
+        <h2 id="cc-apply-title" class="cc-apply__title">Help bring the stories of women astronomers to life.</h2>
+      </Reveal>
+      <Reveal delay={110}>
+        <p class="cc-apply__text">
+          Applications are reviewed on a rolling basis: selection begins as soon as they arrive, and the call
+          closes once a suitable candidate is selected. The preparation time is short, so apply early and be
+          ready to begin immediately.
+        </p>
+      </Reveal>
+      <Reveal delay={160}>
+        <div class="cc-orbit">
+          <span class="cc-orbit__ring" aria-hidden="true"></span>
+          <a class="cc-orbit__btn" href={APPLY_URL} target="_blank" rel="noopener">
+            <span class="cc-orbit__kicker">Rolling call · open now</span>
+            <span class="cc-orbit__label">Apply to curate Cosmic HerStory <span aria-hidden="true">↗</span></span>
+          </a>
+        </div>
+      </Reveal>
+      <Reveal delay={200}>
+        <div class="cc-ready">
+          <p class="cc-ready__cap">Have ready</p>
+          <ol>
+            <li>An updated CV or professional profile (PDF)</li>
+            <li>A brief statement of interest, written in the form</li>
+            <li>A portfolio or examples of relevant previous work, if available</li>
+          </ol>
+        </div>
+      </Reveal>
+      <Reveal delay={240}>
+        <p class="cc-apply__q">
+          Queries to Durbin: <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+        </p>
+        <p class="cc-credit mono cc-credit--apply">
+          <a href="/exhibition/orion-nebula">The Orion Nebula · Md Shahadat Hossain Shahal</a>
+        </p>
+      </Reveal>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* hero */
+  .cc-hero { min-height: min(100svh, 62rem); }
+  /* The galaxy sits mid-frame; scaled from the lower-left corner it rises to the upper right, clear of the title. */
+  .cc-hero .hero__media img { object-position: 50% 50%; transform: scale(1.3); transform-origin: 0% 100%; }
+  .cc-hero__chip { display: inline-flex; min-height: 0; padding: 0.42rem 0.9rem; color: var(--photo-ink); background: rgba(0, 0, 0, 0.35); border-color: rgba(255, 255, 255, 0.16); backdrop-filter: blur(8px); }
+  .cc-hero__title {
+    margin-top: 1rem; max-width: 12ch;
+    font-size: clamp(2.9rem, 8.5vw, 6.4rem); line-height: 0.92; letter-spacing: -0.06em; text-wrap: balance;
+  }
+  .cc-hero__title span { display: block; color: var(--photo-ink-soft); }
+  .cc-hero__lede { font-size: clamp(1rem, 1.6vw, 1.15rem); }
+  .cc-hero__lede strong { color: var(--photo-ink); font-weight: 600; }
+  .cc-hero__cta { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.8rem; }
+  .cc-hero .btn:not(.btn--solid) { color: var(--photo-ink); background: rgba(0, 0, 0, 0.35); border-color: rgba(255, 255, 255, 0.16); }
+  .cc-hero .btn--solid { background: var(--photo-ink); border-color: var(--photo-ink); color: #0a0a0a; }
+  .cc-hero .btn--solid:hover { background: #fff; border-color: #fff; color: #0a0a0a; }
+  .cc-credit { margin-top: 2.2rem; font-size: 0.68rem; color: var(--photo-ink-faint); }
+  .cc-credit a:hover { color: var(--photo-ink); }
+
+  /* type */
+  .cc-h2 { margin-top: 0.8rem; font-size: clamp(2rem, 4.6vw, 3.6rem); line-height: 1; letter-spacing: -0.05em; text-wrap: balance; max-width: 16ch; }
+  .cc-h2--wide { max-width: 22ch; }
+
+  /* intro */
+  .cc-intro__grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 7vw, 6rem); align-items: end; }
+  .cc-intro__copy p { color: var(--ink-soft); line-height: 1.7; max-width: 58ch; }
+  .cc-intro__copy p + p { margin-top: 1rem; }
+  .cc-intro__lead { color: var(--ink) !important; font-size: clamp(1.08rem, 1.7vw, 1.28rem); line-height: 1.55 !important; }
+
+  .cc-facts {
+    margin-top: var(--space-section-gap);
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden;
+    background: var(--panel); box-shadow: var(--shadow-low), var(--shadow-inset);
+  }
+  .cc-fact { padding: 1.4rem 1.5rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .cc-fact:nth-child(3n) { border-right: 0; }
+  .cc-fact:nth-last-child(-n + 3) { border-bottom: 0; }
+  .cc-fact dt { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-faint); }
+  .cc-fact dd { margin-top: 0.45rem; color: var(--ink); font-weight: 600; line-height: 1.4; }
+
+  /* the role */
+  .cc-duties { list-style: none; margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-sm); }
+  .cc-duties li {
+    display: grid; align-content: start; gap: 1.4rem; min-height: 12rem;
+    padding: 1.5rem; border: 1px solid var(--line); border-radius: var(--radius-card-compact);
+    background: var(--panel); box-shadow: var(--shadow-inset);
+  }
+  .cc-duties__n { font-size: 0.75rem; color: var(--ink-faint); }
+  .cc-duties li p { color: var(--ink); line-height: 1.5; font-weight: 500; }
+
+  /* who */
+  .cc-who { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(2rem, 7vw, 6rem); align-items: center; }
+  .cc-who__list { list-style: none; border-top: 1px solid var(--line); }
+  .cc-who__list li { display: grid; gap: 0.2rem; padding: 1.15rem 0; border-bottom: 1px solid var(--line); }
+  .cc-who__list strong { font-size: clamp(1.15rem, 2vw, 1.45rem); letter-spacing: -0.03em; }
+  .cc-who__list span { color: var(--ink-soft); }
+
+  /* stories */
+  .cc-stories { list-style: none; margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-sm); }
+  .cc-story__media { aspect-ratio: 4 / 3; }
+  .cc-story__title, .cc-story .plate__where { white-space: normal; }
+
+  /* the call to apply */
+  .cc-apply {
+    --ink: var(--photo-ink); --ink-soft: var(--photo-ink-soft); --ink-faint: var(--photo-ink-faint);
+    position: relative; isolation: isolate; overflow: hidden;
+    min-height: min(110svh, 64rem); display: flex; align-items: center;
+    padding-block: clamp(6rem, 12vw, 9rem);
+    color: var(--photo-ink); background: #000; text-align: center;
+  }
+  .cc-apply .section-label { justify-content: center; color: var(--photo-ink-soft); }
+  .cc-apply__media { position: absolute; inset: -4%; z-index: -2; }
+  .cc-apply__media img { width: 100%; height: 100%; object-fit: cover; animation: cc-drift 40s ease-in-out infinite alternate; }
+  .cc-apply__scrim {
+    position: absolute; inset: 0; z-index: -1;
+    background:
+      radial-gradient(ellipse at 50% 55%, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.72) 55%, rgba(0, 0, 0, 0.92) 100%),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0.8));
+  }
+  .cc-apply__inner { width: 100%; display: grid; justify-items: center; }
+  .cc-apply__title { margin-top: 0.9rem; max-width: 18ch; font-size: clamp(2.3rem, 6vw, 4.8rem); line-height: 0.98; letter-spacing: -0.055em; text-wrap: balance; }
+  .cc-apply__text { margin: 1.4rem auto 0; max-width: 56ch; color: var(--photo-ink-soft); line-height: 1.65; }
+
+  .cc-orbit { position: relative; margin-top: clamp(2.6rem, 6vw, 4rem); display: grid; place-items: center; padding: clamp(2.2rem, 5vw, 3.2rem) clamp(1rem, 6vw, 4.5rem); }
+  /* A still, flat orbit around the button; a point of light travels it
+     (a conic mask swept by an animated custom angle; without @property
+     support the ring simply stays still). */
+  .cc-orbit__ring {
+    position: absolute; inset: 0 -14%; border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    transform: rotate(-5deg);
+    pointer-events: none;
+  }
+  .cc-orbit__ring::after {
+    content: ""; position: absolute; inset: -1px; border-radius: 50%;
+    border: 2px solid #fff;
+    -webkit-mask: conic-gradient(from var(--cc-a), transparent 0 78%, #000 98%, transparent 100%);
+    mask: conic-gradient(from var(--cc-a), transparent 0 78%, #000 98%, transparent 100%);
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
+    animation: cc-sweep 9s linear infinite;
+  }
+  .cc-orbit__btn {
+    position: relative; display: grid; gap: 0.35rem; justify-items: center;
+    padding: 1.15rem clamp(1.4rem, 4vw, 2.4rem); border-radius: var(--radius-pill);
+    background: var(--photo-ink); color: #0a0a0a;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4), 0 18px 60px rgba(255, 255, 255, 0.18), 0 0 120px rgba(160, 190, 255, 0.18);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .cc-orbit__btn:hover { transform: translateY(-2px) scale(1.015); box-shadow: 0 0 0 1px #fff, 0 22px 70px rgba(255, 255, 255, 0.28), 0 0 160px rgba(160, 190, 255, 0.28); }
+  .cc-orbit__btn:focus-visible { outline: 3px solid #fff; outline-offset: 4px; border-radius: var(--radius-pill); }
+  .cc-orbit__kicker { font-family: var(--font-mono); font-size: 0.68rem; color: #525252; }
+  .cc-orbit__label { font-size: clamp(1.02rem, 2.2vw, 1.3rem); font-weight: 700; letter-spacing: -0.02em; }
+
+  .cc-ready {
+    margin-top: clamp(2.4rem, 5vw, 3.4rem); width: min(100%, 34rem); text-align: left;
+    padding: 1.3rem 1.5rem; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: var(--radius-card-compact);
+    background: rgba(10, 10, 10, 0.55); backdrop-filter: blur(10px);
+  }
+  .cc-ready__cap { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--photo-ink-soft); }
+  .cc-ready ol { margin-top: 0.7rem; padding-left: 1.2rem; color: var(--photo-ink); display: grid; gap: 0.4rem; line-height: 1.45; }
+  .cc-apply__q { margin-top: 1.8rem; color: var(--photo-ink-soft); font-size: 0.92rem; }
+  .cc-apply__q a { color: var(--photo-ink); text-decoration: underline; text-underline-offset: 3px; }
+  .cc-credit--apply { margin-top: 1.2rem; }
+
+  @property --cc-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+  @keyframes cc-sweep { to { --cc-a: 360deg; } }
+  @keyframes cc-drift { from { transform: scale(1) translate(0, 0); } to { transform: scale(1.08) translate(-1.5%, -1%); } }
+  @media (prefers-reduced-motion: reduce) {
+    .cc-orbit__ring::after, .cc-apply__media img { animation: none; }
+    .cc-orbit__ring::after { display: none; }
+  }
+
+  /* phone */
+  @media (max-width: 900px) {
+    .cc-intro__grid, .cc-who { grid-template-columns: 1fr; align-items: start; }
+    .cc-duties, .cc-stories { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cc-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cc-fact { border-right: 1px solid var(--line) !important; border-bottom: 1px solid var(--line) !important; }
+    .cc-fact:nth-child(2n) { border-right: 0 !important; }
+    .cc-fact:nth-last-child(-n + 2) { border-bottom: 0 !important; }
+  }
+  @media (max-width: 600px) {
+    /* Portrait: the galaxy fills the upper hero and fades into the black
+       behind the title, so the title never covers it. */
+    .cc-hero .hero__media { bottom: 32%; -webkit-mask: linear-gradient(#000 72%, transparent); mask: linear-gradient(#000 72%, transparent); }
+    .cc-hero .hero__media img { object-position: 50% 50%; transform: none; }
+    .cc-duties, .cc-stories, .cc-facts { grid-template-columns: 1fr; }
+    .cc-duties li { min-height: 0; }
+    .cc-fact { border-right: 0 !important; border-bottom: 1px solid var(--line) !important; }
+    .cc-fact:last-child { border-bottom: 0 !important; }
+    .cc-orbit { padding: 2rem 0.4rem; }
+    .cc-orbit__ring { inset: 0 -6%; }
+    .cc-ready { padding: 1.1rem 1.2rem; }
+  }
+</style>
