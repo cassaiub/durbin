@@ -5,7 +5,8 @@
 import { Image } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Reveal from "../components/Reveal.astro";
-import { SITE, isFeatured, objectTypeOf } from "../data/site";
+import OpenCallBand from "../components/OpenCallBand.astro";
+import { OPEN_CALL, SITE, isFeatured, objectTypeOf } from "../data/site";
 import { getExhibits, unavailableImageIds } from "../lib/exhibits";
 import { INSTRUMENTS, PLACES, hasCapture, sourceLine, sourcesOf } from "../lib/capture-sources.mjs";
 import { getUpdates } from "../lib/updates";
@@ -126,6 +127,14 @@ const ogImage = featured[0]?.data.image.src;
     <div class="hero__scrim"></div>
 
     <div class="wrap hero__inner">
+      {OPEN_CALL && (
+        <a class="hh__call" href={OPEN_CALL.path}>
+          <span class="hh__call-dot" aria-hidden="true"></span>
+          <span class="hh__call-k">{OPEN_CALL.navLabel}</span>
+          <span class="hh__call-t">{OPEN_CALL.title}</span>
+          <span aria-hidden="true">→</span>
+        </a>
+      )}
       <p class="section-label chip hh__eyebrow">An astronomy outreach programme</p>
       <h1 class="hh__title">Durbin</h1>
       <p class="hero__lede">
@@ -167,6 +176,9 @@ const ogImage = featured[0]?.data.image.src;
       </div>
     </div>
   </header>
+
+  <!-- the open call, while one runs (OPEN_CALL in src/data/site.ts) -->
+  <OpenCallBand />
 
   <!-- about -->
   <section class="section" id="about" data-home-flow>
@@ -376,6 +388,19 @@ const ogImage = featured[0]?.data.image.src;
     margin-top: 0.8rem;
   }
   .hh .section-label { font-size: 0.95rem; }
+  /* the open-call pill above the eyebrow (OPEN_CALL) */
+  .hh__call {
+    display: inline-flex; align-items: center; gap: 0.55rem; width: fit-content; max-width: 100%;
+    margin-bottom: 0.9rem; padding: 0.5rem 0.95rem 0.5rem 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.22); border-radius: var(--radius-pill);
+    color: #fff; background: rgba(0, 0, 0, 0.38); font-size: 0.86rem; line-height: 1.2;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .hh__call:hover { border-color: #fff; background: rgba(0, 0, 0, 0.55); }
+  .hh__call-dot { flex: none; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #fff; box-shadow: 0 0 10px rgba(255, 255, 255, 0.9); }
+  .hh__call-k { font-family: var(--font-mono); font-size: 0.72rem; color: rgba(255, 255, 255, 0.72); white-space: nowrap; }
+  .hh__call-t { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hh__eyebrow {
     width: fit-content; min-height: 0; padding: 0.42rem 0.78rem;
     border: 0; border-radius: var(--radius-pill);
@@ -450,6 +475,7 @@ const ogImage = featured[0]?.data.image.src;
   .hh__partner--whitin .hh__partner-mark { max-width: 8.25rem; }
   @media (max-height: 620px) {
     .hh .hero__inner { padding-top: 5.25rem; padding-bottom: 1.25rem; }
+    .hh__call { margin-bottom: 0.5rem; padding-block: 0.38rem; }
     .hh__title { font-size: clamp(3.2rem, 16vw, 4.25rem); }
     .hh .section-label { font-size: 0.9rem; }
     .hh .hero__lede { margin-top: 0.75rem; font-size: 1rem; line-height: 1.4; }

@@ -1,0 +1,100 @@
+---
+/* The home page's open-call band: a full-bleed photograph with the call's
+   title, one line and its two actions. Renders nothing when OPEN_CALL is
+   null (src/data/site.ts). It stays a dark photo surface in both themes. */
+import { Image } from "astro:assets";
+import Reveal from "./Reveal.astro";
+import { OPEN_CALL } from "../data/site";
+import pinwheel from "../content/astrophotography/ngc5457.webp";
+---
+
+{OPEN_CALL && (
+  <section class="ocb" aria-labelledby="ocb-title">
+    <div class="ocb__media" aria-hidden="true">
+      <Image src={pinwheel} alt="" widths={[720, 1200, 2048]} sizes="100vw" loading="lazy" />
+    </div>
+    <div class="ocb__scrim" aria-hidden="true"></div>
+    <div class="wrap ocb__inner">
+      <Reveal>
+        <p class="ocb__kicker"><span class="ocb__dot" aria-hidden="true"></span>{OPEN_CALL.kicker}</p>
+      </Reveal>
+      <Reveal delay={60}>
+        <h2 class="ocb__title" id="ocb-title">{OPEN_CALL.title}</h2>
+      </Reveal>
+      <Reveal delay={110}>
+        <p class="ocb__line">{OPEN_CALL.line}</p>
+      </Reveal>
+      <Reveal delay={160}>
+        <div class="ocb__cta">
+          <a class="btn btn--solid" href={OPEN_CALL.path}>Read the call <span aria-hidden="true">→</span></a>
+          <a class="btn" href={OPEN_CALL.applyUrl} target="_blank" rel="noopener">Apply <span aria-hidden="true">↗</span></a>
+        </div>
+      </Reveal>
+      <p class="ocb__credit mono">
+        <a href="/exhibition/ngc5457">Pinwheel Galaxy (M101) · Ashratul Zannati Purnota</a>
+      </p>
+    </div>
+  </section>
+)}
+
+<style>
+  .ocb {
+    --ink: var(--photo-ink); --ink-soft: var(--photo-ink-soft); --ink-faint: var(--photo-ink-faint);
+    position: relative; isolation: isolate; overflow: hidden;
+    display: flex; align-items: center; min-height: clamp(26rem, 62vh, 38rem);
+    padding-block: clamp(4rem, 9vw, 6.5rem);
+    color: var(--photo-ink); background: #0a0a0a;
+  }
+  .ocb__media { position: absolute; inset: 0; z-index: -2; }
+  .ocb__media img {
+    width: 100%; height: 100%; object-fit: cover;
+    /* The galaxy sits right of the text column. */
+    object-position: 50% 50%; transform: scale(1.12) translateX(14%); transform-origin: 50% 50%;
+  }
+  .ocb__scrim {
+    position: absolute; inset: 0; z-index: -1;
+    background:
+      linear-gradient(90deg, rgba(0, 0, 0, 0.94) 0%, rgba(0, 0, 0, 0.78) 34%, rgba(0, 0, 0, 0.2) 66%, rgba(0, 0, 0, 0.05) 100%),
+      linear-gradient(to bottom, #0a0a0a 0%, rgba(10, 10, 10, 0) 16%, rgba(10, 10, 10, 0) 84%, #0a0a0a 100%);
+  }
+  .ocb__inner { width: 100%; }
+  .ocb__kicker {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    padding: 0.42rem 0.9rem; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: var(--radius-pill);
+    background: rgba(0, 0, 0, 0.35); color: var(--photo-ink); font-size: 0.82rem; font-weight: 600;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .ocb__dot {
+    width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--photo-ink);
+    animation: ocb-pulse 2.4s ease-out infinite;
+  }
+  .ocb__title {
+    margin-top: 1.1rem; max-width: 11ch;
+    font-size: clamp(2.6rem, 6.4vw, 5rem); line-height: 0.95; letter-spacing: -0.055em; text-wrap: balance;
+  }
+  .ocb__line { margin-top: 1.1rem; max-width: 44ch; color: var(--photo-ink-soft); font-size: clamp(1rem, 1.5vw, 1.12rem); line-height: 1.6; }
+  .ocb__cta { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.8rem; }
+  .ocb__cta .btn:not(.btn--solid) { color: var(--photo-ink); background: rgba(0, 0, 0, 0.35); border-color: rgba(255, 255, 255, 0.22); }
+  .ocb__cta .btn:not(.btn--solid):hover { border-color: #fff; }
+  .ocb__cta .btn--solid { background: var(--photo-ink); border-color: var(--photo-ink); color: #0a0a0a; }
+  .ocb__cta .btn--solid:hover { background: #fff; border-color: #fff; color: #0a0a0a; }
+  .ocb__credit { margin-top: 2.2rem; font-size: 0.68rem; color: var(--photo-ink-faint); }
+  .ocb__credit a:hover { color: var(--photo-ink); }
+
+  @keyframes ocb-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.55); }
+    70%, 100% { box-shadow: 0 0 0 0.6rem transparent; }
+  }
+  @media (prefers-reduced-motion: reduce) { .ocb__dot { animation: none; } }
+
+  /* phone: the galaxy on its own above, the text on black below it */
+  @media (max-width: 720px) {
+    .ocb { display: block; min-height: 0; padding-block: 0 3rem; }
+    .ocb__media { position: relative; inset: auto; z-index: auto; aspect-ratio: 1 / 1; margin-bottom: -2.5rem; }
+    .ocb__media img { transform: scale(1.35); object-position: 50% 50%; }
+    .ocb__media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, #0a0a0a 0%, rgba(10, 10, 10, 0) 18%, rgba(10, 10, 10, 0) 62%, #0a0a0a 100%); }
+    .ocb__scrim { display: none; }
+    .ocb__inner { position: relative; }
+    .ocb__title { max-width: none; }
+  }
+</style>
