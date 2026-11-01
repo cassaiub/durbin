@@ -23,6 +23,10 @@ interface Props {
   author?: string;
   noindex?: boolean;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  /** false leaves CASSA out of the site's Organization data as Durbin's
+   *  parent — for a page where Durbin and CASSA act as two separate
+   *  organisations (the Cosmic HerStory curator call, Asad 2026-11-01). */
+  parentOrganization?: boolean;
 }
 const {
   path,
@@ -36,6 +40,7 @@ const {
   author,
   noindex = false,
   jsonLd,
+  parentOrganization = true,
 } = Astro.props;
 
 const url = new URL(path, SITE.url).href;
@@ -49,7 +54,9 @@ const orgSchema = {
   email: SITE.email,
   foundingDate: SITE.founded,
   sameAs: [SITE.facebook, SITE.parent.durbinPage],
-  parentOrganization: { "@type": "Organization", name: SITE.parent.name, url: SITE.parent.url },
+  ...(parentOrganization
+    ? { parentOrganization: { "@type": "Organization", name: SITE.parent.name, url: SITE.parent.url } }
+    : {}),
 };
 const pageSchemas = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 const schemas = [orgSchema, ...pageSchemas];

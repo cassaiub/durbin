@@ -22,7 +22,7 @@ const APPLY_URL = "https://inside.cassa.bd/forms/vacancy/2026-11-01-a";
 const facts = [
   { k: "Exhibition", v: "26 November – 5 December 2026" },
   { k: "Venue", v: "Independent University, Bangladesh" },
-  { k: "Organised by", v: "Durbin, CASSA, IUB" },
+  { k: "Organised by", v: "Durbin and CASSA" },
   { k: "Honorarium", v: "BDT 20,000–30,000, negotiable" },
   { k: "Applications", v: "Rolling; the call closes once a curator is selected" },
   { k: "Start", v: "Immediately upon selection" },
@@ -55,10 +55,23 @@ const stories = [
   path="/cosmic-herstory-curator"
   title="Open Call: Exhibition Curator, Cosmic HerStory | Durbin"
   current="/news"
-  description="Curate Cosmic HerStory, Durbin's exhibition celebrating women in astronomy at IUB, 26 November – 5 December 2026. Rolling call: apply early."
+  description="Curate Cosmic HerStory, an exhibition on women in astronomy organised by Durbin and CASSA at IUB, 26 Nov – 5 Dec 2026. Rolling call: apply early."
   ogImage={pinwheel.src}
+  parentOrganization={false}
+  jsonLd={{
+    "@context": "https://schema.org",
+    "@type": "ExhibitionEvent",
+    name: "Cosmic HerStory",
+    startDate: "2026-11-26",
+    endDate: "2026-12-05",
+    location: { "@type": "Place", name: "Independent University, Bangladesh" },
+    organizer: [
+      { "@type": "Organization", name: "Durbin", url: "https://durbin.cc" },
+      { "@type": "Organization", name: "CASSA", url: "https://cassa.bd" },
+    ],
+  }}
 >
-  <!-- hero: the sky over Bangladesh, from the exhibition -->
+  <!-- hero: a galaxy from the exhibition -->
   <header class="hero cc-hero">
     <div class="hero__media">
       <Image src={pinwheel} alt="" widths={[900, 1400, 2048]} sizes="100vw" loading="eager" fetchpriority="high" />
@@ -70,6 +83,7 @@ const stories = [
       <p class="hero__lede cc-hero__lede">
         An exhibition celebrating the contributions, journeys and achievements of women in astronomy,
         at Independent University, Bangladesh, from <strong>26 November to 5 December 2026</strong>.
+        Organised by Durbin and CASSA.
       </p>
       <div class="cc-hero__cta">
         <a class="btn btn--solid" href={APPLY_URL} target="_blank" rel="noopener">Apply now <span aria-hidden="true">↗</span></a>
@@ -96,8 +110,8 @@ const stories = [
         </p>
         <p>
           The exhibition will bring together scientific content, creative interpretation and public
-          engagement to explore the relationship between women and the universe. Durbin invites creative
-          and experienced individuals to give it shape, as its curator.
+          engagement to explore the relationship between women and the universe. Durbin and CASSA invite
+          creative and experienced individuals to give it shape, as its curator.
         </p>
       </Reveal>
     </div>
@@ -166,8 +180,8 @@ const stories = [
       </Reveal>
       <Reveal delay={100}>
         <p class="lede">
-          Cosmic HerStory is Durbin's project with the British Council's Women of the World (WOW)
-          Bangladesh 2026 programme. A few of its moments, from Durbin's news:
+          Cosmic HerStory is supported by the British Council's Women of the World (WOW) Bangladesh 2026
+          programme. A few of its moments, from Durbin's news:
         </p>
       </Reveal>
       <ul class="cc-stories">
@@ -225,7 +239,7 @@ const stories = [
       </Reveal>
       <Reveal delay={240}>
         <p class="cc-apply__q">
-          Queries: Durbin, CASSA, IUB · <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+          Queries to Durbin: <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
         </p>
         <p class="cc-credit mono cc-credit--apply">
           <a href="/exhibition/orion-nebula">The Orion Nebula · Md Shahadat Hossain Shahal</a>
