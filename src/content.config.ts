@@ -90,6 +90,11 @@ const news = defineCollection({
       theme: z.enum(["cosmic", "lensing", "galaxy"]).optional(),
       author: z.string().optional(),
       authorHref: z.string().optional(),
+      // A FEATURE PAGE stands in for the post: the news feed and the home
+      // page's "Latest from Durbin" link here (a site path, e.g.
+      // "/cosmic-herstory-curator"), and the entry gets no /news page of its
+      // own. First use: the Cosmic HerStory curator call (2026-11-01).
+      href: z.string().startsWith("/").optional(),
       status: z.enum(["published", "draft"]).default("published"),
     }),
 });
