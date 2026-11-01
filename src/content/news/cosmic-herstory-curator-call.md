@@ -5,8 +5,8 @@ category: "Durbin"
 durbin: true
 href: "/cosmic-herstory-curator"
 summary: "Durbin invites applications to curate Cosmic HerStory, an exhibition celebrating women in astronomy at IUB from 26 November to 5 December 2026. Rolling call: apply early."
-hero: "../astrophotography/milky-way.webp"
-heroAlt: "The Milky Way core arching over a hilltop cabin in Bandarban"
+hero: "../astrophotography/ngc5457.webp"
+heroAlt: "The Pinwheel Galaxy (M101), imaged by Ashratul Zannati Purnota"
 ---
 
 The call has its own page: [/cosmic-herstory-curator](/cosmic-herstory-curator).

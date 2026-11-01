@@ -9,7 +9,7 @@ import { Image } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Reveal from "../components/Reveal.astro";
 import { SITE } from "../data/site";
-import milkyWay from "../content/astrophotography/milky-way.webp";
+import pinwheel from "../content/astrophotography/ngc5457.webp";
 import orion from "../content/astrophotography/orion-nebula.webp";
 import campPhoto from "../assets/news/bdoaa-womens-camp/camp-group-photo.webp";
 import zinePhoto from "../assets/news/astrophotography-meets-zine-making/zine-making-session.webp";
@@ -56,12 +56,12 @@ const stories = [
   title="Open Call: Exhibition Curator, Cosmic HerStory | Durbin"
   current="/news"
   description="Curate Cosmic HerStory, Durbin's exhibition celebrating women in astronomy at IUB, 26 November – 5 December 2026. Rolling call: apply early."
-  ogImage={milkyWay.src}
+  ogImage={pinwheel.src}
 >
   <!-- hero: the sky over Bangladesh, from the exhibition -->
   <header class="hero cc-hero">
     <div class="hero__media">
-      <Image src={milkyWay} alt="" widths={[900, 1600, 2400, 3000]} sizes="100vw" loading="eager" fetchpriority="high" />
+      <Image src={pinwheel} alt="" widths={[900, 1400, 2048]} sizes="100vw" loading="eager" fetchpriority="high" />
     </div>
     <div class="hero__scrim"></div>
     <div class="wrap hero__inner">
@@ -76,7 +76,7 @@ const stories = [
         <a class="btn" href="#call">Read the call <span aria-hidden="true">↓</span></a>
       </div>
       <p class="cc-credit mono">
-        <a href="/exhibition/milky-way">The Milky Way over Bandarban · Md Shahadat Hossain Shahal</a>
+        <a href="/exhibition/ngc5457">Pinwheel Galaxy (M101) · Ashratul Zannati Purnota · Celestron RASA 11 (iTelescope T68)</a>
       </p>
     </div>
   </header>
@@ -238,7 +238,8 @@ const stories = [
 <style>
   /* hero */
   .cc-hero { min-height: min(100svh, 62rem); }
-  .cc-hero .hero__media img { object-position: 50% 40%; }
+  /* The galaxy sits mid-frame; scaled from the lower-left corner it rises to the upper right, clear of the title. */
+  .cc-hero .hero__media img { object-position: 50% 50%; transform: scale(1.3); transform-origin: 0% 100%; }
   .cc-hero__chip { display: inline-flex; min-height: 0; padding: 0.42rem 0.9rem; color: var(--photo-ink); background: rgba(0, 0, 0, 0.35); border-color: rgba(255, 255, 255, 0.16); backdrop-filter: blur(8px); }
   .cc-hero__title {
     margin-top: 1rem; max-width: 12ch;
@@ -378,6 +379,10 @@ const stories = [
     .cc-fact:nth-last-child(-n + 2) { border-bottom: 0 !important; }
   }
   @media (max-width: 600px) {
+    /* Portrait: the galaxy fills the upper hero and fades into the black
+       behind the title, so the title never covers it. */
+    .cc-hero .hero__media { bottom: 32%; -webkit-mask: linear-gradient(#000 72%, transparent); mask: linear-gradient(#000 72%, transparent); }
+    .cc-hero .hero__media img { object-position: 50% 50%; transform: none; }
     .cc-duties, .cc-stories, .cc-facts { grid-template-columns: 1fr; }
     .cc-duties li { min-height: 0; }
     .cc-fact { border-right: 0 !important; border-bottom: 1px solid var(--line) !important; }
