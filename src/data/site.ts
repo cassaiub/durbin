@@ -7,7 +7,6 @@ export const SITE = {
   facebook: "https://www.facebook.com/durbin.cassa",
   founded: "2023-03-09",
   founder: "Dr. Lamiya Mowla",
-  parent: { name: "CASSA", url: "https://cassa.bd", durbinPage: "https://cassa.bd/durbin" },
   license: {
     name: "CC BY-NC-SA 4.0",
     url: "https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en",

@@ -3,7 +3,7 @@ title: "Durbin Talk 6"
 start: "2026-02-21T19:00:00+06:00"
 end: "2026-02-21T20:00:00+06:00"
 venue: "CASSA, IUB Main Building Rooftop, Plot 16, Aftabuddin Ahmed Road, Block B, Bashundhara RA (Main Building Rooftop)"
-organizer: "Durbin, CASSA"
+organizer: "Durbin and CASSA"
 series: "outreach"
 category: "Durbin Talks"
 summary: "Black Holes Across the Universe: One Physics, Many Scales In alignment with the global theme Women and Girls in Astronomy led by the International…"
@@ -17,7 +17,7 @@ In alignment with the global theme Women and Girls in Astronomy led by the Inter
 
 Hosted at CASSA, Independent University, Bangladesh, this session continues the Durbin mission of connecting Bangladeshi students and young researchers with leading scientists from around the world.
 
-The Durbin Talk series is part of the CASSA Durbin program, designed to connect students, early-career researchers, and science enthusiasts with leading scientists working at the frontiers of knowledge. Each talk brings global research perspectives to a Bangladeshi audience, creating space for scientific dialogue, mentorship, and inspiration.
+The Durbin Talk series is part of the Durbin program, designed to connect students, early-career researchers, and science enthusiasts with leading scientists working at the frontiers of knowledge. Each talk brings global research perspectives to a Bangladeshi audience, creating space for scientific dialogue, mentorship, and inspiration.
 
 Durbin Talk 6 continues this vision by exploring one of the most extreme yet fundamentally unifying phenomena in astrophysics: black holes.
 

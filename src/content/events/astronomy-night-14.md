@@ -3,17 +3,17 @@ title: "Astronomy Night 14: How Fast is the Universe Expanding?"
 start: "2026-04-18T17:00:00+06:00"
 end: "2026-04-18T21:00:00+06:00"
 venue: "Independent University, Bangladesh, 16 Aftabuddin Ahmed Road"
-organizer: "Durbin, CASSA"
+organizer: "Durbin and CASSA"
 series: "outreach"
 category: "Astronomy Night"
-summary: "Astronomy Night 14 continues CASSA's signature two-part format: a public talk by an astronomer and astrophysicist, followed by a dual stargazing…"
+summary: "Astronomy Night 14 continues the series' signature two-part format: a public talk by an astronomer and astrophysicist, followed by a dual stargazing…"
 hero: "../../assets/events/astronomy-night-14/an14-land.webp"
 heroAlt: "Astronomy Night 14 poster featuring Dr Syed Ashraf Uddin, titled How Fast Is the Universe Expanding, scheduled for 18 April 2026 at IUB Auditorium."
 ---
 
 [RSVP Here!](https://forms.gle/HSrNZxDpc6vqWjzCA)
 
-**Astronomy Night 14** continues CASSA's signature two-part format: a public talk by an astronomer and astrophysicist, followed by a dual stargazing session, combining digital and optical observation for a complete journey from lecture hall to the night sky.
+**Astronomy Night 14** continues the series' signature two-part format: a public talk by an astronomer and astrophysicist, followed by a dual stargazing session, combining digital and optical observation for a complete journey from lecture hall to the night sky.
 
 ---
 
@@ -35,6 +35,6 @@ The **digital session** features the Unistellar Equinox telescopes that captures
 
 The **optical session** brings you back to the roots of observational astronomy with the Skywatcher 8-inch manual telescope. Here, the light that left a star or nebula travels directly to your eye, unmediated, unprocessed, and irreplaceable. It is a reminder that for all our technology, the oldest connection between a human being and the night sky remains the most intimate.
 
-Both sessions will be conducted as part of CASSA's **Durbin** public astronomy program, with trained Durbin volunteers guiding participants through the instruments and the sky, bringing their characteristic warmth and enthusiasm to every eyepiece and every screen.
+Both sessions will be run by **Durbin** and CASSA, with trained Durbin volunteers guiding participants through the instruments and the sky, bringing their characteristic warmth and enthusiasm to every eyepiece and every screen.
 
 Come for the science. Stay for the stars.

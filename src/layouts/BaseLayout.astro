@@ -7,7 +7,7 @@ import { SITE } from "../data/site";
 import durbinLogo from "../assets/brand/durbin-logo.jpg";
 
 const SITE_DESCRIPTION =
-  "Durbin is CASSA's volunteer astronomy-outreach programme, an online exhibition of deep-sky images captured by student volunteers across Bangladesh, alongside its science communication.";
+  "Durbin is a volunteer astronomy-outreach programme, an online exhibition of deep-sky images captured by student volunteers across Bangladesh, alongside its science communication.";
 
 interface Props {
   /** Path of this page, e.g. "/exhibition". */
@@ -23,10 +23,6 @@ interface Props {
   author?: string;
   noindex?: boolean;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
-  /** false leaves CASSA out of the site's Organization data as Durbin's
-   *  parent — for a page where Durbin and CASSA act as two separate
-   *  organisations (the Cosmic HerStory curator call, Asad 2026-11-01). */
-  parentOrganization?: boolean;
 }
 const {
   path,
@@ -40,7 +36,6 @@ const {
   author,
   noindex = false,
   jsonLd,
-  parentOrganization = true,
 } = Astro.props;
 
 const url = new URL(path, SITE.url).href;
@@ -53,10 +48,7 @@ const orgSchema = {
   url: SITE.url,
   email: SITE.email,
   foundingDate: SITE.founded,
-  sameAs: [SITE.facebook, SITE.parent.durbinPage],
-  ...(parentOrganization
-    ? { parentOrganization: { "@type": "Organization", name: SITE.parent.name, url: SITE.parent.url } }
-    : {}),
+  sameAs: [SITE.facebook],
 };
 const pageSchemas = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 const schemas = [orgSchema, ...pageSchemas];

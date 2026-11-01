@@ -44,7 +44,7 @@ const jsonLd = {
   startDate: d.start.toISOString(),
   ...(d.end ? { endDate: d.end.toISOString() } : {}),
   ...(d.venue ? { location: { "@type": "Place", name: d.venue } } : {}),
-  organizer: { "@type": "Organization", name: d.organizer ?? "Durbin, CASSA" },
+  organizer: { "@type": "Organization", name: d.organizer ?? "Durbin" },
 };
 ---
 

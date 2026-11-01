@@ -3,17 +3,17 @@ title: "Astronomy Night 13: Echoes of Other Worlds"
 start: "2026-04-04T18:00:00+06:00"
 end: "2026-04-04T20:00:00+06:00"
 venue: "Center for Astronomy, Space Science and Astrophysics, IUB, Plot 16, Aftab Uddin Ahmed Rd, Block B, Bashundhara RA"
-organizer: "Durbin, CASSA"
+organizer: "Durbin and CASSA"
 series: "outreach"
 category: "Astronomy Night"
-summary: "Join CASSA for a landmark evening as we celebrate our 13th Astronomy Night at Independent University, Bangladesh."
+summary: "Join Durbin and CASSA for a landmark evening as we celebrate our 13th Astronomy Night at Independent University, Bangladesh."
 hero: "../../assets/events/astronomy-night-13/an13-land-1.webp"
 heroAlt: "Artwork of a satellite with twin solar panels above Earth against a colourful nebula and star field."
 ---
 
 [RSVP Here](https://forms.gle/vbFtUz9mh2ykyPxM7)
 
-Join CASSA for a landmark evening as we celebrate our 13th Astronomy Night at Independent University, Bangladesh. This edition transcends traditional stargazing by diving deep into the most profound question in science: are we alone? Titled "**Echoes of Other Worlds**," the event bridges the gap between empirical discovery and human imagination:
+Join Durbin and CASSA for a landmark evening as we celebrate our 13th Astronomy Night at Independent University, Bangladesh. This edition transcends traditional stargazing by diving deep into the most profound question in science: are we alone? Titled "**Echoes of Other Worlds**," the event bridges the gap between empirical discovery and human imagination:
 
 ## Echoes of Other Worlds: From Apollo & Artemis to PLATO
 

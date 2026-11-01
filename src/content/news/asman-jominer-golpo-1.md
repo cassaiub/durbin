@@ -10,7 +10,7 @@ heroCaption: "Some moments deserve a photograph."
 author: "Adiba Habiba"
 ---
 
-On 14 July, volunteers of Durbin, the astronomy outreach programme of the Center for Astronomy, Space Science and Astrophysics (CASSA), set out for the TSC grounds of the University of Dhaka carrying telescopes, astrophotographs, and the hope of introducing people to the wonders of the night sky through "Asman Jominer Golpo -  Porbo 1: Telescope-e Mohakash Dekha," organised in partnership with Bhoirobee.
+On 14 July, volunteers of Durbin, the astronomy outreach programme that works with the Center for Astronomy, Space Science and Astrophysics (CASSA), set out for the TSC grounds of the University of Dhaka carrying telescopes, astrophotographs, and the hope of introducing people to the wonders of the night sky through "Asman Jominer Golpo -  Porbo 1: Telescope-e Mohakash Dekha," organised in partnership with Bhoirobee.
 
 The journey itself was anything but straightforward. After collecting the necessary equipment from CASSA, Adiba Habiba, Ayman Sheikh, Mozammel Hossain Masum, and Asmaul Husna Johana left around 5:30 p.m. Heavy traffic caused by HSC student demonstrations forced repeated detours, turning what should have been a short journey into an unexpectedly long one. By the time the team reached TSC, they were welcomed by Lima, the project's manager, fellow Durbin volunteer Tariqul, alumnus astrophotographer Shohan, and members of the Bhoirobee team. Throughout the preparations, Faisal, representing Bhoirobee, remained in close contact over the phone, helping coordinate the evening before greeting the team in person.
 
