@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import durbinLogo from "../assets/brand/durbin-logo.jpg";
+import { OPEN_CALL } from "../data/site";
 
 interface Props { current?: string }
 const { current = "" } = Astro.props;
@@ -34,11 +35,13 @@ const groups = [
   },
 ] as const;
 
-const direct = [
+const direct: { path: string; label: string; call?: boolean }[] = [
   { path: "/exhibition", label: "Exhibition" },
   { path: "/news", label: "News" },
   { path: "/events", label: "Events" },
-] as const;
+  // The open call, while one runs (OPEN_CALL in src/data/site.ts).
+  ...(OPEN_CALL ? [{ path: OPEN_CALL.path, label: OPEN_CALL.navLabel, call: true }] : []),
+];
 
 const isGroupActive = (key: string) =>
   key === "about" ? ["/about", "/manual", "/history"].includes(current) : current.startsWith(`/${key}`);
@@ -74,7 +77,7 @@ const isGroupActive = (key: string) =>
       ))}
       {direct.map((item) => (
         <a
-          class:list={["nav__link", { "is-active": current === item.path }]}
+          class:list={["nav__link", { "is-active": current === item.path, "nav__link--call": item.call }]}
           href={item.path}
           data-astro-reload={item.path === "/exhibition" ? true : undefined}
           aria-current={current === item.path ? "page" : undefined}
@@ -102,6 +105,12 @@ const isGroupActive = (key: string) =>
     <h2 class="visually-hidden" id="nav-overlay-title">Site menu</h2>
     <button class="nav__overlay-close" type="button" aria-label="Close menu" data-nav-close>&times;</button>
     <nav class="nav__mobile" aria-label="Mobile navigation">
+      {OPEN_CALL && (
+        <a class="nav__mobile-feature" href={OPEN_CALL.path}>
+          <small><span class="nav__mobile-feature-dot" aria-hidden="true"></span>{OPEN_CALL.navLabel}</small>
+          <strong>{OPEN_CALL.title} <span aria-hidden="true">→</span></strong>
+        </a>
+      )}
       {groups.map((group, index) => (
         <section class="nav__mobile-group" style={`--stagger:${index}`}>
           <p>{group.label}</p>
@@ -111,7 +120,7 @@ const isGroupActive = (key: string) =>
         </section>
       ))}
       <ul class="nav__mobile-direct" style={`--stagger:${groups.length}`}>
-        {direct.map((item) => <li><a href={item.path} data-astro-reload={item.path === "/exhibition" ? true : undefined}>{item.label}</a></li>)}
+        {direct.map((item) => <li><a class:list={{ "nav__mobile-call": item.call }} href={item.path} data-astro-reload={item.path === "/exhibition" ? true : undefined}>{item.label}</a></li>)}
       </ul>
     </nav>
   </div>
@@ -168,6 +177,14 @@ const isGroupActive = (key: string) =>
   .nav__link { display:flex; align-items:center; gap:.28rem; min-height:40px; padding:.45rem .2rem; color:var(--ink-soft); font-size:.8rem; font-weight:600; white-space:nowrap; border-bottom:1px solid transparent; }
   .nav__link svg { width:.58rem; fill:none; stroke:currentColor; stroke-width:1.5; transition:transform .2s; }
   .nav__link:hover,.nav__link.is-active { color:var(--ink); border-bottom-color:var(--brass); }
+  /* the open-call item: a small live dot before the label */
+  .nav__link--call::before,.nav__mobile-call::before { content:""; flex:none; width:.42rem; height:.42rem; margin-right:.12rem; border-radius:50%; background:var(--brand-green-mid,var(--brass)); box-shadow:0 0 8px var(--brand-green-mid,var(--brass)); }
+  .nav__mobile-call { display:flex !important; align-items:center; gap:.55rem; }
+  /* the open call also leads the mobile menu, so it is seen without scrolling */
+  .nav__mobile .nav__mobile-feature { display:grid; gap:.3rem; padding:1rem 1.1rem; border:1px solid var(--line); border-radius:var(--radius-card-compact); background:color-mix(in srgb,var(--brass) 10%,transparent); }
+  .nav__mobile-feature small { display:flex; align-items:center; gap:.5rem; color:var(--ink-soft); font-family:var(--font-mono); font-size:.72rem; font-weight:500; }
+  .nav__mobile-feature strong { font-size:1.25rem; font-weight:700; letter-spacing:-.02em; }
+  .nav__mobile-feature-dot { width:.42rem; height:.42rem; border-radius:50%; background:var(--brand-green-mid,var(--brass)); box-shadow:0 0 8px var(--brand-green-mid,var(--brass)); }
   .nav__group[data-open] .nav__link svg,.nav__group:focus-within .nav__link svg { transform:rotate(180deg); }
   .nav__dropdown {
     position:absolute; top:calc(100% + .55rem); left:50%; width:16.5rem; padding:.45rem; opacity:0; visibility:hidden; transform:translate(-50%,-.4rem);

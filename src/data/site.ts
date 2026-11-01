@@ -13,6 +13,25 @@ export const SITE = {
   },
 } as const;
 
+/* The open call featured on the home page (a band under the hero and a pill
+   in it) and in the main menu. Set to null when the call closes: all three go,
+   the call's own page stays. Cosmic HerStory curator call, Asad 2026-11-01. */
+export const OPEN_CALL: {
+  path: string;
+  applyUrl: string;
+  navLabel: string;
+  kicker: string;
+  title: string;
+  line: string;
+} | null = {
+  path: "/cosmic-herstory-curator",
+  applyUrl: "https://inside.cassa.bd/forms/vacancy/2026-11-01-a",
+  navLabel: "Open call",
+  kicker: "Open call · Rolling, apply early",
+  title: "Curate Cosmic HerStory",
+  line: "An exhibition on women in astronomy, organised by Durbin and CASSA at IUB, 26 November – 5 December 2026. We are looking for its curator.",
+};
+
 /* The primary nav, in order. */
 export const NAV = [
   { path: "/about", label: "About" },
