@@ -1,5 +1,5 @@
 ---
-title: "CASSA’s Durbin Program Receives British Council Grant"
+title: "British Council Grant for Durbin and CASSA's Cosmic HerStory"
 date: "2026-01-11T20:37:10+06:00"
 category: "Outreach"
 durbin: true
@@ -8,7 +8,7 @@ hero: "../../assets/news/british-council-bd/wow.webp"
 heroAlt: "Infographic of the Cosmic HerStory project, empowering young women in observational astronomy in Bangladesh."
 ---
 
-The Center for Astronomy, Space Science and Astrophysics (CASSA) at Independent University, Bangladesh (IUB) has been awarded a prestigious grant from the [British Council Bangladesh](http://britishcouncil.org.bd/). Funded under the WOW ([Women of the World](https://thewowfoundation.com/)) Bangladesh Chapter, this grant will support a new initiative titled **Cosmic HerStory **within CASSA’s [Durbin](https://cassa.bd/durbin/) program. The official grant agreement was signed on 22 December 2025 by Prof. M. Tamim, the Vice Chancellor of IUB, and Maarya Rehman, Deputy Director at the British Council.
+The Center for Astronomy, Space Science and Astrophysics (CASSA) at Independent University, Bangladesh (IUB) has been awarded a prestigious grant from the [British Council Bangladesh](http://britishcouncil.org.bd/). Funded under the WOW ([Women of the World](https://thewowfoundation.com/)) Bangladesh Chapter, this grant will support a new initiative titled **Cosmic HerStory **with the [Durbin](https://durbin.cc/) program. The official grant agreement was signed on 22 December 2025 by Prof. M. Tamim, the Vice Chancellor of IUB, and Maarya Rehman, Deputy Director at the British Council.
 
 The Cosmic HerStory project is an eight-month initiative running from January to August 2026, designed to bridge the gender gap in science by training young women in observational astronomy, technical astrophotography, and science storytelling. This effort specifically addresses gender-specific barriers in Bangladesh, such as safety concerns and social norms that often restrict women's access to remote, dark-sky locations required for night-time observation. By establishing safe, women-led learning spaces and camps, CASSA aims to foster scientific confidence and disrupt the cultural assumption that astronomy is a male-dominated field.
 

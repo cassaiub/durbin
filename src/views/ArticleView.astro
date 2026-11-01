@@ -22,7 +22,7 @@ const jsonLd = {
   datePublished: d.date.toISOString(),
   inLanguage: "en",
   ...(d.author ? { author: { "@type": "Person", name: d.author } } : {}),
-  publisher: { "@type": "Organization", name: "Durbin, CASSA" },
+  publisher: { "@type": "Organization", name: "Durbin", url: "https://durbin.cc" },
 };
 ---
 

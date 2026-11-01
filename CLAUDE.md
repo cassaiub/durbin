@@ -4,7 +4,7 @@ Guidance for Claude Code when working in this repo (`durbin/`, durbin-site).
 
 ## What this is
 
-The standalone hub for **Durbin**, CASSA's volunteer astronomy-outreach
+The standalone hub for **Durbin**, a volunteer astronomy-outreach
 programme, an Astro 6 static site whose centrepiece is the exhibition: all
 astrophotography by Durbin volunteers, one page per image. Deploys to
 **durbin.cc**, its own domain, so the site is at that domain's root
@@ -50,6 +50,15 @@ any URL that still advertises a level, live for 8 hours and make a good deploy
 look broken. Purge one with `curl -X PURGE <url>` (204 = done); scheme and
 `www.` variants are separate keys. Verify on the **plain** URL — a
 cache-busting query string bypasses the poisoned entry and hides the problem.
+
+## Durbin and CASSA are two separate organisations
+
+Asad, 2026-11-01: "durbin and cassa are two separate entities here". Never write
+"Durbin, CASSA", and never present Durbin as CASSA's programme or as part of CASSA
+(in prose, `organizer`, JSON-LD or alt text you write). Joint work is "organised by
+Durbin and CASSA". Places are fine ("at CASSA, IUB"), and so are the addresses
+`durbin.cassa@iub.edu.bd` and `facebook.com/durbin.cassa`. The one exception is the
+Manual's verbatim quote of the CASSA Constitution (cl. 33.1): never alter it.
 
 ## No localization layer (but content may be Bangla)
 

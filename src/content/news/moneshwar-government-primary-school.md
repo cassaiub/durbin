@@ -8,7 +8,7 @@ hero: "../../assets/news/moneshwar-government-primary-school/moneshwar-constella
 heroAlt: "Students proudly holding up their hand-drawn constellation patterns during the Durbin workshop at Moneshwar Government Primary School."
 ---
 
-The classrooms of Moneshwar Government Primary School buzzed with excitement as Durbin, the outreach initiative of CASSA (Center for Astronomy, Space Science and Astrophysics), spent a day introducing students to the wonders of the universe. With an eight-member team carrying telescopes, astrophotography, and interactive activities, the workshop transformed an ordinary school day into an unforgettable journey through space for students of classes 7 and 8.
+The classrooms of Moneshwar Government Primary School buzzed with excitement as Durbin, the volunteer astronomy-outreach initiative that works with CASSA (Center for Astronomy, Space Science and Astrophysics), spent a day introducing students to the wonders of the universe. With an eight-member team carrying telescopes, astrophotography, and interactive activities, the workshop transformed an ordinary school day into an unforgettable journey through space for students of classes 7 and 8.
 
 The program began with an introduction to CASSA and Durbin's mission of making astronomy accessible to young minds across Bangladesh. This was followed by a storytelling session that took students back through history, exploring how ancient civilizations once looked at the night sky and how Galileo Galilei changed humanity's understanding of the universe with the telescope. The session quickly turned lively as students eagerly joined the discussions, asking questions about stars, planets, and how people first began studying the sky centuries ago.
 

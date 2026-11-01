@@ -2,7 +2,7 @@
 title: "আসমান জমিনের গল্প – পর্ব–১: টেলিস্কোপে মহাকাশ দেখা"
 start: "2026-07-14T19:00:00+06:00"
 venue: "টিএসসি মাঠ, ঢাকা বিশ্ববিদ্যালয়"
-organizer: "Durbin, CASSA in partnership with Bhoirobee"
+organizer: "Durbin and CASSA, in partnership with Bhoirobee"
 series: "outreach"
 category: "Durbin"
 hideType: true
@@ -26,8 +26,8 @@ summary: "টেলিস্কোপে চোখ রেখে কাছ থে
 🕖 **সময়:** সন্ধ্যা ৭:০০টা\
 📍 **স্থান:** টিএসসি মাঠ, ঢাকা বিশ্ববিদ্যালয়
 
-আয়োজনে দূরবীন (Durbin) প্রোগ্রাম, কাসা (CASSA) in partnership with [ভৈরবী (Bhoirobee)](https://www.facebook.com/bhoirobee/)\
-টেলিস্কোপে মহাকাশ দেখাবে CASSA-র দূরবীন (Durbin) দল।\
+আয়োজনে দূরবীন (Durbin) ও কাসা (CASSA), in partnership with [ভৈরবী (Bhoirobee)](https://www.facebook.com/bhoirobee/)\
+টেলিস্কোপে মহাকাশ দেখাবে দূরবীন (Durbin) দল।\
 সহযোগিতায় ব্রিটিশ কাউন্সিল ও WOW Bangladesh।
 
 [ফেসবুক ইভেন্ট লিংক](https://www.facebook.com/share/1Dc2U4Yiux/)

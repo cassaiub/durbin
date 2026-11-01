@@ -3,10 +3,10 @@ title: "Durbin Public Evening 01"
 start: "2026-05-14T18:30:00+06:00"
 end: "2026-05-14T21:00:00+06:00"
 venue: "CASSA, IUB Main Building Rooftop, Plot 16, Aftabuddin Ahmed Road, Block B, Bashundhara RA (Main Building Rooftop)"
-organizer: "Durbin, CASSA"
+organizer: "Durbin and CASSA"
 series: "outreach"
 category: "Durbin"
-summary: "Celebrate a new chapter in stargazing with CASSA at our first-ever Durbin Public Evening, at Independent University, Bangladesh.This edition…"
+summary: "Celebrate a new chapter in stargazing with Durbin and CASSA at our first-ever Durbin Public Evening, at Independent University, Bangladesh.This edition…"
 status: "draft"
 hero: "../../assets/events/durbin-public-evening-01/WomenGirlsStoriesPoster.png"
 heroAlt: "Durbin Public Evening poster dated 14 May 2026, advertising a virtual trip to space, stargazing and VR at the CASSA office rooftop."
@@ -14,7 +14,7 @@ heroAlt: "Durbin Public Evening poster dated 14 May 2026, advertising a virtual 
 
 [RSVP Here!](https://docs.google.com/forms/d/e/1FAIpQLSdidSoEoHBwAjg2c0tz0W6OOO69bkWtELLhLKkqt1mg2LNAoA/viewform)
 
-Celebrate a new chapter in stargazing with CASSA at our first-ever Durbin Public Evening, at Independent University, Bangladesh. This edition redefines our connection to the cosmos by blending immersive VR technology with high-powered telescope observations. The event bridges the gap between digital simulation and the raw beauty of the night sky, allowing you to experience the universe’s immense scale in virtual reality before witnessing its wonders firsthand through our lenses.
+Celebrate a new chapter in stargazing with Durbin and CASSA at our first-ever Durbin Public Evening, at Independent University, Bangladesh. This edition redefines our connection to the cosmos by blending immersive VR technology with high-powered telescope observations. The event bridges the gap between digital simulation and the raw beauty of the night sky, allowing you to experience the universe’s immense scale in virtual reality before witnessing its wonders firsthand through our lenses.
 
 ## Part 1: A virtual trip to space (6:30 - 6;50 PM)
 
